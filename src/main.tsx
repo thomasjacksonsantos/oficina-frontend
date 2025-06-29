@@ -2,13 +2,15 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { NuqsAdapter } from 'nuqs/adapters/react'
+
 
 const queryClient = new QueryClient()
 
 import { routeTree } from './routeTree.gen'
 import { AuthContextProvider, type AuthContextType, useAuth } from './auth'
 
-import {  ThemeProvider } from './components/themes/theme-provider'
+import { ThemeProvider } from './components/themes/theme-provider'
 import './styles.css'
 
 // Set up a Router instance
@@ -40,16 +42,20 @@ function InnerApp() {
     )
   }
 
-  return <RouterProvider router={router} context={{ auth }} />
+  return (
+    <NuqsAdapter>
+      <RouterProvider router={router} context={{ auth }} />)
+    </NuqsAdapter>
+  )
 }
 
 function App() {
   return (
-     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <AuthContextProvider>
         <InnerApp />
       </AuthContextProvider>
-     </ThemeProvider>
+    </ThemeProvider>
   )
 }
 
@@ -60,8 +66,10 @@ if (!rootElement.innerHTML) {
   root.render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <NuqsAdapter>
+          <App />
+        </NuqsAdapter>
       </QueryClientProvider>
-    </React.StrictMode>,
+    </React.StrictMode>
   )
 }

@@ -1,175 +1,272 @@
-"use client"
-
-import React from 'react'
+import React, { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    getPaginationRowModel,
-    useReactTable,
-    SortingState,
-    ColumnFiltersState,
-    getFilteredRowModel,
-    getSortedRowModel,
-    FilterFnOption
-
-} from "@tanstack/react-table"
-
-import {
+    TableHeader,
+    TableHead,
+    TableRow,
     Table,
     TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-
-import { Button } from "./button"
+    TableCell
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { ArrowUp, Ghost } from 'lucide-react'
 import { Input } from './input'
+import { Button } from './button'
+import qs from 'qs'
+
+async function fetchUsers<TData>(url: string): Promise<DataTableData<TData>> {
+    const response = await fetch(
+        `${url}`
+    )
+    if (!response.ok) throw new Error('Erro ao buscar usuários')
+    const responseData = await response.json()
+    return {
+        items: responseData as TData[],
+        metadata: {
+            total: 100,
+            page: 2,
+            limit: 10,
+            totalPages: 10,
+            hasNextPage: true,
+            hasPreviousPage: true
+        }
+    }
+}
 
 interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[],
-    pageSize: number,
-    searchFields: string[]
-    defaultSearch: string
-    searchPlaceholder: string
+    url: string;
+    columns: ColumnDef<TData, TValue>[];
+    sortColumns?: string[];
+    defaultSortField?: string;
+    defaultSortDirection?: "asc" | "desc";
+}
+
+interface DataTableData<TData> {
+    items: TData[];
+    metadata: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    };
 }
 
 export function DataTable<TData, TValue>({
+    url,
     columns,
-    data,
-    pageSize,
-    searchFields = [],
-    defaultSearch = "",
-    searchPlaceholder = ""
+    sortColumns,
+    defaultSortField,
+    defaultSortDirection,
 }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [globalFilter, setGlobalFilter] = React.useState(defaultSearch)
+    const [page, setPage] = useState<Number>()
+    const [inputValue, setInputValue] = useState('')
+    const [q, setQ] = useState('')
+    const [limit, setLimit] = useState('')
+    const [sortField, setSortField] = useState(defaultSortField);
+    const [sortDirection, setSortDirection] = useState(defaultSortDirection);
 
-    function normalizeString(value: string, whiteSpaceReplace = "-") {
-        const alphabetSpecialChars = "àáäâãèéëêìíïîòóöôùúüûñçßÿœæŕśńṕẃǵǹḿǘẍźḧ·/_,:;";
-        const alphabetCommonChars = "aaaaaeeeeiiiioooouuuuncsyoarsnpwgnmuxzh------";
+    const { data, isLoading } = useQuery({
+        queryKey: ['users', page, q, limit, sortField, sortDirection],
+        queryFn: () => fetchUsers(`${url}?${qs.stringify(
+            { page, q, limit, sortField, sortDirection })}`)
+    })
 
-        const normalizedValue = value
-            .trim()
-            .toLowerCase()
-            .trim()
-            .replace(/ /g, whiteSpaceReplace)
-            .replace(/--/g, "-")
-            .replace(/[&/\\#,+()$~%.'":*?<>{}\[\]]/g, "")
-            .replace(new RegExp(alphabetSpecialChars.split("").join("|"), "g"), (c) =>
-                alphabetCommonChars.charAt(alphabetSpecialChars.indexOf(c))
-            );
+    const { items, metadata } = React.useMemo<DataTableData<TData>>(() => {
+        if (!data?.items) {
+            return {
+                items: [] as TData,
+                metadata: {
+                    total: 0,
+                    page: 1,
+                    limit: 10,
+                    totalPages: 0,
+                    hasNextPage: false,
+                    hasPreviousPage: false
+                }
+            };
+        }
+        return { items: data.items || [], metadata: data.metadata };
+    }, [data]);
 
-        return normalizedValue;
+    const pagesToRender = React.useMemo(() => {
+        if (!metadata) return [];
+
+        metadata.totalPages = 10
+        metadata.page = 2
+        metadata.total = 100
+
+        const maxPagesToRender = 5;
+
+        const pages = [];
+        let startIndex = metadata.page - 2;
+        let endIndex = metadata.page + 2;
+
+        if (metadata.totalPages <= maxPagesToRender) {
+            startIndex = 1;
+            endIndex = metadata.totalPages;
+        } else {
+            if (startIndex < 1) {
+                startIndex = 1;
+                endIndex = maxPagesToRender;
+            }
+
+            if (endIndex > metadata.totalPages) {
+                startIndex = metadata.totalPages - maxPagesToRender + 1;
+                endIndex = metadata.totalPages;
+            }
+        }
+
+        for (let i = startIndex; i <= endIndex; i++) {
+            pages.push(i);
+        }
+
+        return pages;
+    }, [metadata]);
+
+    function handleUpdateSort(field: string) {
+        setPage(1);
+        setSortField(field);
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     }
-
-
     const table = useReactTable({
-        data,
-        columns,
+        data: data?.items || [],
+        columns: columns as ColumnDef<unknown, any>[],
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        onSortingChange: setSorting,
-        getFilteredRowModel: getFilteredRowModel(),
-        onGlobalFilterChange: setGlobalFilter,
-        filterFns: {
-            fuzzy: (row, _, value) => {
-                const search = normalizeString(value)
-
-                const data = row.original
-                data.companyName = data.company.name
-                return searchFields.some((field) => 
-                    normalizeString(data[field].toString()).includes(search)
-                )
-            },
-        },
-        globalFilterFn: "fuzzy" as FilterFnOption<TData>,
-        state: {
-            sorting,
-            globalFilter
-        },
-        initialState: {
-            pagination: {
-                pageSize
-            },
-        },
     })
 
     return (
-        <div>
-            <div className='flex items-center py-4'>
+        <>
+            <div className='flex gap-1'>
                 <Input
-                    placeholder={searchPlaceholder}
-                    className='max-w-sm'
-                    value={globalFilter}
-                    onChange={(event) => setGlobalFilter(event.target.value)}
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder="Digite o nome do usuário"
                 />
+                <Button onClick={() => setQ(inputValue)}>
+                    Buscar
+                </Button>
             </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
+            <Table>
+                <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                            {headerGroup.headers.map((header) => {
+                                const isSortable = sortColumns?.includes(header.id);
+                                const isSorted = sortField === header.id;
+                                return (
+                                    <TableHead key={header.id}>
+                                        <div
+                                            className={cn("flex items-center gap-0.5", {
+                                                "cursor-pointer hover:text-foreground": isSortable,
+                                                "text-foreground": isSorted,
+                                            })}
+                                            onClick={
+                                                isSortable
+                                                    ? () => handleUpdateSort(header.id)
+                                                    : undefined
+                                            }
+                                        >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
                                                     header.column.columnDef.header,
                                                     header.getContext()
                                                 )}
-                                        </TableHead>
-                                    )
-                                })}
+                                            {isSorted && (
+                                                <ArrowUp
+                                                    className={cn("ml-2 h-4 w-4", {
+                                                        "rotate-180": sortDirection === "desc",
+                                                    })}
+                                                />
+                                            )}
+                                        </div>
+                                    </TableHead>
+                                );
+                            })}
+                        </TableRow>
+                    ))}
+                </TableHeader>
+                <TableBody>
+                    {!isLoading &&
+                        table.getRowModel().rows?.length > 0 &&
+                        table.getRowModel().rows.map((row) => (
+                            <TableRow
+                                key={row.id}
+                                data-state={row.getIsSelected() && "selected"}
+                            >
+                                {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
+                                    </TableCell>
+                                ))}
                             </TableRow>
                         ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Anterior
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Proxima
-                </Button>
-            </div>
-        </div>
+                    {!isLoading && table.getRowModel().rows?.length <= 0 && (
+                        <TableRow>
+                            <TableCell
+                                colSpan={columns.length}
+                                className="h-24 text-center"
+                            >
+                                Sem resultados.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                    {isLoading && (
+                        <TableRow>
+                            <TableCell
+                                colSpan={columns.length}
+                                className="h-24 text-center"
+                            >
+                                Carregando dados...
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+            {!isLoading && table.getRowModel().rows?.length > 0 && (
+                <>
+                    <footer className="w-full mt-6 flex justify-center items-center gap-10">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setPage(1)}
+                        >
+                            {'<<'}
+                        </ Button>
+
+                        {pagesToRender.map((page) => (
+                            <Button
+                                variant="ghost"
+                                onClick={() => setPage(page)}
+                                className={cn({
+                                    underline: page === metadata.page,
+                                })}
+                            >
+                                {page}
+                            </ Button>
+                        ))}
+
+                        <Button
+                            variant="ghost"
+                            onClick={() => setPage(1)}
+                        >
+                            {'>>'}
+                        </ Button>
+                    </footer>
+                    <div className='mt-4 flex justify-center'>
+                        <p className="flex text-sm font-bold">
+                            Página {1} de {10} com{" "}
+                            {metadata.total} resultados
+                        </p>
+                    </div>
+                </>
+            )
+            }
+        </>
     )
 }
