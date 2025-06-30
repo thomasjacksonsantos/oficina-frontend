@@ -43,9 +43,8 @@ function InnerApp() {
   }
 
   return (
-    <NuqsAdapter>
-      <RouterProvider router={router} context={{ auth }} />)
-    </NuqsAdapter>
+    <RouterProvider router={router} context={{ auth }} />
+    
   )
 }
 

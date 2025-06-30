@@ -14,6 +14,7 @@ import { ArrowUp, Ghost } from 'lucide-react'
 import { Input } from './input'
 import { Button } from './button'
 import qs from 'qs'
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './pagination'
 
 async function fetchUsers<TData>(url: string): Promise<DataTableData<TData>> {
     const response = await fetch(
@@ -139,17 +140,22 @@ export function DataTable<TData, TValue>({
 
     return (
         <>
-            <div className='flex gap-1'>
-                <Input
-                    value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
-                    placeholder="Digite o nome do usuário"
-                />
-                <Button onClick={() => setQ(inputValue)}>
-                    Buscar
-                </Button>
+            <div className='flex items-center justify-between'>
+                <div className='flex flex-1 justify-start gap-2'>
+                    <Input
+                        className=' w-[272px]'
+                        value={inputValue}
+                        onChange={e => setInputValue(e.target.value)}
+                        placeholder="Digite o nome do usuário"
+                    />
+                    <div className='flex gap-x-2'>
+                        <Button onClick={() => setQ(inputValue)}>
+                            Buscar
+                        </Button>
+                    </div>
+                </div>
             </div>
-            <Table>
+            <Table className='mt-6'>
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
@@ -231,32 +237,65 @@ export function DataTable<TData, TValue>({
             </Table>
             {!isLoading && table.getRowModel().rows?.length > 0 && (
                 <>
-                    <footer className="w-full mt-6 flex justify-center items-center gap-10">
-                        <Button
-                            variant="ghost"
-                            onClick={() => setPage(1)}
-                        >
-                            {'<<'}
-                        </ Button>
+                    <footer
+                        className="w-full mt-6 flex justify-center items-center"
+                    >
+                        <Pagination>
+                            <PaginationContent                                >
+                                <PaginationItem disabled={!metadata.hasPreviousPage}>
+                                    <PaginationPrevious 
+                                        href="#" 
+                                        title="Primeira"
+                                        onClick={() => setPage(1)}
+                                        defaultValue={"thomas"}
+                                    >                                        
+                                    </PaginationPrevious>
+                                </PaginationItem>
+                                <PaginationItem disabled={!metadata.hasPreviousPage}>
+                                    <PaginationPrevious
+                                        href="#"
+                                        title="Anterior"
+                                        onClick={() => setPage(page || 0 - 1)}
+                                    >                                        
+                                    </PaginationPrevious>
+                                </PaginationItem>
 
-                        {pagesToRender.map((page) => (
-                            <Button
-                                variant="ghost"
-                                onClick={() => setPage(page)}
-                                className={cn({
-                                    underline: page === metadata.page,
-                                })}
-                            >
-                                {page}
-                            </ Button>
-                        ))}
+                                {pagesToRender.map((page) => (
+                                    <PaginationItem key={page}>
+                                        <PaginationLink
+                                            href="#"
+                                            onClick={() => setPage(page)}
+                                            className={cn({
+                                                underline: page === metadata.page,
+                                            })}
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                ))}
 
-                        <Button
-                            variant="ghost"
-                            onClick={() => setPage(1)}
-                        >
-                            {'>>'}
-                        </ Button>
+                                <PaginationItem
+                                    disabled={!metadata.hasNextPage}
+                                    title='Próxima'
+                                >
+                                    <PaginationNext
+                                        title='Próxima'
+                                        href="#"
+                                        onClick={() => setPage(page || 0 + 1)}
+                                    >
+                                        Próxima
+                                    </PaginationNext>
+                                </PaginationItem>
+                                <PaginationItem disabled={!metadata.hasNextPage}>
+                                    <PaginationNext
+                                        href="#"
+                                        title="Última"
+                                        onClick={() => setPage(metadata.totalPages)}
+                                    >                                        
+                                    </PaginationNext>
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
                     </footer>
                     <div className='mt-4 flex justify-center'>
                         <p className="flex text-sm font-bold">
