@@ -36,6 +36,7 @@
     "@tanstack/start": "^1.120.20",
     "@types/lodash": "^4.17.19",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^11.4.0",
