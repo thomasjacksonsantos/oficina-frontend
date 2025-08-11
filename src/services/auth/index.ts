@@ -8,7 +8,7 @@ export function useSignUp() {
 
   return useMutation({
     mutationFn: async (params: SignUpParams) => {
-      const response = await api.post("/api/v1/onboarding", params);
+      const response = await api.post("/api/v1/onboarding/admin", params);
       return response.data;
     },
     onSuccess: () => {},
