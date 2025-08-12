@@ -13,11 +13,12 @@ import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OnboardingAdminRouteImport } from './routes/onboarding.admin'
 import { Route as AuthInvoicesRouteImport } from './routes/_auth.invoices'
 import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
 import { Route as AuthInvoicesIndexRouteImport } from './routes/_auth.invoices.index'
+import { Route as AuthUserListRouteImport } from './routes/_auth.user.list'
 import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth.invoices.$invoiceId'
-import { Route as AuthCustomerListRouteImport } from './routes/_auth.customer.list'
 
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
@@ -38,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingAdminRoute = OnboardingAdminRouteImport.update({
+  id: '/onboarding/admin',
+  path: '/onboarding/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthInvoicesRoute = AuthInvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
@@ -53,15 +59,15 @@ const AuthInvoicesIndexRoute = AuthInvoicesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthInvoicesRoute,
 } as any)
+const AuthUserListRoute = AuthUserListRouteImport.update({
+  id: '/user/list',
+  path: '/user/list',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthInvoicesInvoiceIdRoute = AuthInvoicesInvoiceIdRouteImport.update({
   id: '/$invoiceId',
   path: '/$invoiceId',
   getParentRoute: () => AuthInvoicesRoute,
-} as any)
-const AuthCustomerListRoute = AuthCustomerListRouteImport.update({
-  id: '/customer/list',
-  path: '/customer/list',
-  getParentRoute: () => AuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -70,8 +76,9 @@ export interface FileRoutesByFullPath {
   '/logout': typeof LogoutRoute
   '/dashboard': typeof AuthDashboardRoute
   '/invoices': typeof AuthInvoicesRouteWithChildren
-  '/customer/list': typeof AuthCustomerListRoute
+  '/onboarding/admin': typeof OnboardingAdminRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
+  '/user/list': typeof AuthUserListRoute
   '/invoices/': typeof AuthInvoicesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -79,8 +86,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/dashboard': typeof AuthDashboardRoute
-  '/customer/list': typeof AuthCustomerListRoute
+  '/onboarding/admin': typeof OnboardingAdminRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
+  '/user/list': typeof AuthUserListRoute
   '/invoices': typeof AuthInvoicesIndexRoute
 }
 export interface FileRoutesById {
@@ -91,8 +99,9 @@ export interface FileRoutesById {
   '/logout': typeof LogoutRoute
   '/_auth/dashboard': typeof AuthDashboardRoute
   '/_auth/invoices': typeof AuthInvoicesRouteWithChildren
-  '/_auth/customer/list': typeof AuthCustomerListRoute
+  '/onboarding/admin': typeof OnboardingAdminRoute
   '/_auth/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
+  '/_auth/user/list': typeof AuthUserListRoute
   '/_auth/invoices/': typeof AuthInvoicesIndexRoute
 }
 export interface FileRouteTypes {
@@ -103,8 +112,9 @@ export interface FileRouteTypes {
     | '/logout'
     | '/dashboard'
     | '/invoices'
-    | '/customer/list'
+    | '/onboarding/admin'
     | '/invoices/$invoiceId'
+    | '/user/list'
     | '/invoices/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -112,8 +122,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/dashboard'
-    | '/customer/list'
+    | '/onboarding/admin'
     | '/invoices/$invoiceId'
+    | '/user/list'
     | '/invoices'
   id:
     | '__root__'
@@ -123,8 +134,9 @@ export interface FileRouteTypes {
     | '/logout'
     | '/_auth/dashboard'
     | '/_auth/invoices'
-    | '/_auth/customer/list'
+    | '/onboarding/admin'
     | '/_auth/invoices/$invoiceId'
+    | '/_auth/user/list'
     | '/_auth/invoices/'
   fileRoutesById: FileRoutesById
 }
@@ -133,6 +145,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
+  OnboardingAdminRoute: typeof OnboardingAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/admin': {
+      id: '/onboarding/admin'
+      path: '/onboarding/admin'
+      fullPath: '/onboarding/admin'
+      preLoaderRoute: typeof OnboardingAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth/invoices': {
       id: '/_auth/invoices'
       path: '/invoices'
@@ -186,19 +206,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthInvoicesIndexRouteImport
       parentRoute: typeof AuthInvoicesRoute
     }
+    '/_auth/user/list': {
+      id: '/_auth/user/list'
+      path: '/user/list'
+      fullPath: '/user/list'
+      preLoaderRoute: typeof AuthUserListRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/invoices/$invoiceId': {
       id: '/_auth/invoices/$invoiceId'
       path: '/$invoiceId'
       fullPath: '/invoices/$invoiceId'
       preLoaderRoute: typeof AuthInvoicesInvoiceIdRouteImport
       parentRoute: typeof AuthInvoicesRoute
-    }
-    '/_auth/customer/list': {
-      id: '/_auth/customer/list'
-      path: '/customer/list'
-      fullPath: '/customer/list'
-      preLoaderRoute: typeof AuthCustomerListRouteImport
-      parentRoute: typeof AuthRoute
     }
   }
 }
@@ -220,13 +240,13 @@ const AuthInvoicesRouteWithChildren = AuthInvoicesRoute._addFileChildren(
 interface AuthRouteChildren {
   AuthDashboardRoute: typeof AuthDashboardRoute
   AuthInvoicesRoute: typeof AuthInvoicesRouteWithChildren
-  AuthCustomerListRoute: typeof AuthCustomerListRoute
+  AuthUserListRoute: typeof AuthUserListRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthDashboardRoute: AuthDashboardRoute,
   AuthInvoicesRoute: AuthInvoicesRouteWithChildren,
-  AuthCustomerListRoute: AuthCustomerListRoute,
+  AuthUserListRoute: AuthUserListRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -236,6 +256,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
+  OnboardingAdminRoute: OnboardingAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

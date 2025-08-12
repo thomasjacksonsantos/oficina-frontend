@@ -14,6 +14,7 @@ import {
   IconReport,
   IconSearch,
   IconSettings,
+  IconUser,
   IconUsers,
 } from "@tabler/icons-react"
 
@@ -40,13 +41,13 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Clientes",
+      url: "/user/list",
+      icon: IconUser,
     },
     {
       title: "Analytics",
@@ -150,12 +151,13 @@ const data = {
 
 import { useAuth } from '../auth'
 import { auth } from '../firebase/config'
-import { User } from "firebase/auth"
+import { User } from "lucide-react"
+import { User as UserAuth } from "firebase/auth"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   
-  const [userU, setUser] = React.useState<User | null>(auth.currentUser)
+  const [userU, setUser] = React.useState<UserAuth | null>(auth.currentUser)
   console.log('AppSidebar userU', userU)
   return (
     <Sidebar collapsible="offcanvas" {...props}>
