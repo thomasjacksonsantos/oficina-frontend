@@ -1,11 +1,19 @@
 export interface SignUpParams {
-  usuario: User;
+  nome: string;
+  tipoDocumento: "Cpf" | "Cnpj";
+  documento: string;
+  sexo: "Masculino" | "Feminino";
+  dataNascimento: string;
+  email: string;
+  senha: string;
+  confirmarSenha: string;
+  contatos: Contact[];
   loja: Store;
 }
 
 export interface User {
   nome: string;
-  tipoDocumento: "CPF" | "CNPJ";
+  tipoDocumento: "Cpf" | "Cnpj";
   documento: string;
   sexo: "Masculino" | "Feminino";
   email: string;

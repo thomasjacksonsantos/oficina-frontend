@@ -38,10 +38,10 @@ export function formatCnpj(value: string) {
   return v;
 }
 
-export function detectCpfOrCnpj(value: string): "CPF" | "CNPJ" {
+export function detectCpfOrCnpj(value: string): "Cpf" | "Cnpj" {
   const digits = value.replace(/\D/g, "");
 
-  if (digits.length === 11) return "CPF";
-  if (digits.length === 14) return "CNPJ";
-  return "CPF";
+  if (digits.length === 11) return "Cpf";
+  if (digits.length === 14) return "Cnpj";
+  return "Cpf";
 }

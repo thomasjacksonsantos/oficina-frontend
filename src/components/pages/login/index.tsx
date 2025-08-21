@@ -31,6 +31,8 @@ import {
   formatCnpj,
   formatCpfCnpj,
 } from "@/helpers/formatCpfCnpj";
+import { formatBirthDate } from "@/helpers/formatBirthDate";
+import { formatToIso } from "@/helpers/formatDate";
 
 const onlyDigits = (s: string) => s.replace(/\D/g, "");
 
@@ -67,6 +69,7 @@ const registerSchema = z
       .refine((v) => v.length === 11 || v.length === 14, {
         message: "Informe um CPF (11 dígitos) ou CNPJ (14 dígitos)",
       }),
+    rBirthDate: z.string().min(1, "Data de nascimento é obrigatória"),
     rEmail: z.string().email("E-mail inválido"),
     rPassword: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
     rconfirmPassword: z
@@ -130,6 +133,7 @@ export default function Login() {
       rName: "",
       rDocument: "",
       rEmail: "",
+      rBirthDate: "",
       rPassword: "",
       rconfirmPassword: "",
       biologicalSex: undefined,
@@ -186,20 +190,21 @@ export default function Login() {
   const handleSignUp = handleRegisterSubmit(async (values) => {
     console.log(values);
     await signUp({
-      usuario: {
-        nome: values.rName,
-        email: values.rEmail,
-        senha: values.rPassword,
-        confirmarSenha: values.rconfirmPassword,
-        sexo: values.biologicalSex,
-        tipoDocumento: detectCpfOrCnpj(values.rDocument),
-        documento: values.rDocument,
-        contatos: values.phones.map((phone) => ({
-          ddd: phone.ddd,
-          numero: phone.number,
-          tipoTelefone: phone.phoneType,
-        })),
-      },
+      nome: values.rName,
+      email: values.rEmail,
+      dataNascimento: formatToIso(values.rBirthDate),
+      senha: values.rPassword,
+
+      confirmarSenha: values.rconfirmPassword,
+      sexo: values.biologicalSex,
+      tipoDocumento: detectCpfOrCnpj(values.rDocument),
+      documento: values.rDocument,
+      contatos: values.phones.map((phone) => ({
+        ddd: phone.ddd,
+        numero: phone.number,
+        tipoTelefone: phone.phoneType,
+      })),
+
       loja: {
         nomeFantasia: values.storeName,
         razaoSocial: values.storeLegalName,
@@ -389,6 +394,28 @@ export default function Login() {
                       )}
                     />
                   </div>
+
+                  <FormField
+                    control={control}
+                    name="rBirthDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="r-birthDate">Data de nascimento</Label>
+                        <FormControl>
+                          <Input
+                            id="r-birthDate"
+                            type="text"
+                            placeholder="data de nascimento"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(formatBirthDate(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={control}
