@@ -1,17 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Link, redirect } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  /*  beforeLoad: ({ context }) => {
-    // Log for debugging
-    console.log("Checking context on index.tsx:", context); // Check if user is authenticated
-    if (context.auth.isAuthenticated) {
-      console.log("User authenticated, proceeding...");
-      throw redirect({
-        to: "/dashboard",
-      });
-    }
-  }, */
   component: HomeComponent,
 });
 
@@ -65,7 +55,7 @@ function HomeComponent() {
           </Link>
 
           <Link
-            to="/dashboard"
+            to="/service-order"
             className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             ordem de servico

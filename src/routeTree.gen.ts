@@ -10,25 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServiceOrderRouteImport } from './routes/service-order'
-import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OnboardingAdminRouteImport } from './routes/onboarding.admin'
-import { Route as AuthInvoicesRouteImport } from './routes/_auth.invoices'
-import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
-import { Route as AuthInvoicesIndexRouteImport } from './routes/_auth.invoices.index'
-import { Route as AuthUserListRouteImport } from './routes/_auth.user.list'
-import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth.invoices.$invoiceId'
 
 const ServiceOrderRoute = ServiceOrderRouteImport.update({
   id: '/service-order',
   path: '/service-order',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogoutRoute = LogoutRouteImport.update({
-  id: '/logout',
-  path: '/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -36,129 +23,40 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardingAdminRoute = OnboardingAdminRouteImport.update({
-  id: '/onboarding/admin',
-  path: '/onboarding/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthInvoicesRoute = AuthInvoicesRouteImport.update({
-  id: '/invoices',
-  path: '/invoices',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthDashboardRoute = AuthDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthInvoicesIndexRoute = AuthInvoicesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthInvoicesRoute,
-} as any)
-const AuthUserListRoute = AuthUserListRouteImport.update({
-  id: '/user/list',
-  path: '/user/list',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthInvoicesInvoiceIdRoute = AuthInvoicesInvoiceIdRouteImport.update({
-  id: '/$invoiceId',
-  path: '/$invoiceId',
-  getParentRoute: () => AuthInvoicesRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/logout': typeof LogoutRoute
   '/service-order': typeof ServiceOrderRoute
-  '/dashboard': typeof AuthDashboardRoute
-  '/invoices': typeof AuthInvoicesRouteWithChildren
-  '/onboarding/admin': typeof OnboardingAdminRoute
-  '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
-  '/user/list': typeof AuthUserListRoute
-  '/invoices/': typeof AuthInvoicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/logout': typeof LogoutRoute
   '/service-order': typeof ServiceOrderRoute
-  '/dashboard': typeof AuthDashboardRoute
-  '/onboarding/admin': typeof OnboardingAdminRoute
-  '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
-  '/user/list': typeof AuthUserListRoute
-  '/invoices': typeof AuthInvoicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
-  '/logout': typeof LogoutRoute
   '/service-order': typeof ServiceOrderRoute
-  '/_auth/dashboard': typeof AuthDashboardRoute
-  '/_auth/invoices': typeof AuthInvoicesRouteWithChildren
-  '/onboarding/admin': typeof OnboardingAdminRoute
-  '/_auth/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
-  '/_auth/user/list': typeof AuthUserListRoute
-  '/_auth/invoices/': typeof AuthInvoicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/login'
-    | '/logout'
-    | '/service-order'
-    | '/dashboard'
-    | '/invoices'
-    | '/onboarding/admin'
-    | '/invoices/$invoiceId'
-    | '/user/list'
-    | '/invoices/'
+  fullPaths: '/' | '/login' | '/service-order'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/login'
-    | '/logout'
-    | '/service-order'
-    | '/dashboard'
-    | '/onboarding/admin'
-    | '/invoices/$invoiceId'
-    | '/user/list'
-    | '/invoices'
-  id:
-    | '__root__'
-    | '/'
-    | '/_auth'
-    | '/login'
-    | '/logout'
-    | '/service-order'
-    | '/_auth/dashboard'
-    | '/_auth/invoices'
-    | '/onboarding/admin'
-    | '/_auth/invoices/$invoiceId'
-    | '/_auth/user/list'
-    | '/_auth/invoices/'
+  to: '/' | '/login' | '/service-order'
+  id: '__root__' | '/' | '/login' | '/service-order'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
-  LogoutRoute: typeof LogoutRoute
   ServiceOrderRoute: typeof ServiceOrderRoute
-  OnboardingAdminRoute: typeof OnboardingAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -170,25 +68,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiceOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/logout': {
-      id: '/logout'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof LogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -198,86 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/onboarding/admin': {
-      id: '/onboarding/admin'
-      path: '/onboarding/admin'
-      fullPath: '/onboarding/admin'
-      preLoaderRoute: typeof OnboardingAdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_auth/invoices': {
-      id: '/_auth/invoices'
-      path: '/invoices'
-      fullPath: '/invoices'
-      preLoaderRoute: typeof AuthInvoicesRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/dashboard': {
-      id: '/_auth/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/invoices/': {
-      id: '/_auth/invoices/'
-      path: '/'
-      fullPath: '/invoices/'
-      preLoaderRoute: typeof AuthInvoicesIndexRouteImport
-      parentRoute: typeof AuthInvoicesRoute
-    }
-    '/_auth/user/list': {
-      id: '/_auth/user/list'
-      path: '/user/list'
-      fullPath: '/user/list'
-      preLoaderRoute: typeof AuthUserListRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/invoices/$invoiceId': {
-      id: '/_auth/invoices/$invoiceId'
-      path: '/$invoiceId'
-      fullPath: '/invoices/$invoiceId'
-      preLoaderRoute: typeof AuthInvoicesInvoiceIdRouteImport
-      parentRoute: typeof AuthInvoicesRoute
-    }
   }
 }
 
-interface AuthInvoicesRouteChildren {
-  AuthInvoicesInvoiceIdRoute: typeof AuthInvoicesInvoiceIdRoute
-  AuthInvoicesIndexRoute: typeof AuthInvoicesIndexRoute
-}
-
-const AuthInvoicesRouteChildren: AuthInvoicesRouteChildren = {
-  AuthInvoicesInvoiceIdRoute: AuthInvoicesInvoiceIdRoute,
-  AuthInvoicesIndexRoute: AuthInvoicesIndexRoute,
-}
-
-const AuthInvoicesRouteWithChildren = AuthInvoicesRoute._addFileChildren(
-  AuthInvoicesRouteChildren,
-)
-
-interface AuthRouteChildren {
-  AuthDashboardRoute: typeof AuthDashboardRoute
-  AuthInvoicesRoute: typeof AuthInvoicesRouteWithChildren
-  AuthUserListRoute: typeof AuthUserListRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthDashboardRoute: AuthDashboardRoute,
-  AuthInvoicesRoute: AuthInvoicesRouteWithChildren,
-  AuthUserListRoute: AuthUserListRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
-  LogoutRoute: LogoutRoute,
   ServiceOrderRoute: ServiceOrderRoute,
-  OnboardingAdminRoute: OnboardingAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
