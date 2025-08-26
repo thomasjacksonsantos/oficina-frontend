@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServiceOrderRouteImport } from './routes/service-order'
+import { Route as NovaOrdemServicoRouteImport } from './routes/nova-ordem-servico'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 
 const ServiceOrderRoute = ServiceOrderRouteImport.update({
   id: '/service-order',
   path: '/service-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NovaOrdemServicoRoute = NovaOrdemServicoRouteImport.update({
+  id: '/nova-ordem-servico',
+  path: '/nova-ordem-servico',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/service-order'
+  fullPaths: '/' | '/login' | '/nova-ordem-servico' | '/service-order'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/service-order'
-  id: '__root__' | '/' | '/login' | '/service-order'
+  to: '/' | '/login' | '/nova-ordem-servico' | '/service-order'
+  id: '__root__' | '/' | '/login' | '/nova-ordem-servico' | '/service-order'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
   ServiceOrderRoute: typeof ServiceOrderRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/service-order'
       fullPath: '/service-order'
       preLoaderRoute: typeof ServiceOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nova-ordem-servico': {
+      id: '/nova-ordem-servico'
+      path: '/nova-ordem-servico'
+      fullPath: '/nova-ordem-servico'
+      preLoaderRoute: typeof NovaOrdemServicoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  NovaOrdemServicoRoute: NovaOrdemServicoRoute,
   ServiceOrderRoute: ServiceOrderRoute,
 }
 export const routeTree = rootRouteImport
