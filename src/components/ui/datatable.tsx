@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ArrowUp, Ghost } from "lucide-react";
-import { Input } from "../atoms/input";
+import { Input } from "./input";
 import { Button } from "./button";
 import qs from "qs";
 import {

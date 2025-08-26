@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ServiceOrderRouteImport } from './routes/service-order'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
@@ -20,6 +21,11 @@ import { Route as AuthInvoicesIndexRouteImport } from './routes/_auth.invoices.i
 import { Route as AuthUserListRouteImport } from './routes/_auth.user.list'
 import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth.invoices.$invoiceId'
 
+const ServiceOrderRoute = ServiceOrderRouteImport.update({
+  id: '/service-order',
+  path: '/service-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
   path: '/logout',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/service-order': typeof ServiceOrderRoute
   '/dashboard': typeof AuthDashboardRoute
   '/invoices': typeof AuthInvoicesRouteWithChildren
   '/onboarding/admin': typeof OnboardingAdminRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/service-order': typeof ServiceOrderRoute
   '/dashboard': typeof AuthDashboardRoute
   '/onboarding/admin': typeof OnboardingAdminRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/service-order': typeof ServiceOrderRoute
   '/_auth/dashboard': typeof AuthDashboardRoute
   '/_auth/invoices': typeof AuthInvoicesRouteWithChildren
   '/onboarding/admin': typeof OnboardingAdminRoute
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/logout'
+    | '/service-order'
     | '/dashboard'
     | '/invoices'
     | '/onboarding/admin'
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/logout'
+    | '/service-order'
     | '/dashboard'
     | '/onboarding/admin'
     | '/invoices/$invoiceId'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/login'
     | '/logout'
+    | '/service-order'
     | '/_auth/dashboard'
     | '/_auth/invoices'
     | '/onboarding/admin'
@@ -145,11 +157,19 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
+  ServiceOrderRoute: typeof ServiceOrderRoute
   OnboardingAdminRoute: typeof OnboardingAdminRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/service-order': {
+      id: '/service-order'
+      path: '/service-order'
+      fullPath: '/service-order'
+      preLoaderRoute: typeof ServiceOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/logout': {
       id: '/logout'
       path: '/logout'
@@ -256,6 +276,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
+  ServiceOrderRoute: ServiceOrderRoute,
   OnboardingAdminRoute: OnboardingAdminRoute,
 }
 export const routeTree = rootRouteImport

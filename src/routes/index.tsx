@@ -1,20 +1,19 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Link, redirect } from "@tanstack/react-router";
 
-import { createFileRoute } from '@tanstack/react-router'
-import { Link, redirect } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/')({
-  beforeLoad: ({ context }) => {
+export const Route = createFileRoute("/")({
+  /*  beforeLoad: ({ context }) => {
     // Log for debugging
-    console.log('Checking context on index.tsx:', context) // Check if user is authenticated
+    console.log("Checking context on index.tsx:", context); // Check if user is authenticated
     if (context.auth.isAuthenticated) {
-      console.log('User authenticated, proceeding...')
+      console.log("User authenticated, proceeding...");
       throw redirect({
-        to: '/dashboard',
-      })
+        to: "/dashboard",
+      });
     }
-  },
+  }, */
   component: HomeComponent,
-})
+});
 
 function HomeComponent() {
   return (
@@ -33,8 +32,8 @@ function HomeComponent() {
           <li>Firebase Client SDK for authentication</li>
         </ul>
         <p>
-          <strong>Project Organization:</strong> Routes under <code>_auth</code>{' '}
-          are protected, while other routes are public. The{' '}
+          <strong>Project Organization:</strong> Routes under <code>_auth</code>{" "}
+          are protected, while other routes are public. The{" "}
           <code>(public)</code> folder is used purely for organization and
           doesn't affect routing.
         </p>
@@ -64,8 +63,15 @@ function HomeComponent() {
           >
             Dashboard (Protected)
           </Link>
+
+          <Link
+            to="/dashboard"
+            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            ordem de servico
+          </Link>
         </div>
       </section>
     </div>
-  )
+  );
 }
