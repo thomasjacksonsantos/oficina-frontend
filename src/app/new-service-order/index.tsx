@@ -46,6 +46,11 @@ export default function NewServiceOrderHorizontal() {
                 Fim
               </Label>
               <Input id="fim" type="datetime-local" />
+            </div>  
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="nome">Nome</Label>
+              <Textarea id="nome" placeholder="Digite suas observações aqui..." />
             </div>
 
             <div className="flex items-center gap-2">
