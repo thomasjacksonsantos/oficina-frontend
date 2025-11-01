@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import Customer from "@/app/feature/customer"; 
+import Page from "@/app/feature/customer/page"; 
 
 export const Route = createFileRoute("/admin/customer")({
   component: CustomerComponent,
@@ -7,6 +7,6 @@ export const Route = createFileRoute("/admin/customer")({
 
 function CustomerComponent() {
   return (
-      <Customer />
+      <Page />
   );
 }
