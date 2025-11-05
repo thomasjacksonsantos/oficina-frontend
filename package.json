@@ -40,7 +40,7 @@
     "@tanstack/react-router-devtools": "^1.121.34",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/router-plugin": "^1.121.37",
-    "@tanstack/start": "^1.120.20",
+    "@tanstack/start": "^1.97.3",
     "@types/assert": "^1.5.11",
     "@types/lodash": "^4.17.19",
     "assert": "^2.1.0",
