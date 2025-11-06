@@ -13,7 +13,10 @@ import { Route as ServiceOrderRouteImport } from './routes/service-order'
 import { Route as NovaOrdemServicoRouteImport } from './routes/nova-ordem-servico'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ServiceOrderIndexRouteImport } from './routes/service-order/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ServiceOrderNewRouteImport } from './routes/service-order/new'
+import { Route as ServiceOrderCustomerRouteImport } from './routes/service-order/customer'
 import { Route as AdminCustomerRouteImport } from './routes/admin/customer'
 
 const ServiceOrderRoute = ServiceOrderRouteImport.update({
@@ -36,10 +39,25 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServiceOrderIndexRoute = ServiceOrderIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ServiceOrderRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const ServiceOrderNewRoute = ServiceOrderNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => ServiceOrderRoute,
+} as any)
+const ServiceOrderCustomerRoute = ServiceOrderCustomerRouteImport.update({
+  id: '/customer',
+  path: '/customer',
+  getParentRoute: () => ServiceOrderRoute,
 } as any)
 const AdminCustomerRoute = AdminCustomerRouteImport.update({
   id: '/customer',
@@ -51,25 +69,33 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
-  '/service-order': typeof ServiceOrderRoute
+  '/service-order': typeof ServiceOrderRouteWithChildren
   '/admin/customer': typeof AdminCustomerRoute
+  '/service-order/customer': typeof ServiceOrderCustomerRoute
+  '/service-order/new': typeof ServiceOrderNewRoute
   '/admin/': typeof AdminIndexRoute
+  '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
-  '/service-order': typeof ServiceOrderRoute
   '/admin/customer': typeof AdminCustomerRoute
+  '/service-order/customer': typeof ServiceOrderCustomerRoute
+  '/service-order/new': typeof ServiceOrderNewRoute
   '/admin': typeof AdminIndexRoute
+  '/service-order': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
-  '/service-order': typeof ServiceOrderRoute
+  '/service-order': typeof ServiceOrderRouteWithChildren
   '/admin/customer': typeof AdminCustomerRoute
+  '/service-order/customer': typeof ServiceOrderCustomerRoute
+  '/service-order/new': typeof ServiceOrderNewRoute
   '/admin/': typeof AdminIndexRoute
+  '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -79,14 +105,19 @@ export interface FileRouteTypes {
     | '/nova-ordem-servico'
     | '/service-order'
     | '/admin/customer'
+    | '/service-order/customer'
+    | '/service-order/new'
     | '/admin/'
+    | '/service-order/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/nova-ordem-servico'
-    | '/service-order'
     | '/admin/customer'
+    | '/service-order/customer'
+    | '/service-order/new'
     | '/admin'
+    | '/service-order'
   id:
     | '__root__'
     | '/admin'
@@ -94,14 +125,17 @@ export interface FileRouteTypes {
     | '/nova-ordem-servico'
     | '/service-order'
     | '/admin/customer'
+    | '/service-order/customer'
+    | '/service-order/new'
     | '/admin/'
+    | '/service-order/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
   NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
-  ServiceOrderRoute: typeof ServiceOrderRoute
+  ServiceOrderRoute: typeof ServiceOrderRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -134,12 +168,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/service-order/': {
+      id: '/service-order/'
+      path: '/'
+      fullPath: '/service-order/'
+      preLoaderRoute: typeof ServiceOrderIndexRouteImport
+      parentRoute: typeof ServiceOrderRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/service-order/new': {
+      id: '/service-order/new'
+      path: '/new'
+      fullPath: '/service-order/new'
+      preLoaderRoute: typeof ServiceOrderNewRouteImport
+      parentRoute: typeof ServiceOrderRoute
+    }
+    '/service-order/customer': {
+      id: '/service-order/customer'
+      path: '/customer'
+      fullPath: '/service-order/customer'
+      preLoaderRoute: typeof ServiceOrderCustomerRouteImport
+      parentRoute: typeof ServiceOrderRoute
     }
     '/admin/customer': {
       id: '/admin/customer'
@@ -163,11 +218,27 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface ServiceOrderRouteChildren {
+  ServiceOrderCustomerRoute: typeof ServiceOrderCustomerRoute
+  ServiceOrderNewRoute: typeof ServiceOrderNewRoute
+  ServiceOrderIndexRoute: typeof ServiceOrderIndexRoute
+}
+
+const ServiceOrderRouteChildren: ServiceOrderRouteChildren = {
+  ServiceOrderCustomerRoute: ServiceOrderCustomerRoute,
+  ServiceOrderNewRoute: ServiceOrderNewRoute,
+  ServiceOrderIndexRoute: ServiceOrderIndexRoute,
+}
+
+const ServiceOrderRouteWithChildren = ServiceOrderRoute._addFileChildren(
+  ServiceOrderRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
   NovaOrdemServicoRoute: NovaOrdemServicoRoute,
-  ServiceOrderRoute: ServiceOrderRoute,
+  ServiceOrderRoute: ServiceOrderRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

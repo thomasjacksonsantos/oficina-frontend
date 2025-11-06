@@ -37,4 +37,26 @@ export class BaseApi {
     const { data } = await axios.post<T>(endpoint, body);
     return data;
   }
+
+  protected async put<T>(endpoint: string, body: any): Promise<T> {
+    const token = await auth.currentUser?.getIdToken()
+    axios.interceptors.request.use(config => {
+      config.headers.Authorization = `Bearer ${token}`
+      return config;
+    })
+
+    const { data } = await axios.put<T>(endpoint, body);
+    return data;
+  }
+
+  protected async delete<T>(endpoint: string): Promise<T> {
+    const token = await auth.currentUser?.getIdToken()
+    axios.interceptors.request.use(config => {
+      config.headers.Authorization = `Bearer ${token}`
+      return config;
+    })
+
+    const { data } = await axios.delete<T>(endpoint);
+    return data;
+  }
 }
