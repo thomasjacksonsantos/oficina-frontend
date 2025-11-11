@@ -14,11 +14,13 @@ import { ArrowUp } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
-import ServiceOrderHeaderList from './service-order-header-list'
 import { Toaster } from 'sonner'
 import { ServiceOrder } from '@/api/service-orders.types'
-import { createServiceOrderColumns } from './service-order-columns'
-import { useServiceOrderContext } from './service-order-context'
+import { createCustomerColumns } from './customer-columns'
+import { useCustomerContext } from './customer-context'
+import { Customer } from '@/api/customers.types'
+import CustomerHeaderList from './customer-header-list'
+
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -27,7 +29,7 @@ interface DataTableProps<TData, TValue> {
   defaultSortDirection?: "asc" | "desc";
 }
 
-export function ServiceOrderList<TData extends ServiceOrder, TValue>({
+export function CustomerList<TData extends ServiceOrder, TValue>({
   columns,
   sortColumns,
   defaultSortField,
@@ -40,24 +42,24 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || "desc");
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const { setViewingServiceOrder, setEditingServiceOrder, setDeletingServiceOrder } = useServiceOrderContext();
+  const { setViewingCustomer, setEditingCustomer, setDeletingCustomer } = useCustomerContext();
 
   const { data, isLoading } = useGetServiceOrders({ page, q, limit, sortField, sortDirection, status: statusFilter || undefined });
 
   const handlers = useMemo(() => ({
-    onView: (serviceOrder: ServiceOrder) => {
-      setViewingServiceOrder(serviceOrder);
+    onView: (customer: Customer) => {
+      setViewingCustomer(customer);
     },
-    onEdit: (serviceOrder: ServiceOrder) => {
-      setEditingServiceOrder(serviceOrder);
+    onEdit: (customer: Customer) => {
+      setEditingCustomer(customer);
     },
-    onDelete: (serviceOrder: ServiceOrder) => {
-      setDeletingServiceOrder(serviceOrder);
+    onDelete: (customer: Customer) => {
+      setDeletingCustomer(customer);
     },
-  }), [setViewingServiceOrder, setEditingServiceOrder, setDeletingServiceOrder]);
+  }), [setViewingCustomer, setEditingCustomer, setDeletingCustomer]);
 
   const cols = useMemo(() => {
-    return createServiceOrderColumns(handlers) as ColumnDef<TData, TValue>[];
+    return createCustomerColumns(handlers) as ColumnDef<TData, TValue>[];
   }, [handlers]);
 
   const { items, meta } = React.useMemo(() => {
@@ -121,7 +123,7 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
         position='bottom-right'
       />
 
-      <ServiceOrderHeaderList />
+      <CustomerHeaderList />
       <div className='flex items-center justify-between gap-4 mb-4'>
         <div className='flex flex-1 justify-start gap-2'>
           <Input
@@ -194,7 +196,7 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
                 className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handlers.onView(row.original)}
+                onClick={() => handlers.onView(row.original as unknown as Customer)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} onClick={(e) => {

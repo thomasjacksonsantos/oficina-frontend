@@ -1,3 +1,4 @@
+import { TipoTelefone } from "./contato.types";
 
 export type User = {
     id: string;
@@ -30,9 +31,4 @@ export enum Sexo
 {
     Masculino= 'Masculino',
     Feminino = 'Feminino'
-}
-
-export enum TipoTelefone {
-    PHONE = ' PHONE',
-    CEL = 'CEL'
 }

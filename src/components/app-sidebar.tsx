@@ -72,7 +72,7 @@ const data = {
       items: [
         {
           title: "Clientes",
-          url: "/admin/customer",
+          url: "/customer",
         }
       ],
     },
@@ -83,7 +83,7 @@ const data = {
       items: [
         {
           title: "Ordem de Serviço",
-          url: "#",
+          url: "/service-order",
         },
         {
           title: "Orçamentos",
