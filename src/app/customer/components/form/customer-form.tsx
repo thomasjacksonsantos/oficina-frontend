@@ -1,100 +1,237 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import * as React from "react";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Trash2 } from "lucide-react"
-import { CreateCustomerInput, Customer, Sexo, TipoDocumento } from "@/api/customers.types"
-import { useForm } from "react-hook-form"
-import { CreateCustomerSchema, customerSchema } from "./customer.schema"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useCreateCustomer } from "@/app/customer/api/use-create-customer"
-import { TipoTelefone } from "@/api/contato.types"
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Trash2 } from "lucide-react";
+
+import {
+  CreateCustomerInput,
+  Sexo,
+  TipoDocumento,
+} from "@/api/customers.types";
+import { TipoTelefone } from "@/api/contato.types";
+
+import { customerSchema, type CreateCustomerSchema } from "./customer.schema";
+
+import { useCreateCustomer } from "@/app/customer/api/use-create-customer";
+
+import { formatCpfCnpj } from "@/helpers/formatCpfCnpj";
+import { formatPhone } from "@/helpers/formatPhone";
+import { formatCep } from "@/helpers/formatCep";
 
 export default function CustomerForm() {
+  const { isPending, mutateAsync: createCustomer } = useCreateCustomer();
 
-  const { isPending, mutate } = useCreateCustomer()
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+    watch,
+  } = useForm<CreateCustomerSchema>({
+    resolver: zodResolver(customerSchema),
+    defaultValues: {
+      contatos: [{ numero: "", tipoTelefone: TipoTelefone.Celular }],
+      endereco: {
+        cep: "",
+        logradouro: "",
+        numero: "",
+        complemento: "",
+        bairro: "",
+        cidade: "",
+        estado: "",
+        pais: "",
+      },
+    },
+  });
 
-  // Phones list for client details modal
-  const [phones, setPhones] = React.useState<Array<{ id: number; tipo: string; numero: string }>>([
-    { id: 1, tipo: "Celular", numero: "" },
-  ])
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "contatos",
+  });
 
-  const { register, handleSubmit, formState } = useForm<CreateCustomerSchema>({
-    // resolver: zodResolver(customerSchema)
-  })
-
-  const handleCreateCustomer = (data: CreateCustomerSchema) => {
+  const onSubmit = async (data: CreateCustomerSchema) => {
     const create: CreateCustomerInput = {
       ...data,
-      contatos: phones.map(phone => ({
-        tipoTelefone: phone.tipo as TipoTelefone,
-        numero: phone.numero,
-        ddd: "" // Add required ddd field - you may want to extract this from the numero field
-      }))
-    }
+      contatos: data.contatos.map((c) => ({
+        ...c,
+        ddd: "",
+      })),
+    };
 
-    mutate(create)
-  }
+    await createCustomer(create);
+
+    console.log("Submitting data:", create);
+    alert("Form submetido! Veja o console para os dados.");
+  };
 
   return (
     <div className="mx-auto w-full max-w-5xl py-6">
-      <form onSubmit={handleSubmit(handleCreateCustomer)}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Card className="rounded-lg">
           <CardContent className="p-6 space-y-6">
-
-            {/* Client Information Section */}
             <div className="space-y-3">
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-nome">Nome</Label>
                   <Input
                     id="cliente-nome"
-                    {...register("nome")}
                     placeholder="Nome"
                     className="rounded-md"
+                    {...register("nome")}
                   />
-                  {formState.errors.nome && (
+                  {errors.nome && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.nome.message}
+                      {errors.nome.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-razaoSocial">Razão Social</Label>
                   <Input
                     id="cliente-razaoSocial"
-                    {...register("razaoSocial")}
                     placeholder="Razão Social"
                     className="rounded-md"
+                    {...register("razaoSocial")}
                   />
-                  {formState.errors.razaoSocial && (
+                  {errors.razaoSocial && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.razaoSocial.message}
+                      {errors.razaoSocial.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="cliente-documento">Cpf | Cnpj</Label>
+                  <Label htmlFor="cliente-documento">CPF | CNPJ</Label>
                   <Input
                     id="cliente-documento"
-                    {...register("documento")}
-                    placeholder="Informe o cpf/cnpj/rg"
+                    inputMode="numeric"
+                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
                     className="rounded-md"
+                    {...register("documento")}
+                    onChange={(e) => {
+                      const masked = formatCpfCnpj(e.target.value);
+                      setValue("documento", masked, { shouldValidate: true });
+                    }}
                   />
-                  {formState.errors.documento && (
+                  {errors.documento && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.documento.message}
+                      {errors.documento.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="cliente-email">Email</Label>
+                  <Input
+                    id="cliente-email"
+                    type="email"
+                    placeholder="email@exemplo.com"
+                    className="rounded-md"
+                    {...register("email")}
+                  />
+                  {errors.email && (
+                    <span className="text-sm text-red-500">
+                      {errors.email.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label>Sexo</Label>
+                  <Controller
+                    control={control}
+                    name="sexo"
+                    render={({ field }) => (
+                      <>
+                        <Select
+                          value={field.value as any}
+                          onValueChange={(v: Sexo) => field.onChange(v as Sexo)}
+                        >
+                          <SelectTrigger className="rounded-md">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.values(Sexo).map((sx) => (
+                              <SelectItem key={sx} value={sx}>
+                                {sx}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.sexo && (
+                          <span className="text-sm text-red-500">
+                            {errors.sexo.message as string}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label>Tipo Documento</Label>
+                  <Controller
+                    control={control}
+                    name="tipoDocumento"
+                    render={({ field }) => (
+                      <>
+                        <Select
+                          value={field.value as any}
+                          onValueChange={(v: TipoDocumento) =>
+                            field.onChange(v as TipoDocumento)
+                          }
+                        >
+                          <SelectTrigger className="rounded-md">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.values(TipoDocumento).map((td) => (
+                              <SelectItem key={td} value={td}>
+                                {td}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.tipoDocumento && (
+                          <span className="text-sm text-red-500">
+                            {errors.tipoDocumento.message as string}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="cliente-dataNasc">Data de Nascimento</Label>
+                  <Input
+                    id="cliente-dataNasc"
+                    type="date"
+                    className="rounded-md"
+                    {...register("dataNascimento", { valueAsDate: true })}
+                  />
+                  {errors.dataNascimento && (
+                    <span className="text-sm text-red-500">
+                      {errors.dataNascimento.message as string}
                     </span>
                   )}
                 </div>
@@ -105,57 +242,73 @@ export default function CustomerForm() {
 
             <div className="space-y-2">
               <Label>Contato</Label>
-              {phones.map((p, idx) => (
-                <div key={p.id} className="flex items-center gap-2">
-                  <Select
-                    value={p.tipo}
-                    onValueChange={(v: TipoTelefone) => {
-                      const next = [...phones]
-                      next[idx] = { ...next[idx], tipo: v }
-                      setPhones(next)
-                      register(`contatos.${idx}.tipoTelefone`, v as any)
-                    }}
-                  >
-                    <div className="flex flex-col">
-                      <SelectTrigger className="w-32 rounded-md">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={TipoTelefone.Celular}>Celular</SelectItem>
-                        <SelectItem value={TipoTelefone.Telefone}>Telefone</SelectItem>
-                      </SelectContent>
-                      {formState.errors.contatos && formState.errors.contatos[idx] && formState.errors.contatos[idx]?.tipoTelefone && (
-                        <span className="text-sm text-red-500">
-                          {formState.errors.contatos[idx]?.tipoTelefone?.message}
-                        </span>
+
+              {fields.map((field, idx) => (
+                <div key={field.id} className="flex items-start gap-2">
+                  <div className="flex flex-col min-w-32">
+                    <Label className="sr-only">Tipo</Label>
+                    <Controller
+                      control={control}
+                      name={`contatos.${idx}.tipoTelefone`}
+                      render={({ field }) => (
+                        <>
+                          <Select
+                            value={field.value as any}
+                            onValueChange={(v: TipoTelefone) =>
+                              field.onChange(v as TipoTelefone)
+                            }
+                          >
+                            <SelectTrigger className="w-32 rounded-md">
+                              <SelectValue placeholder="Tipo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={TipoTelefone.Celular}>
+                                Celular
+                              </SelectItem>
+                              <SelectItem value={TipoTelefone.Telefone}>
+                                Telefone
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.contatos?.[idx]?.tipoTelefone && (
+                            <span className="text-sm text-red-500">
+                              {
+                                errors.contatos[idx]?.tipoTelefone
+                                  ?.message as string
+                              }
+                            </span>
+                          )}
+                        </>
                       )}
-                    </div>
-                  </Select>
-                  <div className="flex flex-col">
+                    />
+                  </div>
+
+                  <div className="flex flex-col flex-1">
+                    <Label className="sr-only">Número</Label>
                     <Input
-                      className="w-auto"
-                      placeholder="(19) 99990-2929"
-                      value={p.numero}
+                      inputMode="numeric"
+                      placeholder="(99) 99999-9999"
+                      className="w-full"
+                      {...register(`contatos.${idx}.numero` as const)}
                       onChange={(e) => {
-                        const next = [...phones]
-                        next[idx] = { ...next[idx], numero: e.target.value }
-                        setPhones(next)
+                        const masked = formatPhone(e.target.value);
+                        setValue(`contatos.${idx}.numero` as const, masked, {
+                          shouldValidate: true,
+                        });
                       }}
                     />
-                    {formState.errors.contatos && formState.errors.contatos[idx] && formState.errors.contatos[idx]?.numero && (
+                    {errors.contatos?.[idx]?.numero && (
                       <span className="text-sm text-red-500">
-                        {formState.errors.contatos[idx]?.numero?.message}
+                        {errors.contatos[idx]?.numero?.message}
                       </span>
                     )}
                   </div>
+
                   <Button
                     variant="ghost"
                     size="icon"
                     type="button"
-                    onClick={() => {
-                      const next = phones.filter((_, i) => i !== idx)
-                      setPhones(next)
-                    }}
+                    onClick={() => remove(idx)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -167,11 +320,20 @@ export default function CustomerForm() {
                   type="button"
                   variant="ghost"
                   className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto font-normal"
-                  onClick={() => setPhones((prev) => [...prev, { id: Date.now(), tipo: "Celular", numero: "" }])}
+                  onClick={() =>
+                    append({ numero: "", tipoTelefone: TipoTelefone.Celular })
+                  }
                 >
                   + Add Telefone
                 </Button>
               </div>
+
+              {errors.contatos &&
+                typeof errors.contatos?.message === "string" && (
+                  <span className="text-sm text-red-500">
+                    {errors.contatos.message}
+                  </span>
+                )}
             </div>
 
             <Separator />
@@ -179,16 +341,22 @@ export default function CustomerForm() {
             <div className="space-y-3">
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="cliente-cep">Cep</Label>
+                  <Label htmlFor="cliente-cep">CEP</Label>
                   <Input
                     id="cliente-cep"
-                    {...register("endereco.cep")}
+                    inputMode="numeric"
                     placeholder="00000-000"
                     className="w-full sm:w-auto"
+                    {...register("endereco.cep")}
+                    onChange={(e) =>
+                      setValue("endereco.cep", formatCep(e.target.value), {
+                        shouldValidate: true,
+                      })
+                    }
                   />
-                  {formState.errors.endereco?.cep && (
+                  {errors.endereco?.cep && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.cep.message}
+                      {errors.endereco.cep.message}
                     </span>
                   )}
                 </div>
@@ -202,121 +370,126 @@ export default function CustomerForm() {
                   </Button>
                 </div>
               </div>
+
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-logradouro">Logradouro</Label>
                   <Input
                     id="cliente-logradouro"
-                    {...register("endereco.logradouro")}
                     placeholder="Informe o logradouro"
                     className="rounded-md"
+                    {...register("endereco.logradouro")}
                   />
-                  {formState.errors.endereco?.logradouro && (
+                  {errors.endereco?.logradouro && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.logradouro.message}
+                      {errors.endereco.logradouro.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-numero">Número</Label>
                   <Input
                     id="cliente-numero"
-                    {...register("endereco.numero")}
                     placeholder="Informe o número"
                     className="rounded-md"
+                    {...register("endereco.numero")}
                   />
-                  {formState.errors.endereco?.numero && (
+                  {errors.endereco?.numero && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.numero.message}
+                      {errors.endereco.numero.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-complemento">Complemento</Label>
                   <Input
                     id="cliente-complemento"
-                    {...register("endereco.complemento")}
                     placeholder="Informe o complemento"
                     className="rounded-md"
+                    {...register("endereco.complemento")}
                   />
-                  {formState.errors.endereco?.complemento && (
+                  {errors.endereco?.complemento && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.complemento.message}
+                      {errors.endereco.complemento.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-bairro">Bairro</Label>
                   <Input
                     id="cliente-bairro"
-                    {...register("endereco.bairro")}
                     placeholder="Informe o bairro"
                     className="rounded-md"
+                    {...register("endereco.bairro")}
                   />
-                  {formState.errors.endereco?.bairro && (
+                  {errors.endereco?.bairro && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.bairro.message}
+                      {errors.endereco.bairro.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-estado">Estado</Label>
                   <Input
                     id="cliente-estado"
-                    {...register("endereco.estado")}
                     placeholder="Informe o estado"
                     className="rounded-md"
+                    {...register("endereco.estado")}
                   />
-                  {formState.errors.endereco?.estado && (
+                  {errors.endereco?.estado && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.estado.message}
+                      {errors.endereco.estado.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-cidade">Cidade</Label>
                   <Input
                     id="cliente-cidade"
-                    {...register("endereco.cidade")}
                     placeholder="Informe a cidade"
                     className="rounded-md"
+                    {...register("endereco.cidade")}
                   />
-                  {formState.errors.endereco?.cidade && (
+                  {errors.endereco?.cidade && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.cidade.message}
+                      {errors.endereco.cidade.message}
                     </span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-pais">País</Label>
                   <Input
                     id="cliente-pais"
-                    {...register("endereco.pais")}
                     placeholder="Informe o país"
                     className="rounded-md"
+                    {...register("endereco.pais")}
                   />
-                  {formState.errors.endereco?.pais && (
+                  {errors.endereco?.pais && (
                     <span className="text-sm text-red-500">
-                      {formState.errors.endereco.pais.message}
+                      {errors.endereco.pais.message}
                     </span>
                   )}
                 </div>
               </div>
             </div>
           </CardContent>
+
           <CardFooter className="flex justify-end gap-2">
-            <Button variant={"outline"} className="w-auto">Voltar</Button>
-            <Button
-              type="submit"
-              className="w-auto"
-            // disabled={isPending}
-            >
+            <Button variant="outline" className="w-auto" type="button">
+              Voltar
+            </Button>
+            <Button type="submit" className="w-auto" disabled={isPending}>
               {isPending ? "Salvando..." : "Salvar Cliente"}
             </Button>
           </CardFooter>
         </Card>
       </form>
     </div>
-  )
+  );
 }
-
