@@ -7,7 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/react";
 const queryClient = new QueryClient();
 
 import { routeTree } from "./routeTree.gen";
-import { AuthContextProvider, type AuthContextType, useAuth } from "./auth";
+import { AuthContextProvider, type AuthContextType, useAuth } from "@/auth";
 
 import { ThemeProvider } from "./components/themes/theme-provider";
 import "./styles.css";

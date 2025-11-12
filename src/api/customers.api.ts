@@ -2,7 +2,7 @@ import { Page } from '@/typings/page.types'
 import { BaseApi } from './base.api';
 import { CreateCustomerInput, Customer, UpdateCustomerInput } from './customers.types';
 
-const ENDPOINT = "/customers"
+const ENDPOINT = "v1/clientes"
 
 class CustomersApi extends BaseApi {
   async getCustomers(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {

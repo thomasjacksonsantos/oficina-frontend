@@ -31,25 +31,20 @@ export default function CustomerForm() {
   ])
 
   const { register, handleSubmit, formState } = useForm<CreateCustomerSchema>({
-    resolver: zodResolver(customerSchema)
+    // resolver: zodResolver(customerSchema)
   })
 
-  const handleCreateCustomer = (data: any) => {
+  const handleCreateCustomer = (data: CreateCustomerSchema) => {
+    const create: CreateCustomerInput = {
+      ...data,
+      contatos: phones.map(phone => ({
+        tipoTelefone: phone.tipo as TipoTelefone,
+        numero: phone.numero,
+        ddd: "" // Add required ddd field - you may want to extract this from the numero field
+      }))
+    }
 
-    alert("Form submitted! Check console for data.")
-
-    console.log("Submitting data:", data)
-
-    // // Transform the form data to match CreateCustomerInput format
-    // const create: CreateCustomerInput = {
-    //   ...data,
-    //   contatos: data.contatos.map(contato => ({
-    //     ...contato,
-    //     ddd: "" // Add required ddd field - you may want to extract this from the numero field
-    //   }))
-    // }
-
-    // mutate(create)
+    mutate(create)
   }
 
   return (

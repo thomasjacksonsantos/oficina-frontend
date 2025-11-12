@@ -8,7 +8,7 @@ import {
   signOut,
 } from 'firebase/auth'
 import { flushSync } from 'react-dom'
-import { auth } from './firebase/config'
+import { auth } from '@/firebase/config'
 
 export type AuthContextType = {
   isAuthenticated: boolean
