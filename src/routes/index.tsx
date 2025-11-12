@@ -1,24 +1,21 @@
 import { z } from "zod";
-import { redirect } from '@tanstack/react-router'
-import { createFileRoute } from "@tanstack/react-router";
-import Dashboard from "@/app/feature/dashboard";
-
-const fallback = '/login' as const
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AdminLayout } from "@/layouts/admin-layout";
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({
-      redirect: z.string().optional().catch(''),
-    }),
-    beforeLoad: ({ context, search }) => {
-      if (context.auth.isAuthenticated) {
-        throw redirect({ to: search.redirect || fallback })
-      }
-    },
-  component: DashboardComponent,
+    redirect: z.string().optional().catch(''),
+  }),
+  beforeLoad: ({ context, search }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: '/login' })
+    }
+    throw redirect({ to: '/dashboard' })
+  },
+  component: () => (
+    <AdminLayout>
+      <Outlet />
+    </AdminLayout>
+  ),
 });
 
-function DashboardComponent() {
-  return (
-      <Dashboard />
-  );
-}

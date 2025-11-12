@@ -16,6 +16,7 @@ import { Route as CustomerRouteImport } from './routes/customer'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServiceOrderIndexRouteImport } from './routes/service-order/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
 import { Route as ServiceOrderNewRouteImport } from './routes/service-order/new'
 import { Route as CustomerNewRouteImport } from './routes/customer/new'
@@ -55,6 +56,11 @@ const ServiceOrderIndexRoute = ServiceOrderIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ServiceOrderRoute,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomerIndexRoute = CustomerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
   '/customer/': typeof CustomerIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesByTo {
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
   '/customer': typeof CustomerIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/service-order': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesById {
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
   '/customer/': typeof CustomerIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRouteTypes {
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/customer/new'
     | '/service-order/new'
     | '/customer/'
+    | '/dashboard'
     | '/service-order/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/customer/new'
     | '/service-order/new'
     | '/customer'
+    | '/dashboard'
     | '/service-order'
   id:
     | '__root__'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/customer/new'
     | '/service-order/new'
     | '/customer/'
+    | '/dashboard/'
     | '/service-order/'
   fileRoutesById: FileRoutesById
 }
@@ -150,6 +162,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
   ServiceOrderRoute: typeof ServiceOrderRouteWithChildren
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -202,6 +215,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/service-order/'
       preLoaderRoute: typeof ServiceOrderIndexRouteImport
       parentRoute: typeof ServiceOrderRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/customer/': {
       id: '/customer/'
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   NovaOrdemServicoRoute: NovaOrdemServicoRoute,
   ServiceOrderRoute: ServiceOrderRouteWithChildren,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -29,8 +29,9 @@ export const Route = createFileRoute("/login")({
     redirect: z.string().optional().catch(''),
   }),
   beforeLoad: ({ context, search }) => {
+    console.log('Login route beforeLoad called')
     if (context.auth.isAuthenticated) {
-      throw redirect({ to: search.redirect || fallback })
+      throw redirect({ to: search.redirect || '/' })
     }
   },
   component: () => <LoginComponent />,

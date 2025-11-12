@@ -9,7 +9,6 @@ import {
 } from 'firebase/auth'
 import { flushSync } from 'react-dom'
 import { auth } from '@/firebase/config'
-import { redirect } from '@tanstack/react-router'
 
 export type AuthContextType = {
   isAuthenticated: boolean
@@ -42,10 +41,17 @@ export function AuthContextProvider({
 
   const logout = React.useCallback(async () => {
     console.log('Logging out...')
-    await signOut(auth)
-    setUser(null)
-    setIsInitialLoading(false)
-    redirect({ to: "/login" })
+
+    try {
+      console.log('Calling signOut...')
+      console.log('Auth object:', auth)
+      await signOut(auth)
+      setUser(null)
+      setIsInitialLoading(false)
+      window.location.href = '/login'
+    } catch (error) {
+      console.error('Error during logout:', error)
+    }
   }, [])
 
   const login = React.useCallback(async (provider: AuthProvider) => {
