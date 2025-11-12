@@ -10,9 +10,6 @@ export const Route = createFileRoute("/customer/")({
     redirect: z.string().optional().catch(''),
   }),
   beforeLoad: ({ context, search }) => {
-    console.log('Checking authentication status before loading /customer/...')
-    console.log('Auth context:', context.auth)
-    console.log('search =>', search)
     if (!context.auth.isAuthenticated) {
       throw redirect({ to: search.redirect || fallback })
     }

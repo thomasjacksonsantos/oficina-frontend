@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth'
 import { flushSync } from 'react-dom'
 import { auth } from '@/firebase/config'
+import { redirect } from '@tanstack/react-router'
 
 export type AuthContextType = {
   isAuthenticated: boolean
@@ -44,6 +45,7 @@ export function AuthContextProvider({
     await signOut(auth)
     setUser(null)
     setIsInitialLoading(false)
+    redirect({ to: "/login" })
   }, [])
 
   const login = React.useCallback(async (provider: AuthProvider) => {

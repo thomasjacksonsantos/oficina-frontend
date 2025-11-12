@@ -14,9 +14,9 @@ import { Route as NovaOrdemServicoRouteImport } from './routes/nova-ordem-servic
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CustomerRouteImport } from './routes/customer'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServiceOrderIndexRouteImport } from './routes/service-order/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ServiceOrderNewRouteImport } from './routes/service-order/new'
 import { Route as CustomerNewRouteImport } from './routes/customer/new'
 
@@ -45,6 +45,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServiceOrderIndexRoute = ServiceOrderIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -54,11 +59,6 @@ const CustomerIndexRoute = CustomerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => CustomerRoute,
-} as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminRoute,
 } as any)
 const ServiceOrderNewRoute = ServiceOrderNewRouteImport.update({
   id: '/new',
@@ -72,42 +72,44 @@ const CustomerNewRoute = CustomerNewRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/admin': typeof AdminRouteWithChildren
+  '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/customer': typeof CustomerRouteWithChildren
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRouteWithChildren
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
-  '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
-  '/admin': typeof AdminIndexRoute
   '/customer': typeof CustomerIndexRoute
   '/service-order': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/admin': typeof AdminRouteWithChildren
+  '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/customer': typeof CustomerRouteWithChildren
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRouteWithChildren
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
-  '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/admin'
     | '/customer'
     | '/login'
@@ -115,20 +117,21 @@ export interface FileRouteTypes {
     | '/service-order'
     | '/customer/new'
     | '/service-order/new'
-    | '/admin/'
     | '/customer/'
     | '/service-order/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
+    | '/admin'
     | '/login'
     | '/nova-ordem-servico'
     | '/customer/new'
     | '/service-order/new'
-    | '/admin'
     | '/customer'
     | '/service-order'
   id:
     | '__root__'
+    | '/'
     | '/admin'
     | '/customer'
     | '/login'
@@ -136,13 +139,13 @@ export interface FileRouteTypes {
     | '/service-order'
     | '/customer/new'
     | '/service-order/new'
-    | '/admin/'
     | '/customer/'
     | '/service-order/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AdminRoute: typeof AdminRouteWithChildren
+  IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CustomerRoute: typeof CustomerRouteWithChildren
   LoginRoute: typeof LoginRoute
   NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
@@ -186,6 +189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/service-order/': {
       id: '/service-order/'
       path: '/'
@@ -199,13 +209,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/customer/'
       preLoaderRoute: typeof CustomerIndexRouteImport
       parentRoute: typeof CustomerRoute
-    }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
     }
     '/service-order/new': {
       id: '/service-order/new'
@@ -223,16 +226,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AdminRouteChildren {
-  AdminIndexRoute: typeof AdminIndexRoute
-}
-
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminIndexRoute: AdminIndexRoute,
-}
-
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CustomerRouteChildren {
   CustomerNewRoute: typeof CustomerNewRoute
@@ -263,7 +256,8 @@ const ServiceOrderRouteWithChildren = ServiceOrderRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  AdminRoute: AdminRouteWithChildren,
+  IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CustomerRoute: CustomerRouteWithChildren,
   LoginRoute: LoginRoute,
   NovaOrdemServicoRoute: NovaOrdemServicoRoute,
