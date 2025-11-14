@@ -14,7 +14,7 @@ const enderecoSchema = z.object({
   pais: z.string().min(1, "País é obrigatório"),
   logradouro: z.string().min(1, "Logradouro é obrigatório"),
   numero: z.string().min(1, "Número é obrigatório"),
-  complemento: z.string().min(5, "Complemento deve ter pelo menos 5 caracteres"),
+  complemento: z.string().min(3, "Complemento deve ter pelo menos 5 caracteres"),
   bairro: z.string().min(1, "Bairro é obrigatório"),
   cidade: z.string().min(1, "Cidade é obrigatória"),
   estado: z.string().min(2, "Estado é obrigatório"),
@@ -29,9 +29,8 @@ export const customerSchema = z.object({
     .min(11, "Documento deve ter pelo menos 11 dígitos")
     .max(18, "Documento deve ter no máximo 18 caracteres"),
   sexo: z.nativeEnum(Sexo),
-  tipoDocumento: z.nativeEnum(TipoDocumento),
   email: z.string().email("Email deve ter formato válido"),
-  dataNascimento: z.date({
+  dataNascimento: z.string({
     required_error: "Data de nascimento é obrigatória",
   }),
   contatos: z.array(contatoSchema).min(1, "Pelo menos um contato é obrigatório"),

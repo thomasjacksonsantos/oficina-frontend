@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupConfirmationRouteImport } from './routes/signup-confirmation'
 import { Route as ServiceOrderRouteImport } from './routes/service-order'
 import { Route as NovaOrdemServicoRouteImport } from './routes/nova-ordem-servico'
 import { Route as LoginRouteImport } from './routes/login'
@@ -21,6 +22,11 @@ import { Route as CustomerIndexRouteImport } from './routes/customer/index'
 import { Route as ServiceOrderNewRouteImport } from './routes/service-order/new'
 import { Route as CustomerNewRouteImport } from './routes/customer/new'
 
+const SignupConfirmationRoute = SignupConfirmationRouteImport.update({
+  id: '/signup-confirmation',
+  path: '/signup-confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServiceOrderRoute = ServiceOrderRouteImport.update({
   id: '/service-order',
   path: '/service-order',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRouteWithChildren
+  '/signup-confirmation': typeof SignupConfirmationRoute
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
   '/customer/': typeof CustomerIndexRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
+  '/signup-confirmation': typeof SignupConfirmationRoute
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
   '/customer': typeof CustomerIndexRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRouteWithChildren
+  '/signup-confirmation': typeof SignupConfirmationRoute
   '/customer/new': typeof CustomerNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
   '/customer/': typeof CustomerIndexRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/nova-ordem-servico'
     | '/service-order'
+    | '/signup-confirmation'
     | '/customer/new'
     | '/service-order/new'
     | '/customer/'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/login'
     | '/nova-ordem-servico'
+    | '/signup-confirmation'
     | '/customer/new'
     | '/service-order/new'
     | '/customer'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/nova-ordem-servico'
     | '/service-order'
+    | '/signup-confirmation'
     | '/customer/new'
     | '/service-order/new'
     | '/customer/'
@@ -162,11 +174,19 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
   ServiceOrderRoute: typeof ServiceOrderRouteWithChildren
+  SignupConfirmationRoute: typeof SignupConfirmationRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup-confirmation': {
+      id: '/signup-confirmation'
+      path: '/signup-confirmation'
+      fullPath: '/signup-confirmation'
+      preLoaderRoute: typeof SignupConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/service-order': {
       id: '/service-order'
       path: '/service-order'
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   NovaOrdemServicoRoute: NovaOrdemServicoRoute,
   ServiceOrderRoute: ServiceOrderRouteWithChildren,
+  SignupConfirmationRoute: SignupConfirmationRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport

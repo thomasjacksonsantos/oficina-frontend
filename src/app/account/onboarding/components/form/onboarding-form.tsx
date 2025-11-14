@@ -1,17 +1,11 @@
 "use client";
-
-import { z } from "zod";
+import { toast } from "sonner"
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-    Tabs,
-    TabsList,
-    TabsTrigger,
-    TabsContent,
     Button,
     Input,
     Label,
-    Separator,
     Form,
     FormField,
     FormItem,
@@ -33,7 +27,7 @@ import {
 } from "@/helpers/formatCpfCnpj";
 import { formatBirthDate } from "@/helpers/formatBirthDate";
 import { formatToIso } from "@/helpers/formatDate";
-import LoginPage from "@/app/account/login/Page";
+
 import { useCreateOnboarding } from "../../api/use-create-onboarding";
 import { CreateOnboardingSchema, onboardingSchema } from "./onboarding.schema";
 
@@ -98,11 +92,9 @@ export default function Login() {
         });
     }
 
-    const { mutate } = useCreateOnboarding();
-
     const handleSignUp = handleRegisterSubmit(async (values) => {
         console.log(values);
-        await signUp({
+        const response = await signUp({
             nome: values.rName,
             email: values.rEmail,
             dataNascimento: formatToIso(values.rBirthDate),
@@ -142,8 +134,19 @@ export default function Login() {
                 })),
             },
         });
+        
 
-        resetRegister();
+         if (response.sucesso) {
+            resetRegister();
+            toast.success("Cadastro realizado com sucesso!", {
+                description: "Verifique seu email para confirmar a conta."
+            });
+            window.location.href = "/signup-confirmation";
+        } else {
+            toast.error("Erro ao cadastrar", {
+                description: response.mensagem || "Por favor, tente novamente."
+            });
+        }    
     });
 
     const selectedSex = watch("biologicalSex");

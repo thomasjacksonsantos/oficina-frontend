@@ -20,10 +20,9 @@ export type Customer = {
   nome: string; // Total Value
   razaoSocial: string; // Company Name
   sexo: Sexo; // Gender
-  tipoDocumento: TipoDocumento; // Document Type
   documento: string; // Document
   email: string; // Employee Id
-  dataNascimento: Date; // Date of Birth (ISO date)
+  dataNascimento: string; // Date of Birth (ISO date)
   contatos: Contato[]; // Contact Information
   endereco: Endereco
 };

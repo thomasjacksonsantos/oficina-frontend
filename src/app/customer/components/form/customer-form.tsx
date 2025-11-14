@@ -27,13 +27,19 @@ import { TipoTelefone } from "@/api/contato.types";
 
 import { customerSchema, type CreateCustomerSchema } from "./customer.schema";
 
-import { useCreateCustomer } from "@/app/customer/api/use-create-customer";
+import { useCreateCustomer } from "@/app/customer/api";
+import { useGetCep } from "@/app/customer/api";
 
 import { formatCpfCnpj } from "@/helpers/formatCpfCnpj";
 import { formatPhone } from "@/helpers/formatPhone";
 import { formatCep } from "@/helpers/formatCep";
+import { formatBirthDate } from "@/helpers/formatBirthDate";
+import { formatToIso } from "@/helpers/formatDate";
+import { useEffect, useState } from "react";
 
 export default function CustomerForm() {
+  const [cep, setCep] = useState<string>('');
+
   const { isPending, mutateAsync: createCustomer } = useCreateCustomer();
 
   const {
@@ -46,6 +52,7 @@ export default function CustomerForm() {
   } = useForm<CreateCustomerSchema>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
+      dataNascimento: "",
       contatos: [{ numero: "", tipoTelefone: TipoTelefone.Celular }],
       endereco: {
         cep: "",
@@ -65,9 +72,45 @@ export default function CustomerForm() {
     name: "contatos",
   });
 
+  const { data: cepData, isLoading: isLoadingCep } = useGetCep(cep);
+
+  // Preencher os campos automaticamente quando cepData chegar
+  useEffect(() => {
+    if (cepData) {
+      setValue("endereco.logradouro", cepData.logradouro || "", {
+        shouldValidate: true,
+      });
+      setValue("endereco.bairro", cepData.bairro || "", {
+        shouldValidate: true,
+      });
+      setValue("endereco.cidade", cepData.cidade || "", {
+        shouldValidate: true,
+      });
+      setValue("endereco.estado", cepData.estado || "", {
+        shouldValidate: true,
+      });
+      setValue("endereco.pais", cepData.pais || "Brasil", {
+        shouldValidate: true,
+      });
+    }
+  }, [cepData, setValue]);
+
+  const handleBuscarCep = () => {
+    const cepValue = watch("endereco.cep").replace(/\D/g, "");
+
+    if (cepValue.length !== 8) {
+      alert("CEP inválido. Deve conter 8 dígitos.");
+      return;
+    }
+
+    // Dispara a busca setando o cep
+    setCep(cepValue);
+  };
+
   const onSubmit = async (data: CreateCustomerSchema) => {
     const create: CreateCustomerInput = {
       ...data,
+      dataNascimento: formatToIso(data.dataNascimento),
       contatos: data.contatos.map((c) => ({
         ...c,
         ddd: "",
@@ -166,7 +209,7 @@ export default function CustomerForm() {
                           value={field.value as any}
                           onValueChange={(v: Sexo) => field.onChange(v as Sexo)}
                         >
-                          <SelectTrigger className="rounded-md">
+                          <SelectTrigger className="rounded-md w-full">
                             <SelectValue placeholder="Selecione" />
                           </SelectTrigger>
                           <SelectContent>
@@ -188,46 +231,15 @@ export default function CustomerForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label>Tipo Documento</Label>
-                  <Controller
-                    control={control}
-                    name="tipoDocumento"
-                    render={({ field }) => (
-                      <>
-                        <Select
-                          value={field.value as any}
-                          onValueChange={(v: TipoDocumento) =>
-                            field.onChange(v as TipoDocumento)
-                          }
-                        >
-                          <SelectTrigger className="rounded-md">
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.values(TipoDocumento).map((td) => (
-                              <SelectItem key={td} value={td}>
-                                {td}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.tipoDocumento && (
-                          <span className="text-sm text-red-500">
-                            {errors.tipoDocumento.message as string}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2">
                   <Label htmlFor="cliente-dataNasc">Data de Nascimento</Label>
                   <Input
                     id="cliente-dataNasc"
-                    type="date"
                     className="rounded-md"
-                    {...register("dataNascimento", { valueAsDate: true })}
+                    {...register("dataNascimento")}
+                    onChange={(e) => {
+                      const masked = formatBirthDate(e.target.value);
+                      setValue("dataNascimento", masked, { shouldValidate: true });
+                    }}
                   />
                   {errors.dataNascimento && (
                     <span className="text-sm text-red-500">
@@ -365,6 +377,8 @@ export default function CustomerForm() {
                     id="cliente-buscar-cep"
                     type="button"
                     className="w-auto"
+                    disabled={isLoadingCep || watch("endereco.cep").replace(/\D/g, "").length !== 8}
+                    onClick={handleBuscarCep}
                   >
                     Buscar Cep
                   </Button>

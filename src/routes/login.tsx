@@ -1,7 +1,10 @@
+import { z } from "zod";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { createFileRoute } from "@tanstack/react-router";
 import * as React from 'react'
 import { redirect, useRouter, useRouterState } from '@tanstack/react-router'
-import { z } from 'zod'
 
 import { useAuth } from '@/auth'
 import { siApple, siGithub, siGoogle } from 'simple-icons'
@@ -17,8 +20,17 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-  Button
+  Button,
+  Input,
+  Label,
+  Separator,
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage
 } from "@/components/atoms";
+
 import OnboardingPage from "@/app/account/onboarding/Page";
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -37,9 +49,21 @@ export const Route = createFileRoute("/login")({
   component: () => <LoginComponent />,
 });
 
+const loginSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
+});
+
 function LoginComponent() {
+  type LoginForm = z.infer<typeof loginSchema>;
+  
+  const loginForm = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
   const router = useRouter()
-  const { login } = useAuth()
+  const { loginWithEmailAndPassword } = useAuth()
 
   const handleSignIn = async (provider: 'github' | 'google' | 'apple') => {
     console.log(`Clicked ${provider} sign in!`)
@@ -57,13 +81,16 @@ function LoginComponent() {
           throw new Error('Invalid provider')
         })()
 
-      await login(typedProvider)
-      router.invalidate() // This should force the user to route to /dashboard
-    } catch (error) {
-      console.error('Sign in error:', error)
+        router.invalidate() // This should force the user to route to /dashboard
+      } catch (error) {
+        console.error('Sign in error:', error)
+      }      
     }
-
-  }
+    
+    const handleLogin = loginForm.handleSubmit(async (values) => {
+      console.log("login values", values);
+      await loginWithEmailAndPassword(values.email, values.password)
+  });
 
   // Componente para ícones SVG
   const SvgIcon = ({ path, ...props }: { path: string } & React.SVGProps<SVGSVGElement>) => (
@@ -97,49 +124,50 @@ function LoginComponent() {
             </div>
 
             <TabsContent value="login" className="mt-6">
-              <div className="space-y-4">
-                {/* Botões dos provedores OAuth */}
-                <div className="space-y-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-11 flex items-center justify-center gap-3"
-                    onClick={() => handleSignIn('github')}
-                  >
-                    <SvgIcon
-                      path={siGithub.path}
-                      className="w-5 h-5"
-                    />
-                    Continuar com GitHub
+              <Form {...loginForm}>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="email">Email</Label>
+                        <FormControl>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="password">Senha</Label>
+                        <FormControl>
+                          <Input id="password" type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button type="submit" className="w-full h-11">
+                    Entrar
                   </Button>
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-11 flex items-center justify-center gap-3"
-                    onClick={() => handleSignIn('google')}
-                  >
-                    <SvgIcon
-                      path={siGoogle.path}
-                      className="w-5 h-5"
-                    />
-                    Continuar com Google
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-11 flex items-center justify-center gap-3"
-                    onClick={() => handleSignIn("apple")}
-                  >
-                    <SvgIcon
-                      path={siApple.path}
-                      className="w-5 h-5"
-                    />
-                    Continuar com Apple
-                  </Button>
-                </div>
-              </div>
+                  <div className="relative py-2">
+                    <Separator />
+                  </div>
+                </form>
+              </Form>
             </TabsContent>
 
             <TabsContent value="register" className="mt-6">
