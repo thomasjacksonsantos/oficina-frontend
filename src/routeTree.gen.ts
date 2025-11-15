@@ -9,11 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupConfirmationRouteImport } from './routes/signup-confirmation'
 import { Route as ServiceOrderRouteImport } from './routes/service-order'
 import { Route as NovaOrdemServicoRouteImport } from './routes/nova-ordem-servico'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as CustomerRouteImport } from './routes/customer'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServiceOrderIndexRouteImport } from './routes/service-order/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as CustomerIndexRouteImport } from './routes/customer/index'
+import { Route as ServiceOrderNewRouteImport } from './routes/service-order/new'
+import { Route as CustomerNewRouteImport } from './routes/customer/new'
 
+const SignupConfirmationRoute = SignupConfirmationRouteImport.update({
+  id: '/signup-confirmation',
+  path: '/signup-confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServiceOrderRoute = ServiceOrderRouteImport.update({
   id: '/service-order',
   path: '/service-order',
@@ -29,48 +42,151 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomerRoute = CustomerRouteImport.update({
+  id: '/customer',
+  path: '/customer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServiceOrderIndexRoute = ServiceOrderIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ServiceOrderRoute,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerIndexRoute = CustomerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const ServiceOrderNewRoute = ServiceOrderNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => ServiceOrderRoute,
+} as any)
+const CustomerNewRoute = CustomerNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => CustomerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/customer': typeof CustomerRouteWithChildren
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
-  '/service-order': typeof ServiceOrderRoute
+  '/service-order': typeof ServiceOrderRouteWithChildren
+  '/signup-confirmation': typeof SignupConfirmationRoute
+  '/customer/new': typeof CustomerNewRoute
+  '/service-order/new': typeof ServiceOrderNewRoute
+  '/customer/': typeof CustomerIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
-  '/service-order': typeof ServiceOrderRoute
+  '/signup-confirmation': typeof SignupConfirmationRoute
+  '/customer/new': typeof CustomerNewRoute
+  '/service-order/new': typeof ServiceOrderNewRoute
+  '/customer': typeof CustomerIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/service-order': typeof ServiceOrderIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/customer': typeof CustomerRouteWithChildren
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
-  '/service-order': typeof ServiceOrderRoute
+  '/service-order': typeof ServiceOrderRouteWithChildren
+  '/signup-confirmation': typeof SignupConfirmationRoute
+  '/customer/new': typeof CustomerNewRoute
+  '/service-order/new': typeof ServiceOrderNewRoute
+  '/customer/': typeof CustomerIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/service-order/': typeof ServiceOrderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/nova-ordem-servico' | '/service-order'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/customer'
+    | '/login'
+    | '/nova-ordem-servico'
+    | '/service-order'
+    | '/signup-confirmation'
+    | '/customer/new'
+    | '/service-order/new'
+    | '/customer/'
+    | '/dashboard'
+    | '/service-order/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/nova-ordem-servico' | '/service-order'
-  id: '__root__' | '/' | '/login' | '/nova-ordem-servico' | '/service-order'
+  to:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/nova-ordem-servico'
+    | '/signup-confirmation'
+    | '/customer/new'
+    | '/service-order/new'
+    | '/customer'
+    | '/dashboard'
+    | '/service-order'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/customer'
+    | '/login'
+    | '/nova-ordem-servico'
+    | '/service-order'
+    | '/signup-confirmation'
+    | '/customer/new'
+    | '/service-order/new'
+    | '/customer/'
+    | '/dashboard/'
+    | '/service-order/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  CustomerRoute: typeof CustomerRouteWithChildren
   LoginRoute: typeof LoginRoute
   NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
-  ServiceOrderRoute: typeof ServiceOrderRoute
+  ServiceOrderRoute: typeof ServiceOrderRouteWithChildren
+  SignupConfirmationRoute: typeof SignupConfirmationRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup-confirmation': {
+      id: '/signup-confirmation'
+      path: '/signup-confirmation'
+      fullPath: '/signup-confirmation'
+      preLoaderRoute: typeof SignupConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/service-order': {
       id: '/service-order'
       path: '/service-order'
@@ -92,6 +208,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customer': {
+      id: '/customer'
+      path: '/customer'
+      fullPath: '/customer'
+      preLoaderRoute: typeof CustomerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -99,14 +229,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/service-order/': {
+      id: '/service-order/'
+      path: '/'
+      fullPath: '/service-order/'
+      preLoaderRoute: typeof ServiceOrderIndexRouteImport
+      parentRoute: typeof ServiceOrderRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/': {
+      id: '/customer/'
+      path: '/'
+      fullPath: '/customer/'
+      preLoaderRoute: typeof CustomerIndexRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/service-order/new': {
+      id: '/service-order/new'
+      path: '/new'
+      fullPath: '/service-order/new'
+      preLoaderRoute: typeof ServiceOrderNewRouteImport
+      parentRoute: typeof ServiceOrderRoute
+    }
+    '/customer/new': {
+      id: '/customer/new'
+      path: '/new'
+      fullPath: '/customer/new'
+      preLoaderRoute: typeof CustomerNewRouteImport
+      parentRoute: typeof CustomerRoute
+    }
   }
 }
 
+interface CustomerRouteChildren {
+  CustomerNewRoute: typeof CustomerNewRoute
+  CustomerIndexRoute: typeof CustomerIndexRoute
+}
+
+const CustomerRouteChildren: CustomerRouteChildren = {
+  CustomerNewRoute: CustomerNewRoute,
+  CustomerIndexRoute: CustomerIndexRoute,
+}
+
+const CustomerRouteWithChildren = CustomerRoute._addFileChildren(
+  CustomerRouteChildren,
+)
+
+interface ServiceOrderRouteChildren {
+  ServiceOrderNewRoute: typeof ServiceOrderNewRoute
+  ServiceOrderIndexRoute: typeof ServiceOrderIndexRoute
+}
+
+const ServiceOrderRouteChildren: ServiceOrderRouteChildren = {
+  ServiceOrderNewRoute: ServiceOrderNewRoute,
+  ServiceOrderIndexRoute: ServiceOrderIndexRoute,
+}
+
+const ServiceOrderRouteWithChildren = ServiceOrderRoute._addFileChildren(
+  ServiceOrderRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  CustomerRoute: CustomerRouteWithChildren,
   LoginRoute: LoginRoute,
   NovaOrdemServicoRoute: NovaOrdemServicoRoute,
-  ServiceOrderRoute: ServiceOrderRoute,
+  ServiceOrderRoute: ServiceOrderRouteWithChildren,
+  SignupConfirmationRoute: SignupConfirmationRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

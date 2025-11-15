@@ -7,7 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/react";
 const queryClient = new QueryClient();
 
 import { routeTree } from "./routeTree.gen";
-import { AuthContextProvider, type AuthContextType, useAuth } from "./auth";
+import { AuthContextProvider, type AuthContextType, useAuth } from "@/auth";
 
 import { ThemeProvider } from "./components/themes/theme-provider";
 import "./styles.css";
@@ -41,15 +41,13 @@ function InnerApp() {
     );
   }
 
-  return <RouterProvider router={router} context={{ auth }} />;
+  return <RouterProvider router={router} context={{ auth: auth }} />;
 }
 
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <AuthContextProvider>
         <InnerApp />
-      </AuthContextProvider>
     </ThemeProvider>
   );
 }
@@ -62,7 +60,9 @@ if (!rootElement.innerHTML) {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <NuqsAdapter>
-          <App />
+          <AuthContextProvider>
+            <App />
+          </AuthContextProvider>
         </NuqsAdapter>
       </QueryClientProvider>
     </React.StrictMode>

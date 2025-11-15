@@ -5,15 +5,17 @@ import {
   type User,
   type AuthProvider,
   signInWithPopup,
+  signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth'
 import { flushSync } from 'react-dom'
-import { auth } from './firebase/config'
+import { auth } from '@/firebase/config'
 
 export type AuthContextType = {
   isAuthenticated: boolean
   isInitialLoading: boolean
   login: (provider: AuthProvider) => Promise<void>
+  loginWithEmailAndPassword: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   user: User | null
 }
@@ -41,12 +43,20 @@ export function AuthContextProvider({
 
   const logout = React.useCallback(async () => {
     console.log('Logging out...')
-    await signOut(auth)
-    setUser(null)
-    setIsInitialLoading(false)
+
+    try {
+      console.log('Calling signOut...')
+      console.log('Auth object:', auth)
+      await signOut(auth)
+      setUser(null)
+      setIsInitialLoading(false)
+      window.location.href = '/login'
+    } catch (error) {
+      console.error('Error during logout:', error)
+    }
   }, [])
 
-  const login = React.useCallback(async (provider: AuthProvider) => {
+  const login = React.useCallback(async (provider: AuthProvider) => {    
     const result = await signInWithPopup(auth, provider)
     flushSync(() => {
       setUser(result.user)
@@ -54,9 +64,18 @@ export function AuthContextProvider({
     })
   }, [])
 
+  const loginWithEmailAndPassword = React.useCallback(async (email: string, password: string) => {
+    const result = await signInWithEmailAndPassword(auth, email, password)
+    flushSync(() => {
+      setUser(result.user)
+      setIsInitialLoading(false)
+      window.location.href = '/login'
+    })
+  }, [])
+
   return (
     <AuthContext.Provider
-      value={{ isInitialLoading, isAuthenticated, user, login, logout }}
+      value={{ isInitialLoading, isAuthenticated, user, login, loginWithEmailAndPassword, logout }}
     >
       {children}
     </AuthContext.Provider>

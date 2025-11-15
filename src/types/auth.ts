@@ -49,3 +49,8 @@ export interface Address {
   cep: string;
   numero: string;
 }
+
+export interface SignUpResponse {
+  sucesso: boolean;
+  mensagem: string;
+}

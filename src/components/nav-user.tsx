@@ -1,10 +1,11 @@
 import {
-  IconCreditCard,
-  IconDotsVertical,
-  IconLogout,
-  IconNotification,
-  IconUserCircle,
-} from "@tabler/icons-react"
+  BadgeCheck,
+  Bell,
+  ChevronsUpDown,
+  CreditCard,
+  LogOut,
+  Sparkles,
+} from "lucide-react"
 
 import {
   Avatar,
@@ -26,41 +27,21 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Button } from "./ui/button"
-import { useAuth } from '../auth'
-import { useRouter } from '@tanstack/react-router'
-import { GithubAuthProvider, GoogleAuthProvider, User } from "firebase/auth"
+
+import { useAuth } from "@/auth"
 
 export function NavUser({
-  user
-}: any) {
-  const router = useRouter()
+  user,
+}: {
+  user: {
+    name: string
+    email: string
+    avatar: string
+  }
+}) {
   const { isMobile } = useSidebar()
   const { logout } = useAuth()
-
-  const handleSignOut = async (provider: 'github') => {
-    console.log(`Clicked ${provider} sign out!`)
-    try {
-      const providers = {
-        github: new GithubAuthProvider(),
-        google: new GoogleAuthProvider(),
-        // Other providers can be allocated here
-      }
-
-      const typedProvider =
-        providers[provider] ??
-        (() => {
-          throw new Error('Invalid provider')
-        })()
-
-      await logout()
-      router.navigate({ to: '/dashboard' })
-      // router.invalidate() // This should force the user to route to /dashboard
-    } catch (error) {
-      console.error('SignOut in error:', error)
-  }
-}
-
+  
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -70,21 +51,19 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar || undefined} alt={user.name || undefined} />
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name || undefined}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {user.email || undefined}
-                </span>
+                <span className="truncate font-semibold">{user.name}</span>
+                <span className="truncate text-xs">{user.email}</span>
               </div>
-              <IconDotsVertical className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -92,41 +71,41 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar || undefined} alt={user.name || undefined} />
+                  <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name || undefined}</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {user.email || undefined}
-                  </span>
+                  <span className="truncate font-semibold">{user.name}</span>
+                  <span className="truncate text-xs">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <IconUserCircle />
+                <Sparkles />
+                Upgrade to Pro
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <BadgeCheck />
                 Account
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <IconCreditCard />
+                <CreditCard />
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <IconNotification />
+                <Bell />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="pl-0">
-              <Button 
-                variant={"ghost"} 
-                onClick={() => handleSignOut('github')}
-              >
-                <IconLogout />
-                Sair
-              </Button>              
+            <DropdownMenuItem onClick={logout}>
+              <LogOut />
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

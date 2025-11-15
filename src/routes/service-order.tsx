@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import ServiceOrder from "@/app/service-order";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { AdminLayout } from "@/layouts/admin-layout";
 
 export const Route = createFileRoute("/service-order")({
-  component: RouteComponent,
+  component: () => (
+    <AdminLayout>
+      <Outlet />
+    </AdminLayout>
+  ),
 });
 
-function RouteComponent() {
-  return <ServiceOrder />;
-}

@@ -1,15 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
-import { NavBar } from "@/components/organism/navbar";
+import { z } from "zod";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AdminLayout } from "@/layouts/admin-layout";
 
 export const Route = createFileRoute("/")({
-  component: HomeComponent,
+  validateSearch: z.object({
+    redirect: z.string().optional().catch(''),
+  }),
+  beforeLoad: ({ context, search }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: '/login' })
+    }
+    throw redirect({ to: '/dashboard' })
+  },
+  component: () => (
+    <AdminLayout>
+      <Outlet />
+    </AdminLayout>
+  ),
 });
 
-function HomeComponent() {
-  return (
-    <section className="h-screen">
-      <NavBar />
-    </section>
-  );
-}

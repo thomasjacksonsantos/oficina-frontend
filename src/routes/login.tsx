@@ -1,10 +1,202 @@
+import { z } from "zod";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { createFileRoute } from "@tanstack/react-router";
-import Login from "@/components/pages/login";
+import * as React from 'react'
+import { redirect, useRouter, useRouterState } from '@tanstack/react-router'
+
+import { useAuth } from '@/auth'
+import { siApple, siGithub, siGoogle } from 'simple-icons'
+
+import {
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  OAuthProvider,
+} from 'firebase/auth'
+
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Button,
+  Input,
+  Label,
+  Separator,
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage
+} from "@/components/atoms";
+
+import OnboardingPage from "@/app/account/onboarding/Page";
+
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+const fallback = '/login' as const
 
 export const Route = createFileRoute("/login")({
-  component: RouteComponent,
+  validateSearch: z.object({
+    redirect: z.string().optional().catch(''),
+  }),
+  beforeLoad: ({ context, search }) => {
+    console.log('Login route beforeLoad called')
+    if (context.auth.isAuthenticated) {
+      throw redirect({ to: search.redirect || '/' })
+    }
+  },
+  component: () => <LoginComponent />,
 });
 
-function RouteComponent() {
-  return <Login />;
+const loginSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
+});
+
+function LoginComponent() {
+  type LoginForm = z.infer<typeof loginSchema>;
+  
+  const loginForm = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const router = useRouter()
+  const { loginWithEmailAndPassword } = useAuth()
+
+  const handleSignIn = async (provider: 'github' | 'google' | 'apple') => {
+    console.log(`Clicked ${provider} sign in!`)
+    try {
+      const providers = {
+        github: new GithubAuthProvider(),
+        google: new GoogleAuthProvider(),
+        apple: new OAuthProvider('apple.com'),
+        // Other providers can be allocated here
+      }
+
+      const typedProvider =
+        providers[provider] ??
+        (() => {
+          throw new Error('Invalid provider')
+        })()
+
+        router.invalidate() // This should force the user to route to /dashboard
+      } catch (error) {
+        console.error('Sign in error:', error)
+      }      
+    }
+    
+    const handleLogin = loginForm.handleSubmit(async (values) => {
+      console.log("login values", values);
+      await loginWithEmailAndPassword(values.email, values.password)
+  });
+
+  // Componente para ícones SVG
+  const SvgIcon = ({ path, ...props }: { path: string } & React.SVGProps<SVGSVGElement>) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      {...props}
+    >
+      <path d={path} />
+    </svg>
+  )
+
+  return (
+    <div className="min-h-screen w-full grid md:grid-cols-2">
+      <div className="flex items-center justify-center px-6 py-10">
+        <div className="w-full max-w-md">
+          <h1 className="text-3xl font-bold tracking-tight text-center">
+            Bem-vindo à oficina
+          </h1>
+          <p className="text-muted-foreground text-center mt-2">
+            Entre com a sua conta ou crie uma nova.
+          </p>
+
+          <Tabs defaultValue="login" className="mt-8">
+            <div className="flex items-center justify-center">
+              <TabsList className="grid w-[260px] grid-cols-2">
+                <TabsTrigger value="login">Entrar</TabsTrigger>
+                <TabsTrigger value="register">Cadastrar</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="login" className="mt-6">
+              <Form {...loginForm}>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="email">Email</Label>
+                        <FormControl>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="password">Senha</Label>
+                        <FormControl>
+                          <Input id="password" type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button type="submit" className="w-full h-11">
+                    Entrar
+                  </Button>
+
+                  <div className="relative py-2">
+                    <Separator />
+                  </div>
+                </form>
+              </Form>
+            </TabsContent>
+
+            <TabsContent value="register" className="mt-6">
+              <OnboardingPage />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+
+      <div className="relative hidden md:block">
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-200 via-zinc-300 to-zinc-500 dark:from-zinc-800 dark:via-zinc-900 dark:to-black" />
+        <div className="absolute inset-0 bg-[radial-gradient(transparent_0,transparent_55%,rgba(0,0,0,0.35)_100%)]" />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="h-40 w-40 rounded-full border border-white/30 flex items-center justify-center">
+            <div className="h-24 w-24 rounded-full border border-white/30" />
+          </div>
+        </div>
+
+        <div className="absolute bottom-10 left-8 right-8">
+          <h2 className="text-3xl font-extrabold tracking-tight text-white drop-shadow">
+            Oficina
+          </h2>
+          <p className="text-white/90 mt-2 max-w-md">
+            DocChat é a forma mais fácil de compartilhar documentos com
+            segurança.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
 }
+

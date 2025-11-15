@@ -1,13 +1,8 @@
-type PageMeta = {
-    currentPage: number;
-    limit: number;
-    totalItems: number;
-    totalPages: number;
-    hasPreviousPage: boolean;
-    hasNextPage: boolean;
-  };
-  
+
   export type Page<T> = {
-    items: Array<T>;
-    meta: PageMeta;
+    dados: Array<T>;
+    limite: number;
+    paginaAtual: number;
+    totalRegistros: number;
+    totalPaginas: number;
   };

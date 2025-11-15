@@ -1,3 +1,4 @@
+import { TipoTelefone } from "./contato.types";
 
 export type User = {
     id: string;
@@ -19,20 +20,19 @@ export type Endereco = {
     cep: string;
     logradouro: string;
     numero: string;
-    complemento: string;
+    complemento?: string;
     bairro: string;
     estado: string;
     cidade: string;
     pais: string
 }
 
-export enum Sexo
-{
-    Masculino= 'Masculino',
+export enum Sexo {
+    Masculino = 'Masculino',
     Feminino = 'Feminino'
 }
 
-export enum TipoTelefone {
-    PHONE = ' PHONE',
-    CEL = 'CEL'
+export type ValidarDocumento = {
+    documentoValido: boolean;
+    mensagem: string;
 }
