@@ -27,7 +27,7 @@ interface DataTableProps<TData, TValue> {
   defaultSortDirection?: "asc" | "desc";
 }
 
-export function ServiceOrderList<TData, TValue>({
+export function ServiceOrderList<TData extends ServiceOrder, TValue>({
   columns,
   sortColumns,
   defaultSortField,
@@ -109,7 +109,7 @@ export function ServiceOrderList<TData, TValue>({
   }
 
   const table = useReactTable({
-    data: items || [],
+    data: (items || []) as TData[],
     columns: cols,
     getCoreRowModel: getCoreRowModel(),
   })

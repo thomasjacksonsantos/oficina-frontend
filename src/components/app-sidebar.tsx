@@ -61,19 +61,27 @@ const data = {
       items: [
         {
           title: "Dashboard",
-          url: "/admin/",
+          url: "/",
         }
       ],
     },
     {
-      title: "Pessoas",
+      title: "Dados",
       url: "#",
       icon: User,
       items: [
         {
           title: "Clientes",
-          url: "/admin/customer",
-        }
+          url: "/customer",
+        },
+        {
+          title: "Veículos",
+          url: "/veiculos",
+        },
+        {
+          title: "Loja",
+          url: "/loja",
+        },
       ],
     },
     {
@@ -82,91 +90,246 @@ const data = {
       icon: Bot,
       items: [
         {
-          title: "Ordem de Serviço",
-          url: "#",
-        },
-        {
           title: "Orçamentos",
-          url: "#",
+          url: "/orcamento",
         },
         {
-          title: "Checklist",
-          url: "#",
+          title: "Ordem de Serviço",
+          url: "/service-order",
         },
         {
-          title: "Pátio",
-          url: "#",
+          title: "Nota de Produto (NF-e)",
+          url: "/nota-produto-nfe",
         },
         {
-          title: "Conversão de Vendas ",
-          url: "#",
+          title: "Nota de Servico (Municipal)",
+          url: "/nota-servico-municipal",
+        },
+        {
+          title: "Cupom Fiscal (NCF-e)",
+          url: "/cupom-fiscal-ncfe",
+        },
+        {
+          title: "Envio para Contabilidade",
+          url: "/envio-contabilidade",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Estoque",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "Fornecedores",
+          url: "/fornecedores",
         },
         {
-          title: "Get Started",
-          url: "#",
+          title: "Grupos de Produtos",
+          url: "/grupos-produtos",
         },
         {
-          title: "Tutorials",
-          url: "#",
+          title: "Áreas de Produtos",
+          url: "/areas-produtos",
         },
         {
-          title: "Changelog",
-          url: "#",
+          title: "Unidades do Produtos",
+          url: "/unidades-produtos",
+        },
+        {
+          title: "Marcas de Produtos",
+          url: "/marcas-produtos",
+        },
+        {
+          title: "Status do Pedido de Compra",
+          url: "/status-pedido-compra",
+        }
+      ],
+    },
+    {
+      title: "Gestão de Estoque",
+      url: "#",
+      icon: BookOpen,
+      items: [
+        {
+          title: "Produtos e Serviços",
+          url: "/produtos-servicos",
+        },
+        {
+          title: "Entrada Manual",
+          url: "/entrada-manual",
+        },
+        {
+          title: "Entrada por NFe",
+          url: "/entrada-por-nfe",
+        },
+        {
+          title: "Correção de Estoque",
+          url: "/correcao-estoque",
+        },
+        {
+          title: "Auditoria de Estoque",
+          url: "/auditoria-estoque",
+        },
+        {
+          title: "Devolução e Garantia",
+          url: "/devolucao-garantia",
+        },
+        {
+          title: "Transferência entre Lojas",
+          url: "/transferencia-entre-lojas",
         },
       ],
     },
     {
-      title: "Settings",
+      title: "Financeiro",
       url: "#",
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "Contas a Pagar",
+          url: "/contas-pagar",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Pagamento em Lote",
+          url: "/pagamento-em-lote",
         },
         {
-          title: "Billing",
-          url: "#",
+          title: "Contas a Receber",
+          url: "/contas-receber",
+        },
+      ],
+    },
+    {
+      title: "Pagamentos Cartão",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "Receber ou Antecipar Pagamento",
+          url: "/receber-antecipar-pagamento",
         },
         {
-          title: "Limits",
-          url: "#",
+          title: "Consulta de Cartões",
+          url: "/consulta-cartoes",
+        },
+        {
+          title: "Forma de Pagamento",
+          url: "/forma-pagamento",
+        },
+        {
+          title: "Conta Corrente",
+          url: "/conta-corrente",
+        },
+        {
+          title: "Planos de Conta",
+          url: "/planos-conta",
+        },
+        {
+          title: "Bandeira Cartão",
+          url: "/bandeira-cartao",
+        },
+      ],
+    },
+    {
+      title: "Colaboradores",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "Funcionários",
+          url: "/funcionarios",
+        },
+        {
+          title: "Função",
+          url: "/funcao-de-comissao",
+        },
+        {
+          title: "Evento",
+          url: "/evento",
+        },
+        {
+          title: "Exames",
+          url: "/exames",
+        },
+      ],
+    },
+    {
+      title: "Comissões",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "Calculo por Consultor",
+          url: "/calculo-por-consultor",
+        },
+        {
+          title: "Calculo por Responsável",
+          url: "/calculo-por-responsavel",
+        },
+        {
+          title: "Parametrizacao por Grupo x Consultar",
+          url: "/parametrizacao-por-grupo-x-consultar",
+        },
+        {
+          title: "Parametrizacao por Grupo x Responsável",
+          url: "/parametrizacao-por-grupo-x-responsavel",
+        },
+        {
+          title: "Parametrizacao por Produto x Consultor",
+          url: "/parametrizacao-por-produto-x-consultor",
+        }
+      ],
+    },
+    {
+      title: "Relatórios",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "Monitor SEFAZ (DF-e)",
+          url: "/monitor-sefaz-dfe",
+        },
+        {
+          title: "D.R.E. Mensal",
+          url: "/dre-mensal",
+        },
+        {
+          title: "D.R.E. Anual",
+          url: "/dre-anual",
+        },
+        {
+          title: "Ponto de Equilibrio",
+          url: "/ponto-de-equilibrio",
+        },
+        {
+          title: "D.R.F. Mensal",
+          url: "/drf-mensal",
+        },
+        {
+          title: "Relatórios de Rede",
+          url: "/relatorios-rede",
         },
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+  // relatorios: [
+  //   {
+  //     name: "Relatórios Financeiros",
+  //     url: "#",
+  //     icon: Frame,
+  //   },
+  //   {
+  //     name: "Sales & Marketing",
+  //     url: "#",
+  //     icon: PieChart,
+  //   },
+  //   {
+  //     name: "Travel",
+  //     url: "#",
+  //     icon: Map,
+  //   },
+  // ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -177,7 +340,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

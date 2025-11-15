@@ -60,6 +60,12 @@
   If we ever want to remove these styles, we need to add an explicit border
   color utility to any element that depends on these defaults.
 */
+
+/* src/styles.css */
+html, body {
+  background: #09090b; /* ou a cor do seu tema escuro */
+}
+
 @layer base {
   *,
   ::after,
