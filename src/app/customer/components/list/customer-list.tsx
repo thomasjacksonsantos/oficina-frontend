@@ -1,4 +1,23 @@
 import React, { useMemo, useState } from 'react'
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type UniqueIdentifier,
+} from "@dnd-kit/core"
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { useGetCustomers } from '@/app/customer/api'
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import {
@@ -20,6 +39,9 @@ import { createCustomerColumns } from './customer-columns'
 import { useCustomerContext } from './customer-context'
 import { Customer } from '@/api/customers.types'
 import CustomerHeaderList from './customer-header-list'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react'
 
 
 interface DataTableProps<TData, TValue> {
@@ -65,16 +87,16 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
   const { items, meta } = React.useMemo(() => {
     return {
       items: data?.dados || [],
-      meta: { 
-        page: data?.paginaAtual || 1, 
-        totalPages: data?.totalPaginas || 1, 
-        total: data?.totalRegistros || 0, 
-        currentPage: data?.paginaAtual || 1, 
-        hasNextPage: false, 
-        hasPreviousPage: false, 
-        limit: 10, 
+      meta: {
+        page: data?.paginaAtual || 1,
+        totalPages: data?.totalPaginas || 1,
+        total: data?.totalRegistros || 0,
+        currentPage: data?.paginaAtual || 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+        limit: 10,
         totalItems: data?.totalRegistros || 0
-    }
+      }
     };
   }, [data]);
 
@@ -132,6 +154,7 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
         position='bottom-right'
       />
 
+      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
       <CustomerHeaderList />
       <div className='flex items-center justify-between gap-4 mb-4'>
         <div className='flex flex-1 justify-start gap-2'>
@@ -157,94 +180,179 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
           </div>
         </div>
       </div>
-      <Table className='mt-6'>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const isSortable = sortColumns?.includes(header.id);
-                const isSorted = sortField === header.id;
-                return (
-                  <TableHead key={header.id}>
-                    <div
-                      className={cn("flex items-center gap-0.5", {
-                        "cursor-pointer hover:text-foreground": isSortable,
-                        "text-foreground": isSorted,
-                      })}
-                      onClick={
-                        isSortable
-                          ? () => handleUpdateSort(header.id)
-                          : undefined
-                      }
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      {isSorted && (
-                        <ArrowUp
-                          className={cn("ml-2 h-4 w-4", {
-                            "rotate-180": sortDirection === "desc",
-                          })}
-                        />
-                      )}
-                    </div>
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {!isLoading &&
-            table.getRowModel().rows?.length > 0 &&
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handlers.onView(row.original as unknown as Customer)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} onClick={(e) => {
-                    // Prevent row click when clicking on action buttons
-                    if (cell.column.id === 'actions') {
-                      e.stopPropagation();
-                    }
-                  }}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </TableCell>
+        <div className="overflow-hidden rounded-lg border">
+          <DndContext
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            <Table>
+              <TableHeader className="bg-muted sticky top-0 z-10">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      const isSortable = sortColumns?.includes(header.id);
+                      const isSorted = sortField === header.id;
+                      return (
+                        <TableHead key={header.id}>
+                          <div
+                            className={cn("flex items-center gap-0.5", {
+                              "cursor-pointer hover:text-foreground": isSortable,
+                              "text-foreground": isSorted,
+                            })}
+                            onClick={
+                              isSortable
+                                ? () => handleUpdateSort(header.id)
+                                : undefined
+                            }
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                            {isSorted && (
+                              <ArrowUp
+                                className={cn("ml-2 h-4 w-4", {
+                                  "rotate-180": sortDirection === "desc",
+                                })}
+                              />
+                            )}
+                          </div>
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          {!isLoading && table.getRowModel().rows?.length <= 0 && (
-            <TableRow>
-              <TableCell
-                colSpan={cols.length}
-                className="h-24 text-center"
+              </TableHeader>
+              <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                {!isLoading &&
+                  table.getRowModel().rows?.length > 0 &&
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handlers.onView(row.original as unknown as Customer)}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} onClick={(e) => {
+                          // Prevent row click when clicking on action buttons
+                          if (cell.column.id === 'actions') {
+                            e.stopPropagation();
+                          }
+                        }}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                {!isLoading && table.getRowModel().rows?.length <= 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={cols.length}
+                      className="h-24 text-center"
+                    >
+                      Sem resultados.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {isLoading && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={cols.length}
+                      className="h-24 text-center"
+                    >
+                      Carregando dados...
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </DndContext >
+        </div>
+        <div className="flex items-center justify-between px-4">
+          <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          <div className="flex w-full items-center gap-8 lg:w-fit">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Label htmlFor="rows-per-page" className="text-sm font-medium">
+                Rows per page
+              </Label>
+              <Select
+                value={`${table.getState().pagination.pageSize}`}
+                onValueChange={(value) => {
+                  table.setPageSize(Number(value))
+                }}
               >
-                Sem resultados.
-              </TableCell>
-            </TableRow>
-          )}
-          {isLoading && (
-            <TableRow>
-              <TableCell
-                colSpan={cols.length}
-                className="h-24 text-center"
+                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                  <SelectValue
+                    placeholder={table.getState().pagination.pageSize}
+                  />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-fit items-center justify-center text-sm font-medium">
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </div>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
               >
-                Carregando dados...
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      {!isLoading && table.getRowModel().rows?.length > 0 && (
+                <span className="sr-only">Go to first page</span>
+                <IconChevronsLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <IconChevronLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Go to next page</span>
+                <IconChevronRight />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Go to last page</span>
+                <IconChevronsRight />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* {!isLoading && table.getRowModel().rows?.length > 0 && (
         <>
           <footer
             className="w-full mt-6 flex justify-center items-center"
@@ -312,7 +420,8 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
             </p>
           </div>
         </>
-      )}
+      )
+      } */}
     </>
   )
 }

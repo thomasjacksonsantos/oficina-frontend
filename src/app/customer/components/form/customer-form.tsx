@@ -195,7 +195,7 @@ export default function CustomerForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl py-6">
+    <div>
       <Toaster position="top-right" richColors />
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Card className="rounded-lg">
@@ -566,14 +566,6 @@ export default function CustomerForm() {
           </CardContent>
 
           <CardFooter className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              className="w-auto"
-              type="button"
-              onClick={() => router.navigate({ to: "/customer" })}
-            >
-              Voltar
-            </Button>
             <Button type="submit" className="w-auto" disabled={isPending}>
               {isPending ? "Salvando..." : "Salvar Cliente"}
             </Button>

@@ -5,8 +5,9 @@ import { ResponsiveDialog } from "@/components/ui/responsible-dialog"
 import { useState, useEffect } from "react"
 import { FilePlus } from "lucide-react"
 import { useCustomerContext } from "./customer-context"
-import { Link } from "@tanstack/react-router"
 import DeleteCustomerForm from "../forms/delete-customer-form"
+import Customer from "../.."
+import CustomerFormDialog from "../form/customer-form-dialog"
 
 export default function CustomerHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -50,14 +51,7 @@ export default function CustomerHeaderList() {
           </span>
         </div>
         <div>
-          <Link to="/customer/new">
-            <Button
-              variant="default"
-            >
-              <FilePlus className="mr-2 h-4 w-4" />
-              Novo Cliente
-            </Button>
-          </Link>
+          <CustomerFormDialog />
         </div>
       </div>
     </>
