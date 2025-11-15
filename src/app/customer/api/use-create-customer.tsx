@@ -1,6 +1,7 @@
-import customersApi from "@/api/customers.api";
-import { CreateCustomerInput } from "@/api/customers.types";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CreateCustomerInput, Customer } from "@/api/customers.types";
+import customersApi from "@/api/customers.api";
 
 export function useCreateCustomer() {
   const queryClient = useQueryClient();
@@ -8,15 +9,11 @@ export function useCreateCustomer() {
   return useMutation({
     mutationFn: (customer: CreateCustomerInput) =>
       customersApi.createCustomer(customer),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ['getCustomers'],
       });
-    },
-    onError: (error) => {
-      console.error("Erro ao criar cliente:", error);
-    },
-  })
+    }
+  });
 }
 
-  

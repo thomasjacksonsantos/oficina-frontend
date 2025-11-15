@@ -20,15 +20,19 @@ export type Endereco = {
     cep: string;
     logradouro: string;
     numero: string;
-    complemento: string;
+    complemento?: string;
     bairro: string;
     estado: string;
     cidade: string;
     pais: string
 }
 
-export enum Sexo
-{
-    Masculino= 'Masculino',
+export enum Sexo {
+    Masculino = 'Masculino',
     Feminino = 'Feminino'
+}
+
+export type ValidarDocumento = {
+    documentoValido: boolean;
+    mensagem: string;
 }

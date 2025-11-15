@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -20,13 +19,12 @@ import { Trash2 } from "lucide-react";
 
 import {
   CreateCustomerInput,
-  Sexo,
-  TipoDocumento,
+  Sexo
 } from "@/api/customers.types";
 import { TipoTelefone } from "@/api/contato.types";
 
 import { customerSchema, type CreateCustomerSchema } from "./customer.schema";
-
+import { useGetValidarDocumento } from "@/app/customer/api";
 import { useCreateCustomer } from "@/app/customer/api";
 import { useGetCep } from "@/app/customer/api";
 
@@ -36,17 +34,18 @@ import { formatCep } from "@/helpers/formatCep";
 import { formatBirthDate } from "@/helpers/formatBirthDate";
 import { formatToIso } from "@/helpers/formatDate";
 import { useEffect, useState } from "react";
+import { toast, Toaster } from "sonner";
+import { useRouter } from "@tanstack/react-router";
 
 export default function CustomerForm() {
-  const [cep, setCep] = useState<string>('');
-
-  const { isPending, mutateAsync: createCustomer } = useCreateCustomer();
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     control,
     setValue,
+    setError,
     formState: { errors },
     watch,
   } = useForm<CreateCustomerSchema>({
@@ -58,7 +57,6 @@ export default function CustomerForm() {
         cep: "",
         logradouro: "",
         numero: "",
-        complemento: "",
         bairro: "",
         cidade: "",
         estado: "",
@@ -67,10 +65,36 @@ export default function CustomerForm() {
     },
   });
 
+  const [cep, setCep] = useState<string>('');
+  const [documento, setDocumento] = useState<string>('');
+  const [documentoError, setDocumentoError] = useState<string>('');
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "contatos",
   });
+
+  const { data: validarDocumentoData, isLoading: isLoadingValidarDocumento } = useGetValidarDocumento(documento);
+
+  useEffect(() => {
+    if (validarDocumentoData) {
+      if (!validarDocumentoData.documentoValido) {
+        setDocumentoError(validarDocumentoData.mensagem);
+      }
+      else {
+        setDocumentoError("");
+        setValue("documento", formatCpfCnpj(documento), { shouldValidate: true });
+      }
+    }
+  }, [validarDocumentoData, setValue]);
+
+  const handleValidarDocumento = () => {
+    const documentoValue = watch("documento").replace(/\D/g, "");
+
+    if (documentoValue.length === 11 || documentoValue.length === 14) {
+      setDocumento(documentoValue);
+    }
+  };
 
   const { data: cepData, isLoading: isLoadingCep } = useGetCep(cep);
 
@@ -107,7 +131,13 @@ export default function CustomerForm() {
     setCep(cepValue);
   };
 
+  const { mutate: createCustomer, isPending } = useCreateCustomer();
+
+
   const onSubmit = async (data: CreateCustomerSchema) => {
+    if (documentoError) {
+      return;
+    }
     const create: CreateCustomerInput = {
       ...data,
       dataNascimento: formatToIso(data.dataNascimento),
@@ -117,14 +147,56 @@ export default function CustomerForm() {
       })),
     };
 
-    await createCustomer(create);
+    await createCustomer(create,
+      {
+        onSuccess: (result) => {
+          if (result) {
+            router.navigate({ to: "/customer" }); // <-- Correção aqui
+          } else {
+            toast.error(`Erro ao criar cliente: ${result}`);
+          }
+        },
+        onError: (error: any) => {
+          const fieldMapping: Record<string, string> = {
+            'cliente.EmailCliente': 'emailCliente',
+            'cliente.Nome': 'nome',
+            'cliente.RazaoSocial': 'razaoSocial',
+            'cliente.Documento': 'documento',
+            'cliente.Sexo': 'sexo',
+            'cliente.DataNascimento': 'dataNascimento',
+            'endereco.Cep': 'endereco.cep',
+            'endereco.Logradouro': 'endereco.logradouro',
+            'endereco.Numero': 'endereco.numero',
+            'endereco.Bairro': 'endereco.bairro',
+            'endereco.Cidade': 'endereco.cidade',
+            'endereco.Estado': 'endereco.estado',
+            'endereco.Pais': 'endereco.pais',
+          };
+          const errorData = error.response?.data
+          // Iterar sobre os erros retornados pela API
+          Object.entries(errorData.errors).forEach(([apiField, messages]) => {
+            const formField = fieldMapping[apiField];
 
-    console.log("Submitting data:", create);
-    alert("Form submetido! Veja o console para os dados.");
+            if (formField && Array.isArray(messages) && messages.length > 0) {
+              // Marcar o campo com erro no formulário
+              setError(formField as any, {
+                type: 'manual',
+                message: messages[0], // Pega a primeira mensagem de erro
+              });
+            }
+          });
+
+          toast.error("Erro de validação", {
+            description: "Erro(es) encontrados nos dados enviados.",
+          });
+        }
+      }
+    );
   };
 
   return (
     <div className="mx-auto w-full max-w-5xl py-6">
+      <Toaster position="top-right" richColors />
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Card className="rounded-lg">
           <CardContent className="p-6 space-y-6">
@@ -165,17 +237,20 @@ export default function CustomerForm() {
                   <Input
                     id="cliente-documento"
                     inputMode="numeric"
-                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                    placeholder="Informe o número"
                     className="rounded-md"
                     {...register("documento")}
                     onChange={(e) => {
                       const masked = formatCpfCnpj(e.target.value);
                       setValue("documento", masked, { shouldValidate: true });
+                      setDocumentoError("");
                     }}
+                    onBlur={handleValidarDocumento}
+                    disabled={isLoadingValidarDocumento}
                   />
-                  {errors.documento && (
+                  {(errors.documento || documentoError) && (
                     <span className="text-sm text-red-500">
-                      {errors.documento.message}
+                      {errors.documento ? errors.documento.message : documentoError}
                     </span>
                   )}
                 </div>
@@ -189,11 +264,11 @@ export default function CustomerForm() {
                     type="email"
                     placeholder="email@exemplo.com"
                     className="rounded-md"
-                    {...register("email")}
+                    {...register("emailCliente")}
                   />
-                  {errors.email && (
+                  {errors.emailCliente && (
                     <span className="text-sm text-red-500">
-                      {errors.email.message}
+                      {errors.emailCliente.message}
                     </span>
                   )}
                 </div>
@@ -422,13 +497,9 @@ export default function CustomerForm() {
                     id="cliente-complemento"
                     placeholder="Informe o complemento"
                     className="rounded-md"
-                    {...register("endereco.complemento")}
+                    {...register("endereco.complemento" as any)}
                   />
-                  {errors.endereco?.complemento && (
-                    <span className="text-sm text-red-500">
-                      {errors.endereco.complemento.message}
-                    </span>
-                  )}
+
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -495,7 +566,12 @@ export default function CustomerForm() {
           </CardContent>
 
           <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" className="w-auto" type="button">
+            <Button
+              variant="outline"
+              className="w-auto"
+              type="button"
+              onClick={() => router.navigate({ to: "/customer" })}
+            >
               Voltar
             </Button>
             <Button type="submit" className="w-auto" disabled={isPending}>

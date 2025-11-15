@@ -1,7 +1,8 @@
 
 export interface Result<T> {
     isSuccess: boolean;
-    isFailed: boolean;
+    statusCode: string;
+    mensagem: string;
     value: T;
     errors: any[];
 }

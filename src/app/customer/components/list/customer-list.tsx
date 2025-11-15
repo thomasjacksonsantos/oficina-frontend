@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useGetServiceOrders } from '@/app/service-order/api'
+import { useGetCustomers } from '@/app/customer/api'
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import {
   TableHeader,
@@ -44,7 +44,7 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
   const [statusFilter, setStatusFilter] = useState<string>("");
   const { setViewingCustomer, setEditingCustomer, setDeletingCustomer } = useCustomerContext();
 
-  const { data, isLoading } = useGetServiceOrders({ page, q, limit, sortField, sortDirection, status: statusFilter || undefined });
+  const { data, isLoading } = useGetCustomers({ page, q, limit, sortField, sortDirection, status: statusFilter || undefined });
 
   const handlers = useMemo(() => ({
     onView: (customer: Customer) => {
@@ -64,8 +64,17 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
 
   const { items, meta } = React.useMemo(() => {
     return {
-      items: data?.items || [],
-      meta: data?.meta || { page: 1, totalPages: 1, total: 0, currentPage: 1, hasNextPage: false, hasPreviousPage: false, limit: 10, totalItems: 0 }
+      items: data?.dados || [],
+      meta: { 
+        page: data?.paginaAtual || 1, 
+        totalPages: data?.totalPaginas || 1, 
+        total: data?.totalRegistros || 0, 
+        currentPage: data?.paginaAtual || 1, 
+        hasNextPage: false, 
+        hasPreviousPage: false, 
+        limit: 10, 
+        totalItems: data?.totalRegistros || 0
+    }
     };
   }, [data]);
 
@@ -111,7 +120,7 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
   }
 
   const table = useReactTable({
-    data: (items || []) as TData[],
+    data: items as unknown as TData[],
     columns: cols,
     getCoreRowModel: getCoreRowModel(),
   })

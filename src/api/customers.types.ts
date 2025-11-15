@@ -21,7 +21,7 @@ export type Customer = {
   razaoSocial: string; // Company Name
   sexo: Sexo; // Gender
   documento: string; // Document
-  email: string; // Employee Id
+  emailCliente: string; // Employee Id
   dataNascimento: string; // Date of Birth (ISO date)
   contatos: Contato[]; // Contact Information
   endereco: Endereco
