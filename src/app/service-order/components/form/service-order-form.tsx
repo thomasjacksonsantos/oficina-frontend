@@ -17,7 +17,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -36,8 +36,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { Search, ChevronDown, ChevronUp, List, ArrowUp, Plus, Trash2, Pencil } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, List, ArrowUp, Plus, Trash2, Pencil, Link, Router } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Route, useRouter } from "@tanstack/react-router"
 
 interface ServiceOrderFormProps {
   serviceOrderId?: number
@@ -68,10 +69,12 @@ interface ServiceOrderFormProps {
   }
 }
 
-export default function ServiceOrderForm({ 
+export default function ServiceOrderForm({
   serviceOrderId = 1,
-  initialData 
+  initialData
 }: ServiceOrderFormProps) {
+  const router = useRouter()
+
   const [clientDetailsOpen, setClientDetailsOpen] = React.useState(false)
   const [vehicleDetailsOpen, setVehicleDetailsOpen] = React.useState(false)
   const [productDialogOpen, setProductDialogOpen] = React.useState(false)
@@ -80,7 +83,7 @@ export default function ServiceOrderForm({
   const [menuDialogOpen, setMenuDialogOpen] = React.useState(false)
   const [customerLookupOpen, setCustomerLookupOpen] = React.useState(false)
   const [vehicleLookupOpen, setVehicleLookupOpen] = React.useState(false)
-  
+
   // Client details modal state
   const [clientDetailsModalOpen, setClientDetailsModalOpen] = React.useState(false)
   const [clientDetailsForm, setClientDetailsForm] = React.useState({
@@ -97,7 +100,7 @@ export default function ServiceOrderForm({
     cep: "",
     observacoes: "",
   })
-  
+
   // Vehicle details modal state
   const [vehicleDetailsModalOpen, setVehicleDetailsModalOpen] = React.useState(false)
   const [editingVehicleId, setEditingVehicleId] = React.useState<number | null>(null)
@@ -109,21 +112,21 @@ export default function ServiceOrderForm({
     { id: 3, carro: "Teste", modelo: "Fiat", cor: "cinza" },
     { id: 4, carro: "Teste", modelo: "Chevrolet", cor: "azul" },
   ])
-  
+
   // Phones list for client details modal
   const [phones, setPhones] = React.useState<Array<{ id: number; tipo: string; numero: string }>>([
     { id: 1, tipo: "Celular", numero: "" },
     { id: 2, tipo: "Resid", numero: "" },
   ])
-  
+
   // Sorting state for products table
   const [productsSortField, setProductsSortField] = React.useState<string | null>(null)
   const [productsSortDirection, setProductsSortDirection] = React.useState<"asc" | "desc">("asc")
-  
+
   // Sorting state for product search dialog table
   const [productSearchSortField, setProductSearchSortField] = React.useState<string | null>(null)
   const [productSearchSortDirection, setProductSearchSortDirection] = React.useState<"asc" | "desc">("asc")
-  
+
   // Client details form state
   const [clientDetails, setClientDetails] = React.useState({
     nome: "",
@@ -139,7 +142,7 @@ export default function ServiceOrderForm({
     cep: "",
     observacoes: "",
   })
-  
+
   // Vehicle details form state
   const [vehicleDetails, setVehicleDetails] = React.useState({
     placa: "",
@@ -149,7 +152,7 @@ export default function ServiceOrderForm({
     cor: "",
     hodometro: "",
   })
-  
+
   // Vehicle list state
   const [vehicleList, setVehicleList] = React.useState([
     { id: 1, carro: "Teste", modelo: "Fusca", cor: "branco" },
@@ -157,11 +160,11 @@ export default function ServiceOrderForm({
     { id: 3, carro: "Teste", modelo: "Fiat", cor: "cinza" },
     { id: 4, carro: "Teste", modelo: "Chevrolet", cor: "azul" },
   ])
-  
+
   // Sorting state for vehicle list table
   const [vehicleListSortField, setVehicleListSortField] = React.useState<string | null>(null)
   const [vehicleListSortDirection, setVehicleListSortDirection] = React.useState<"asc" | "desc">("asc")
-  
+
   const formatDate = (dateString: string) => {
     if (!dateString) return ""
     const date = new Date(dateString)
@@ -170,7 +173,7 @@ export default function ServiceOrderForm({
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
   }
-  
+
   const [formData, setFormData] = React.useState({
     inicio: initialData?.inicio || "2025-10-27",
     fim: initialData?.fim || "2025-10-27",
@@ -245,21 +248,21 @@ export default function ServiceOrderForm({
     direction: "asc" | "desc"
   ): T[] => {
     if (!field) return items
-    
+
     return [...items].sort((a, b) => {
       let aValue = a[field]
       let bValue = b[field]
-      
+
       // Handle null/undefined values
       if (aValue == null) aValue = ""
       if (bValue == null) bValue = ""
-      
+
       // Convert to strings for comparison if both are not numbers
       if (typeof aValue !== "number" && typeof bValue !== "number") {
         aValue = String(aValue).toLowerCase()
         bValue = String(bValue).toLowerCase()
       }
-      
+
       if (aValue < bValue) return direction === "asc" ? -1 : 1
       if (aValue > bValue) return direction === "asc" ? 1 : -1
       return 0
@@ -622,7 +625,7 @@ export default function ServiceOrderForm({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {["CPF","CNPJ","CPF","CNPJ"].map((tipo, idx) => (
+                    {["CPF", "CNPJ", "CPF", "CNPJ"].map((tipo, idx) => (
                       <TableRow key={idx} className="border-b border-border/20 bg-card">
                         <TableCell className="px-4 py-2">Teste</TableCell>
                         <TableCell className="px-4 py-2">{tipo}</TableCell>
@@ -990,7 +993,7 @@ export default function ServiceOrderForm({
                     </TableHeader>
                     <TableBody>
                       {sortedProdutos.map((produto, index) => (
-                        <TableRow 
+                        <TableRow
                           key={produto.id || index}
                           className="border-b border-border/20 bg-card hover:bg-muted/20 transition-colors"
                         >
@@ -1158,6 +1161,14 @@ export default function ServiceOrderForm({
             </DialogContent>
           </Dialog>
         </CardContent>
+        <CardFooter>
+          <div className="flex items-center gap-2 ml-auto">
+            <Button variant="secondary" onClick={() => { router.navigate({ to: "/service-order" }) }}>
+              cancelar
+            </Button>
+            <Button onClick={() => { }}>Salvar O.S</Button>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   )

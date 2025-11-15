@@ -50,7 +50,7 @@ export default function ServiceOrderHeaderList() {
           </span>
         </div>
         <div>
-          <Link to="/nova-ordem-servico">
+          <Link to="/service-order/new">
             <Button
               variant="default"
             >
