@@ -1,25 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import {
   closestCenter,
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type UniqueIdentifier,
+  DndContext
 } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
 import { useGetCustomers } from '@/app/customer/api'
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import {
   TableHeader,
   TableHead,
@@ -32,7 +18,6 @@ import { cn } from '@/lib/utils'
 import { ArrowUp } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
 import { Toaster } from 'sonner'
 import { ServiceOrder } from '@/api/service-orders.types'
 import { createCustomerColumns } from './customer-columns'
@@ -57,16 +42,12 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
   defaultSortField,
   defaultSortDirection,
 }: DataTableProps<TData, TValue>) {
-  const [page, setPage] = useState<number>(1)
   const [inputValue, setInputValue] = useState('')
   const [q, setQ] = useState('')
-  const [limit, setLimit] = useState<number>(10)
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || "desc");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const { setViewingCustomer, setEditingCustomer, setDeletingCustomer } = useCustomerContext();
-
-  const { data, isLoading } = useGetCustomers({ page, q, limit, sortField, sortDirection, status: statusFilter || undefined });
 
   const handlers = useMemo(() => ({
     onView: (customer: Customer) => {
@@ -84,55 +65,9 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
     return createCustomerColumns(handlers) as ColumnDef<TData, TValue>[];
   }, [handlers]);
 
-  const { items, meta } = React.useMemo(() => {
-    return {
-      items: data?.dados || [],
-      meta: {
-        page: data?.paginaAtual || 1,
-        totalPages: data?.totalPaginas || 1,
-        total: data?.totalRegistros || 0,
-        currentPage: data?.paginaAtual || 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
-        limit: 10,
-        totalItems: data?.totalRegistros || 0
-      }
-    };
-  }, [data]);
-
-  const pagesToRender = React.useMemo(() => {
-    if (!meta) return [];
-
-    const maxPagesToRender = 5;
-
-    const pages = [];
-    let startIndex = Math.max(1, meta.currentPage - 2);
-    let endIndex = Math.min(meta.totalPages, meta.currentPage + 2);
-
-    if (meta.totalPages <= maxPagesToRender) {
-      startIndex = 1;
-      endIndex = meta.totalPages;
-    } else {
-      if (startIndex < 1) {
-        startIndex = 1;
-        endIndex = maxPagesToRender;
-      }
-
-      if (endIndex > meta.totalPages) {
-        startIndex = meta.totalPages - maxPagesToRender + 1;
-        endIndex = meta.totalPages;
-      }
-    }
-
-    for (let i = startIndex; i <= endIndex; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  }, [meta]);
 
   function handleUpdateSort(field: string) {
-    setPage(1);
+    setPagination({ ...pagination, pageIndex: 0 });
     setSortField(field);
     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
   }
@@ -141,10 +76,44 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
     setInputValue(e.target.value);
   }
 
+  const [pagination, setPagination] = useState({
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+  });
+
+  // Calcule page (1-based) a partir do pageIndex
+  const page = pagination.pageIndex + 1;
+  const limit = pagination.pageSize;
+
+  const { data, isLoading } = useGetCustomers(
+    {
+      pagina: page,
+      q,
+      totalPagina: limit,
+      sortField,
+      sortDirection,
+      status: statusFilter || undefined
+    });
+
+  // Extrair dados e metadados da resposta
+  const { items, totalRecords } = React.useMemo(() => {
+    return {
+      items: data?.dados || [],
+      totalRecords: data?.totalRegistros || 0,
+    };
+  }, [data]);
+
   const table = useReactTable({
     data: items as unknown as TData[],
     columns: cols,
+    manualPagination: true, // Paginação manual (servidor)
+    pageCount: Math.ceil((totalRecords || 0) / pagination.pageSize), // Calcular total de páginas
+    rowCount: totalRecords || 0,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      pagination,
+    },
+    onPaginationChange: setPagination,
   })
 
   return (
@@ -155,31 +124,31 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
       />
 
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-      <CustomerHeaderList />
-      <div className='flex items-center justify-between gap-4 mb-4'>
-        <div className='flex flex-1 justify-start gap-2'>
-          <Input
-            className='w-[272px]'
-            value={inputValue}
-            onChange={handleTextareaChange}
-            placeholder="Buscar por código, cliente, placa..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+        <CustomerHeaderList />
+        <div className='flex items-center justify-between gap-4 mb-4'>
+          <div className='flex flex-1 justify-start gap-2'>
+            <Input
+              className='w-[272px]'
+              value={inputValue}
+              onChange={handleTextareaChange}
+              placeholder="Buscar por código, cliente, placa..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setQ(inputValue);
+                  setPagination({ ...pagination, pageIndex: 0 });
+                }
+              }}
+            />
+            <div className='flex gap-x-2'>
+              <Button onClick={() => {
                 setQ(inputValue);
-                setPage(1);
-              }
-            }}
-          />
-          <div className='flex gap-x-2'>
-            <Button onClick={() => {
-              setQ(inputValue);
-              setPage(1);
-            }}>
-              Buscar
-            </Button>
+                setPagination({ ...pagination, pageIndex: 0 });
+              }}>
+                Buscar
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
         <div className="overflow-hidden rounded-lg border">
           <DndContext
             collisionDetection={closestCenter}
@@ -276,13 +245,13 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {table.getFilteredSelectedRowModel().rows.length} de{" "}
+            {table.getFilteredRowModel().rows.length} linha(s) selecionada(s).
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Rows per page
+                Total por páginas:
               </Label>
               <Select
                 value={`${table.getState().pagination.pageSize}`}
@@ -305,7 +274,7 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
               </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              Pagina {table.getState().pagination.pageIndex + 1} of{" "}
               {table.getPageCount()}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">

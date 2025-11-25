@@ -343,7 +343,7 @@ export default function ServiceOrderForm({
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
+    <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
       <Card className="rounded-lg">
         <CardContent className="p-6 space-y-6">
           {/* Header Section */}
