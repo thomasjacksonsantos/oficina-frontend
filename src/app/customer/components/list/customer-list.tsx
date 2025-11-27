@@ -1,6 +1,11 @@
 import React, { useMemo, useState } from 'react'
+import {
+  closestCenter,
+  DndContext
+} from "@dnd-kit/core"
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { useGetCustomers } from '@/app/customer/api'
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import {
   TableHeader,
   TableHead,
@@ -13,13 +18,15 @@ import { cn } from '@/lib/utils'
 import { ArrowUp } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
 import { Toaster } from 'sonner'
 import { ServiceOrder } from '@/api/service-orders.types'
 import { createCustomerColumns } from './customer-columns'
 import { useCustomerContext } from './customer-context'
 import { Customer } from '@/api/customers.types'
 import CustomerHeaderList from './customer-header-list'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react'
 
 
 interface DataTableProps<TData, TValue> {
@@ -35,16 +42,12 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
   defaultSortField,
   defaultSortDirection,
 }: DataTableProps<TData, TValue>) {
-  const [page, setPage] = useState<number>(1)
   const [inputValue, setInputValue] = useState('')
   const [q, setQ] = useState('')
-  const [limit, setLimit] = useState<number>(10)
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || "desc");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const { setViewingCustomer, setEditingCustomer, setDeletingCustomer } = useCustomerContext();
-
-  const { data, isLoading } = useGetCustomers({ page, q, limit, sortField, sortDirection, status: statusFilter || undefined });
 
   const handlers = useMemo(() => ({
     onView: (customer: Customer) => {
@@ -62,55 +65,9 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
     return createCustomerColumns(handlers) as ColumnDef<TData, TValue>[];
   }, [handlers]);
 
-  const { items, meta } = React.useMemo(() => {
-    return {
-      items: data?.dados || [],
-      meta: { 
-        page: data?.paginaAtual || 1, 
-        totalPages: data?.totalPaginas || 1, 
-        total: data?.totalRegistros || 0, 
-        currentPage: data?.paginaAtual || 1, 
-        hasNextPage: false, 
-        hasPreviousPage: false, 
-        limit: 10, 
-        totalItems: data?.totalRegistros || 0
-    }
-    };
-  }, [data]);
-
-  const pagesToRender = React.useMemo(() => {
-    if (!meta) return [];
-
-    const maxPagesToRender = 5;
-
-    const pages = [];
-    let startIndex = Math.max(1, meta.currentPage - 2);
-    let endIndex = Math.min(meta.totalPages, meta.currentPage + 2);
-
-    if (meta.totalPages <= maxPagesToRender) {
-      startIndex = 1;
-      endIndex = meta.totalPages;
-    } else {
-      if (startIndex < 1) {
-        startIndex = 1;
-        endIndex = maxPagesToRender;
-      }
-
-      if (endIndex > meta.totalPages) {
-        startIndex = meta.totalPages - maxPagesToRender + 1;
-        endIndex = meta.totalPages;
-      }
-    }
-
-    for (let i = startIndex; i <= endIndex; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  }, [meta]);
 
   function handleUpdateSort(field: string) {
-    setPage(1);
+    setPagination({ ...pagination, pageIndex: 0 });
     setSortField(field);
     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
   }
@@ -119,10 +76,44 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
     setInputValue(e.target.value);
   }
 
+  const [pagination, setPagination] = useState({
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+  });
+
+  // Calcule page (1-based) a partir do pageIndex
+  const page = pagination.pageIndex + 1;
+  const limit = pagination.pageSize;
+
+  const { data, isLoading } = useGetCustomers(
+    {
+      pagina: page,
+      q,
+      totalPagina: limit,
+      sortField,
+      sortDirection,
+      status: statusFilter || undefined
+    });
+
+  // Extrair dados e metadados da resposta
+  const { items, totalRecords } = React.useMemo(() => {
+    return {
+      items: data?.dados || [],
+      totalRecords: data?.totalRegistros || 0,
+    };
+  }, [data]);
+
   const table = useReactTable({
     data: items as unknown as TData[],
     columns: cols,
+    manualPagination: true, // Paginação manual (servidor)
+    pageCount: Math.ceil((totalRecords || 0) / pagination.pageSize), // Calcular total de páginas
+    rowCount: totalRecords || 0,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      pagination,
+    },
+    onPaginationChange: setPagination,
   })
 
   return (
@@ -132,119 +123,205 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
         position='bottom-right'
       />
 
-      <CustomerHeaderList />
-      <div className='flex items-center justify-between gap-4 mb-4'>
-        <div className='flex flex-1 justify-start gap-2'>
-          <Input
-            className='w-[272px]'
-            value={inputValue}
-            onChange={handleTextareaChange}
-            placeholder="Buscar por código, cliente, placa..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+        <CustomerHeaderList />
+        <div className='flex items-center justify-between gap-4 mb-4'>
+          <div className='flex flex-1 justify-start gap-2'>
+            <Input
+              className='w-[272px]'
+              value={inputValue}
+              onChange={handleTextareaChange}
+              placeholder="Buscar por código, cliente, placa..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setQ(inputValue);
+                  setPagination({ ...pagination, pageIndex: 0 });
+                }
+              }}
+            />
+            <div className='flex gap-x-2'>
+              <Button onClick={() => {
                 setQ(inputValue);
-                setPage(1);
-              }
-            }}
-          />
-          <div className='flex gap-x-2'>
-            <Button onClick={() => {
-              setQ(inputValue);
-              setPage(1);
-            }}>
-              Buscar
-            </Button>
+                setPagination({ ...pagination, pageIndex: 0 });
+              }}>
+                Buscar
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-lg border">
+          <DndContext
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            <Table>
+              <TableHeader className="bg-muted sticky top-0 z-10">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      const isSortable = sortColumns?.includes(header.id);
+                      const isSorted = sortField === header.id;
+                      return (
+                        <TableHead key={header.id}>
+                          <div
+                            className={cn("flex items-center gap-0.5", {
+                              "cursor-pointer hover:text-foreground": isSortable,
+                              "text-foreground": isSorted,
+                            })}
+                            onClick={
+                              isSortable
+                                ? () => handleUpdateSort(header.id)
+                                : undefined
+                            }
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                            {isSorted && (
+                              <ArrowUp
+                                className={cn("ml-2 h-4 w-4", {
+                                  "rotate-180": sortDirection === "desc",
+                                })}
+                              />
+                            )}
+                          </div>
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                {!isLoading &&
+                  table.getRowModel().rows?.length > 0 &&
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handlers.onView(row.original as unknown as Customer)}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} onClick={(e) => {
+                          // Prevent row click when clicking on action buttons
+                          if (cell.column.id === 'actions') {
+                            e.stopPropagation();
+                          }
+                        }}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                {!isLoading && table.getRowModel().rows?.length <= 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={cols.length}
+                      className="h-24 text-center"
+                    >
+                      Sem resultados.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {isLoading && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={cols.length}
+                      className="h-24 text-center"
+                    >
+                      Carregando dados...
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </DndContext >
+        </div>
+        <div className="flex items-center justify-between px-4">
+          <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+            {table.getFilteredSelectedRowModel().rows.length} de{" "}
+            {table.getFilteredRowModel().rows.length} linha(s) selecionada(s).
+          </div>
+          <div className="flex w-full items-center gap-8 lg:w-fit">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Label htmlFor="rows-per-page" className="text-sm font-medium">
+                Total por páginas:
+              </Label>
+              <Select
+                value={`${table.getState().pagination.pageSize}`}
+                onValueChange={(value) => {
+                  table.setPageSize(Number(value))
+                }}
+              >
+                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                  <SelectValue
+                    placeholder={table.getState().pagination.pageSize}
+                  />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-fit items-center justify-center text-sm font-medium">
+              Pagina {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </div>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <span className="sr-only">Go to first page</span>
+                <IconChevronsLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <IconChevronLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Go to next page</span>
+                <IconChevronRight />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Go to last page</span>
+                <IconChevronsRight />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-      <Table className='mt-6'>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const isSortable = sortColumns?.includes(header.id);
-                const isSorted = sortField === header.id;
-                return (
-                  <TableHead key={header.id}>
-                    <div
-                      className={cn("flex items-center gap-0.5", {
-                        "cursor-pointer hover:text-foreground": isSortable,
-                        "text-foreground": isSorted,
-                      })}
-                      onClick={
-                        isSortable
-                          ? () => handleUpdateSort(header.id)
-                          : undefined
-                      }
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      {isSorted && (
-                        <ArrowUp
-                          className={cn("ml-2 h-4 w-4", {
-                            "rotate-180": sortDirection === "desc",
-                          })}
-                        />
-                      )}
-                    </div>
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {!isLoading &&
-            table.getRowModel().rows?.length > 0 &&
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handlers.onView(row.original as unknown as Customer)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} onClick={(e) => {
-                    // Prevent row click when clicking on action buttons
-                    if (cell.column.id === 'actions') {
-                      e.stopPropagation();
-                    }
-                  }}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          {!isLoading && table.getRowModel().rows?.length <= 0 && (
-            <TableRow>
-              <TableCell
-                colSpan={cols.length}
-                className="h-24 text-center"
-              >
-                Sem resultados.
-              </TableCell>
-            </TableRow>
-          )}
-          {isLoading && (
-            <TableRow>
-              <TableCell
-                colSpan={cols.length}
-                className="h-24 text-center"
-              >
-                Carregando dados...
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      {!isLoading && table.getRowModel().rows?.length > 0 && (
+      {/* {!isLoading && table.getRowModel().rows?.length > 0 && (
         <>
           <footer
             className="w-full mt-6 flex justify-center items-center"
@@ -312,7 +389,8 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
             </p>
           </div>
         </>
-      )}
+      )
+      } */}
     </>
   )
 }

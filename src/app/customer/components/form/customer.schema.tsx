@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Sexo, TipoDocumento } from "@/api/customers.types";
+import { Sexo } from "@/api/customers.types";
 import { TipoTelefone } from "@/api/contato.types";
 
 // Schema para contatos
@@ -36,3 +36,7 @@ export const customerSchema = z.object({
 });
 
 export type CreateCustomerSchema = z.infer<typeof customerSchema>;
+
+export type EditCustomerSchema = z.infer<typeof customerSchema> & {
+  id?: string;
+};

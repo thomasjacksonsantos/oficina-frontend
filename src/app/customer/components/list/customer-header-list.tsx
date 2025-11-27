@@ -5,12 +5,31 @@ import { ResponsiveDialog } from "@/components/ui/responsible-dialog"
 import { useState, useEffect } from "react"
 import { FilePlus } from "lucide-react"
 import { useCustomerContext } from "./customer-context"
-import { Link } from "@tanstack/react-router"
 import DeleteCustomerForm from "../forms/delete-customer-form"
+import CustomerFormDialog from "../form/customer-form-dialog"
+import EditCustomerForm from "../forms/edit-customer-form"
 
 export default function CustomerHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { deletingCustomer, setDeletingCustomer } = useCustomerContext();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const {
+    editingCustomer,
+    setEditingCustomer,
+    deletingCustomer,
+    setDeletingCustomer
+  } = useCustomerContext();
+
+  //Editing
+  useEffect(() => {
+    if (editingCustomer) {
+      setIsEditOpen(true);
+    } else {
+      setIsEditOpen(false);
+    }
+  }, [editingCustomer]);
+
+  // Deleting
   useEffect(() => {
     if (deletingCustomer) {
       setIsDeleteOpen(true);
@@ -18,6 +37,11 @@ export default function CustomerHeaderList() {
       setIsDeleteOpen(false);
     }
   }, [deletingCustomer]);
+
+  const handleCloseEdit = () => {
+    setIsEditOpen(false);
+    setEditingCustomer(null);
+  };
 
   const handleCloseDelete = () => {
     setIsDeleteOpen(false);
@@ -40,6 +64,21 @@ export default function CustomerHeaderList() {
         )}
       </ResponsiveDialog>
 
+      <ResponsiveDialog
+        isOpen={isEditOpen}
+        setIsOpen={setIsEditOpen}
+        title=""
+        description=""
+        className="p-0"
+      >
+        {editingCustomer && (
+          <EditCustomerForm
+            customer={editingCustomer!}
+            setIsOpen={handleCloseEdit}
+          />
+        )}
+      </ResponsiveDialog>
+
       <div className="flex mb-2 flex-wrap items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
@@ -50,14 +89,7 @@ export default function CustomerHeaderList() {
           </span>
         </div>
         <div>
-          <Link to="/customer/new">
-            <Button
-              variant="default"
-            >
-              <FilePlus className="mr-2 h-4 w-4" />
-              Novo Cliente
-            </Button>
-          </Link>
+          <CustomerFormDialog />
         </div>
       </div>
     </>

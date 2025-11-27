@@ -11,14 +11,14 @@ import { toast } from 'sonner';
 import { useDeleteCustomer } from '../../api/use-delete-customer';
 
 const formSchema = z.object({
-  customerId: z.number(),
+  customerId: z.string(),
 });
 
 export default function DeleteCustomerForm({
   customerId,
   setIsOpen,
 }: {
-  customerId: number;
+  customerId: string;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const { mutate: deleteCustomer, isPending } = useDeleteCustomer();
@@ -60,20 +60,18 @@ export default function DeleteCustomerForm({
         </div>
         <div className="w-full flex justify-center sm:space-x-6">
           <Button
-            size="lg"
             variant="outline"
             disabled={isPending}
-            className="w-full hidden sm:block"
+            className="hidden sm:block"
             type="button"
             onClick={() => setIsOpen(false)}
           >
             Cancelar
           </Button>
           <Button
-            size="lg"
             type="submit"
             disabled={isPending}
-            className="w-full bg-red-500 hover:bg-red-400"
+            className="bg-red-500 hover:bg-red-400"
           >
             {isPending ? (
               <>
