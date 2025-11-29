@@ -4,7 +4,7 @@ import { ProductGroupProvider } from './components/list/product-group-context';
 export default function ProductGroup() {
   return (
     <ProductGroupProvider>
-      <div className="container mx-auto pl-40 pr-10 px-4">
+      <div className="container mx-auto py-6 px-4">
         <ProductGroupList
           columns={[]}
           sortColumns={['codigo', 'descricao', 'area', 'ncm']}

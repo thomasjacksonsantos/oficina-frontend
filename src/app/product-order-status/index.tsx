@@ -6,7 +6,7 @@ import { OrderStatusProvider } from './components/list/product-orderStatus-conte
 export default function OrderStatus() {
   return (
     <OrderStatusProvider>
-      <div className="container mx-auto pl-40 pr-10 px-4">
+      <div className="container mx-auto py-6 px-4">
         <OrderStatusList
           columns={[]}
           sortColumns={['codigo', 'descricao']}

@@ -4,7 +4,7 @@ import { AreaProvider } from './components/list/product-area-context';
 export default function Area() {
   return (
     <AreaProvider>
-      <div className="container mx-auto pl-40 pr-10 px-4">
+      <div className="container mx-auto py-6 px-4">
         <AreaList
           columns={[]}
           sortColumns={['codigo', 'descricao', 'garantia']}
