@@ -20,6 +20,7 @@ import { unitSchema, type CreateUnitSchema } from './product-unit.schema';
 import { toast } from 'sonner';
 import { useUnitContext } from '../list/product-unit-context';
 import { useUpdateUnit } from '@/app/product-unit/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function UnitEditDialog() {
   const { editingUnit, setEditingUnit } = useUnitContext();
@@ -98,11 +99,10 @@ export default function UnitEditDialog() {
 
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-descricao">Descrição</Label>
-              <Input
+              <FloatingInput
                 id="edit-descricao"
                 {...register('descricao')}
-                placeholder="Ex: Unidade, Caixa, Pacote..."
+                label="Descrição"
               />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>

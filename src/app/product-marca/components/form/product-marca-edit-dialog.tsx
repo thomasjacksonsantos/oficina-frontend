@@ -20,6 +20,7 @@ import { marcaSchema, type CreateMarcaSchema } from './product-marca.schema';
 import { toast } from 'sonner';
 import { useMarcaContext } from '../list/product-marca-context';
 import { useUpdateMarca } from '@/app/product-marca/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function MarcaEditDialog() {
   const { editingMarca, setEditingMarca } = useMarcaContext();
@@ -99,10 +100,10 @@ export default function MarcaEditDialog() {
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="edit-descricao">Descrição</Label>
-              <Input
+              <FloatingInput
                 id="edit-descricao"
                 {...register('descricao')}
-                placeholder="Ex: Unidade, Caixa, Pacote..."
+                label="Descrição"
               />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>

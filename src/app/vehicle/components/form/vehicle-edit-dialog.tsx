@@ -16,8 +16,9 @@ import { Separator } from '@/components/ui/separator';
 import { useForm } from 'react-hook-form';
 import { vehicleSchema, type CreateVehicleSchema } from './vehicle.schema';
 import { toast } from 'sonner';
-import { useVehicleContext } from '../list/vehicle-context';
+import { useVehicleContext } from '../list/vehicle-context' ;
 import { useUpdateVehicle } from '@/app/vehicle/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function VehicleEditDialog() {
   const { editingVehicle, setEditingVehicle } = useVehicleContext();
@@ -127,14 +128,10 @@ export default function VehicleEditDialog() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-placa">Placa</Label>
-                <Input
+                <FloatingInput
                   id="edit-placa"
                   {...register('placa')}
-                  placeholder="ABC1D23"
-                  onChange={(e) => {
-                    const upper = e.target.value.toUpperCase();
-                    setValue('placa', upper, { shouldValidate: true });
-                  }}
+                  label='Placa'
                 />
                 {errors.placa && (
                   <span className="text-sm text-red-500">{errors.placa.message}</span>
@@ -143,7 +140,7 @@ export default function VehicleEditDialog() {
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-modelo">Modelo</Label>
-                <Input id="edit-modelo" {...register('modelo')} placeholder="Civic EXL" />
+                <FloatingInput id="edit-modelo" {...register('modelo')} label="Modelo" />
                 {errors.modelo && (
                   <span className="text-sm text-red-500">{errors.modelo.message}</span>
                 )}
@@ -151,7 +148,7 @@ export default function VehicleEditDialog() {
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-montadora">Montadora</Label>
-                <Input id="edit-montadora" {...register('montadora')} placeholder="Honda" />
+                <FloatingInput id="edit-montadora" {...register('montadora')} label='Montadora' />
                 {errors.montadora && (
                   <span className="text-sm text-red-500">{errors.montadora.message}</span>
                 )}
@@ -161,11 +158,10 @@ export default function VehicleEditDialog() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-hodrometro">Hodômetro (km)</Label>
-                <Input
+                <FloatingInput
                   id="edit-hodrometro"
-                  value={watch('hodrometro') || ''}
-                  onChange={handleHodometroChange}
-                  placeholder="45000"
+                  {...register('hodrometro')}
+                  label="Hodômetro (km)"
                   inputMode="numeric"
                 />
                 {errors.hodrometro && (
@@ -175,22 +171,16 @@ export default function VehicleEditDialog() {
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-cor">Cor</Label>
-                <Input id="edit-cor" {...register('cor')} placeholder="Prata" />
+                <FloatingInput id="edit-cor" {...register('cor')} label='Cor' />
                 {errors.cor && <span className="text-sm text-red-500">{errors.cor.message}</span>}
               </div>
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-ano">Ano</Label>
-                <Input
+                <FloatingInput
                   id="edit-ano"
                   {...register('ano')}
-                  placeholder="2023"
-                  inputMode="numeric"
-                  maxLength={4}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '');
-                    setValue('ano', value, { shouldValidate: true });
-                  }}
+                  label='Ano'
                 />
                 {errors.ano && <span className="text-sm text-red-500">{errors.ano.message}</span>}
               </div>
@@ -199,10 +189,10 @@ export default function VehicleEditDialog() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-motorizacao">Motorização</Label>
-                <Input
+                <FloatingInput
                   id="edit-motorizacao"
                   {...register('motorizacao')}
-                  placeholder="2.0 16V Flex"
+                  label='Motorizacao'
                 />
                 {errors.motorizacao && (
                   <span className="text-sm text-red-500">{errors.motorizacao.message}</span>
@@ -211,15 +201,10 @@ export default function VehicleEditDialog() {
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-chassi">Chassi</Label>
-                <Input
+                <FloatingInput
                   id="edit-chassi"
                   {...register('chassi')}
-                  placeholder="9BWZZZ377VT004251"
-                  maxLength={17}
-                  onChange={(e) => {
-                    const upper = e.target.value.toUpperCase();
-                    setValue('chassi', upper, { shouldValidate: true });
-                  }}
+                  label="Chassi"
                 />
                 {errors.chassi && (
                   <span className="text-sm text-red-500">{errors.chassi.message}</span>
@@ -228,10 +213,10 @@ export default function VehicleEditDialog() {
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-numero-serie">Número de Série</Label>
-                <Input
+                <FloatingInput
                   id="edit-numero-serie"
                   {...register('numeroSerie')}
-                  placeholder="HC2023-45678"
+                  label="Número de Série"
                 />
                 {errors.numeroSerie && (
                   <span className="text-sm text-red-500">{errors.numeroSerie.message}</span>

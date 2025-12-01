@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import { unitSchema, type CreateUnitSchema } from './product-unit.schema';
 import { toast } from 'sonner';
 import { useCreateUnit } from '@/app/product-unit/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 interface CreateUnitDialogProps {
   isOpen: boolean;
@@ -90,11 +91,10 @@ export default function CreateUnitDialog({ isOpen, setIsOpen }: CreateUnitDialog
 
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="create-descricao">Descrição</Label>
-              <Input
+              <FloatingInput
                 id="create-descricao"
                 {...register('descricao')}
-                placeholder="Ex: Unidade, Caixa, Pacote..."
+                label="Descrição"
                 autoFocus
               />
               {errors.descricao && (

@@ -20,6 +20,7 @@ import { orderStatusSchema, type CreateOrderStatusSchema } from './product-order
 import { toast } from 'sonner';
 import { useOrderStatusContext } from '../list/product-orderStatus-context';
 import { useUpdateOrderStatus } from '@/app/product-order-status/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function OrderStatusEditDialog() {
   const { editingOrderStatus, setEditingOrderStatus } = useOrderStatusContext();
@@ -98,11 +99,10 @@ export default function OrderStatusEditDialog() {
 
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-descricao">Descrição</Label>
-              <Input
+              <FloatingInput
                 id="edit-descricao"
                 {...register('descricao')}
-                placeholder="Ex: Unidade, Caixa, Pacote..."
+                label="Descrição"
               />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>

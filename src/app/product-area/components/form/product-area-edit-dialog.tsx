@@ -19,6 +19,7 @@ import { areaSchema, type CreateAreaSchema } from './product-area.schema';
 import { toast } from 'sonner';
 import { useAreaContext } from '../list/product-area-context';
 import { useUpdateArea } from '@/app/product-area/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function AreaEditDialog() {
   const { editingArea, setEditingArea } = useAreaContext();
@@ -52,9 +53,6 @@ export default function AreaEditDialog() {
       toast.error('ID da área não encontrado');
       return;
     }
-
-    console.log('Submitting update for area ID:', editingArea.id);
-    console.log('Data:', data);
 
     updateArea(
       {
@@ -111,8 +109,7 @@ export default function AreaEditDialog() {
           <div className="space-y-4">
             {/* Full-width Descrição field */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-descricao">Descrição</Label>
-              <Input id="edit-descricao" {...register('descricao')} placeholder="Automotiva" />
+              <FloatingInput id="edit-descricao" {...register('descricao')} label="Descrição" />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>
               )}
@@ -120,7 +117,6 @@ export default function AreaEditDialog() {
 
             {/* Full-width Descrição Estendida textarea */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-descricao-estendida">Descrição Estendida</Label>
               <Textarea
                 id="edit-descricao-estendida"
                 {...register('descricaoEstendida')}

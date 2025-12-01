@@ -9,10 +9,11 @@ import { Link } from '@tanstack/react-router';
 import DeleteVehicleForm from '../forms/delete-vehicle-form';
 import EditVehicleForm from '../form/vehicle-edit-dialog';
 import ViewVehicleForm from '../form/vehicle-view-dialog';
+import RegisterVehicleForm from '../form/vehicle-form';
 
 export default function VehicleHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { deletingVehicle, setDeletingVehicle } = useVehicleContext();
+  const { deletingVehicle, setDeletingVehicle, setRegisteringVehicle } = useVehicleContext();
   useEffect(() => {
     if (deletingVehicle) {
       setIsDeleteOpen(true);
@@ -25,6 +26,7 @@ export default function VehicleHeaderList() {
     setIsDeleteOpen(false);
     setDeletingVehicle(null);
   };
+
 
   return (
     <>
@@ -40,19 +42,17 @@ export default function VehicleHeaderList() {
       </ResponsiveDialog>
       <EditVehicleForm />
       <ViewVehicleForm />
-
+      <RegisterVehicleForm />
       <div className="flex mb-2 flex-wrap items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Veículos</h2>
           <span className="text-muted-foreground">Gerencie seus veículos aqui.</span>
         </div>
         <div>
-          <Link to="/veiculos/new">
-            <Button variant="default">
-              <FilePlus className="mr-2 h-4 w-4" />
-              Novo Veículo
-            </Button>
-          </Link>
+          <Button variant="default" onClick={() => setRegisteringVehicle(true)}>
+            <FilePlus className="mr-2 h-4 w-4" />
+            Novo Veículo
+          </Button>
         </div>
       </div>
     </>

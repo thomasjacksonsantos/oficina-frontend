@@ -18,6 +18,7 @@ import { productGroupSchema, type CreateProductGroupSchema } from './product-gro
 import { toast } from 'sonner';
 import { useProductGroupContext } from '../list/product-group-context';
 import { useUpdateProductGroup } from '@/app/product-group/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function ProductGroupEditDialog() {
   const { editingProductGroup, setEditingProductGroup } = useProductGroupContext();
@@ -109,11 +110,10 @@ export default function ProductGroupEditDialog() {
 
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-descricao">Descrição</Label>
-              <Input
+              <FloatingInput
                 id="edit-descricao"
                 {...register('descricao')}
-                placeholder="Lubrificantes Automotivos"
+                label="Descrição"
               />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>
@@ -122,11 +122,10 @@ export default function ProductGroupEditDialog() {
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-area">Área</Label>
-                <Input
+                <FloatingInput
                   id="edit-area"
                   {...register('area')}
-                  placeholder="Automotiva"
+                  label="Área"
                 />
                 {errors.area && (
                   <span className="text-sm text-red-500">{errors.area.message}</span>
@@ -134,11 +133,10 @@ export default function ProductGroupEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-ncm">NCM</Label>
-                <Input
+                <FloatingInput
                   id="edit-ncm"
                   {...register('ncm')}
-                  placeholder="27101210"
+                  label="NCM"
                   maxLength={10}
                 />
                 {errors.ncm && (
@@ -147,11 +145,10 @@ export default function ProductGroupEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-anp">ANP</Label>
-                <Input
+                <FloatingInput
                   id="edit-anp"
                   {...register('anp')}
-                  placeholder="LUB-001"
+                  label="ANP"
                 />
                 {errors.anp && (
                   <span className="text-sm text-red-500">{errors.anp.message}</span>

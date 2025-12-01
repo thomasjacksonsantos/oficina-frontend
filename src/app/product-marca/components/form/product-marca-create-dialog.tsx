@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import { marcaSchema, type CreateMarcaSchema } from './product-marca.schema';
 import { toast } from 'sonner';
 import { useCreateMarca } from '@/app/product-marca/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 interface CreateMarcaDialogProps {
   isOpen: boolean;
@@ -91,10 +92,10 @@ export default function CreateMarcaDialog({ isOpen, setIsOpen }: CreateMarcaDial
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="create-descricao">Descrição</Label>
-              <Input
+              <FloatingInput
                 id="create-descricao"
                 {...register('descricao')}
-                placeholder="Ex: Unidade, Caixa, Pacote..."
+                label="Descrição"
                 autoFocus
               />
               {errors.descricao && (

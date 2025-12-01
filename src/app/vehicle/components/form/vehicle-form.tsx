@@ -1,23 +1,28 @@
-
 'use client';
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+// Labels are now part of the floating inputs (label prop)
+import { FloatingInput } from '@/components/ui/floating-input';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-
-import { Route, useRouter, useParams } from '@tanstack/react-router';
-import { useForm, Controller } from 'react-hook-form';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { useForm } from 'react-hook-form';
 import { vehicleSchema, type CreateVehicleSchema } from './vehicle.schema';
 import { toast, Toaster } from 'sonner';
 
 import { useCreateVehicle } from '@/app/vehicle/api';
+import { useVehicleContext } from '../list/vehicle-context';
 
 export default function VehicleForm() {
-  const router = useRouter();
+  const { registeringVehicle, setRegisteringVehicle } = useVehicleContext();
 
   const {
     register,
@@ -25,6 +30,7 @@ export default function VehicleForm() {
     control,
     setValue,
     setError,
+    reset,
     formState: { errors },
     watch,
   } = useForm<CreateVehicleSchema>({
@@ -44,6 +50,12 @@ export default function VehicleForm() {
 
   const { mutate: createVehicle, isPending } = useCreateVehicle();
 
+  React.useEffect(() => {
+    if (!registeringVehicle) {
+      reset();
+    }
+  }, [registeringVehicle, reset]);
+
   const onSubmit = (data: CreateVehicleSchema) => {
     const create: CreateVehicleSchema = {
       ...data,
@@ -52,9 +64,10 @@ export default function VehicleForm() {
     createVehicle(create, {
       onSuccess: (result) => {
         if (result) {
-          router.navigate({ to: '/veiculos' });
+          setRegisteringVehicle(null);
+          toast.success('Veículo criado com sucesso!');
         } else {
-          toast.error(`Erro ao criar cliente: ${result}`);
+          toast.error(`Erro ao criar veículo: ${result}`);
         }
       },
       onError: (error: any) => {
@@ -89,34 +102,26 @@ export default function VehicleForm() {
     });
   };
 
-  const handleHodometroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    setValue('hodrometro', value ? parseInt(value, 10) : 0, { shouldValidate: true });
-  };
 
   return (
     <div className="mx-auto w-full max-w-4xl p-6">
       <Toaster position="top-right" richColors />
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Card className="rounded-lg">
-          <CardContent className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold">Veículos</h2>
-              </div>
-            </div>
+      <Dialog open={!!registeringVehicle} onOpenChange={() => setRegisteringVehicle(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Registor Veículo</DialogTitle>
+          </DialogHeader>
 
-            <Separator />
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Separator className="my-4" />
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-placa">Placa</Label>
-                  <Input
-                    id="veiculo-placa"
+                  <FloatingInput
+                    id="edit-placa"
                     {...register('placa')}
-                    placeholder="ABC1D23"
-                    className="rounded-md"
+                    label="Placa"
                     onChange={(e) => {
                       const upper = e.target.value.toUpperCase();
                       setValue('placa', upper, { shouldValidate: true });
@@ -128,26 +133,14 @@ export default function VehicleForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-modelo">Modelo</Label>
-                  <Input
-                    id="veiculo-modelo"
-                    {...register('modelo')}
-                    placeholder="Civic EXL"
-                    className="rounded-md"
-                  />
+                  <FloatingInput id="edit-modelo" {...register('modelo')} label="Modelo" />
                   {errors.modelo && (
                     <span className="text-sm text-red-500">{errors.modelo.message}</span>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-montadora">Montadora</Label>
-                  <Input
-                    id="veiculo-montadora"
-                    {...register('montadora')}
-                    placeholder="Honda"
-                    className="rounded-md"
-                  />
+                  <FloatingInput id="edit-montadora" {...register('montadora')} label="Montadora" />
                   {errors.montadora && (
                     <span className="text-sm text-red-500">{errors.montadora.message}</span>
                   )}
@@ -156,14 +149,11 @@ export default function VehicleForm() {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-hodrometro">Hodômetro (km)</Label>
-                  <Input
-                    id="veiculo-hodrometro"
-                    value={watch('hodrometro') || ''}
-                    onChange={handleHodometroChange}
-                    placeholder="45000"
+                  <FloatingInput
+                    id="edit-hodrometro"
+                    {...register('hodrometro')}
+                    label="Hodômetro (km)"
                     inputMode="numeric"
-                    className="rounded-md"
                   />
                   {errors.hodrometro && (
                     <span className="text-sm text-red-500">{errors.hodrometro.message}</span>
@@ -171,29 +161,15 @@ export default function VehicleForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-cor">Cor</Label>
-                  <Input
-                    id="veiculo-cor"
-                    {...register('cor')}
-                    placeholder="Prata"
-                    className="rounded-md"
-                  />
+                  <FloatingInput id="edit-cor" {...register('cor')} label="Cor" />
                   {errors.cor && <span className="text-sm text-red-500">{errors.cor.message}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-ano">Ano</Label>
-                  <Input
-                    id="veiculo-ano"
+                  <FloatingInput
+                    id="edit-ano"
                     {...register('ano')}
-                    placeholder="2023"
-                    inputMode="numeric"
-                    maxLength={4}
-                    className="rounded-md"
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      setValue('ano', value, { shouldValidate: true });
-                    }}
+                    label="Ano"
                   />
                   {errors.ano && <span className="text-sm text-red-500">{errors.ano.message}</span>}
                 </div>
@@ -201,36 +177,37 @@ export default function VehicleForm() {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-motorizacao">Motorização</Label>
-                  <Input
-                    id="veiculo-motorizacao"
+                  <FloatingInput
+                    id="edit-motorizacao"
                     {...register('motorizacao')}
-                    placeholder="2.0 16V Flex"
-                    className="rounded-md"
+                    label="Motorização"
                   />
                   {errors.motorizacao && (
                     <span className="text-sm text-red-500">{errors.motorizacao.message}</span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-chassi">Chassi</Label>
-                  <Input
-                    id="veiculo-chassi"
+                  <FloatingInput
+                    id="edit-chassi"
                     {...register('chassi')}
-                    placeholder="9BWZZZ377VT004251"
-                    className="rounded-md"
+                    label="Chassi"
+                    maxLength={17}
+                    onChange={(e) => {
+                      const upper = e.target.value.toUpperCase();
+                      setValue('chassi', upper, { shouldValidate: true });
+                    }}
                   />
                   {errors.chassi && (
                     <span className="text-sm text-red-500">{errors.chassi.message}</span>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="veiculo-numero-serie">Número de Série</Label>
-                  <Input
-                    id="veiculo-numero-serie"
+                  <FloatingInput
+                    id="edit-numero-serie"
                     {...register('numeroSerie')}
-                    placeholder="HC2023-45678"
-                    className="rounded-md"
+                    label="Número de Série"
                   />
                   {errors.numeroSerie && (
                     <span className="text-sm text-red-500">{errors.numeroSerie.message}</span>
@@ -238,26 +215,24 @@ export default function VehicleForm() {
                 </div>
               </div>
             </div>
-          </CardContent>
 
-          <CardFooter>
-            <div className="flex items-center gap-2 ml-auto">
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={() => {
-                  router.navigate({ to: '/veiculos' });
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? 'Salvando...' : 'Salvar Veículo'}
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </form>
+            <DialogFooter className="mt-6">
+              <div className="flex items-center gap-2 ml-auto">
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => setRegisteringVehicle(null)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? 'Salvando...' : 'Salvar Veículo'}
+                </Button>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

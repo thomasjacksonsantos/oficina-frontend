@@ -6,7 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { useRouter } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { productGroupSchema, type CreateProductGroupSchema } from './product-group.schema';
@@ -19,9 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useProductGroupContext } from '../list/product-group-context';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function ProductGroupForm() {
   const router = useRouter();
+  const { registeringProductGroup, setRegisteringProductGroup } = useProductGroupContext();
 
   const {
     register,
@@ -29,6 +38,7 @@ export default function ProductGroupForm() {
     setValue,
     setError,
     watch,
+    reset,
     formState: { errors },
   } = useForm<CreateProductGroupSchema>({
     resolver: zodResolver(productGroupSchema),
@@ -50,7 +60,8 @@ export default function ProductGroupForm() {
     createProductGroup(create, {
       onSuccess: (result) => {
         if (result) {
-          router.navigate({ to: '/grupos-produtos' });
+          setRegisteringProductGroup(null);
+          toast.success('Grupo de produto criado com sucesso!');
         } else {
           toast.error(`Erro ao criar grupo de produto: ${result}`);
         }
@@ -84,6 +95,12 @@ export default function ProductGroupForm() {
     });
   };
 
+  React.useEffect(() => {
+    if (!registeringProductGroup) {
+      reset();
+    }
+  }, [registeringProductGroup, reset]);
+
   // Common areas for dropdown
   const commonAreas = [
     'Automotiva',
@@ -97,25 +114,24 @@ export default function ProductGroupForm() {
 
   return (
     <div className="mx-auto w-full max-w-4xl p-6">
-      <Toaster position="top-right" richColors />
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Card className="rounded-lg">
-          <CardContent className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold">Grupo de Produtos</h2>
-              </div>
-            </div>
+      <Dialog
+        open={!!registeringProductGroup}
+        onOpenChange={() => setRegisteringProductGroup(null)}
+      >
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Grupo de Produtos</DialogTitle>
+          </DialogHeader>
 
-            <Separator />
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Separator className="my-4" />
 
             <div className="space-y-3">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="product-group-descricao">Descrição</Label>
-                <Input
+                <FloatingInput
                   id="product-group-descricao"
                   {...register('descricao')}
-                  placeholder="Lubrificantes Automotivos"
+                  label="Descrição"
                   className="rounded-md"
                 />
                 {errors.descricao && (
@@ -125,7 +141,6 @@ export default function ProductGroupForm() {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="product-group-area">Área</Label>
                   <Select
                     value={watch('area')}
                     onValueChange={(value) => setValue('area', value, { shouldValidate: true })}
@@ -147,53 +162,46 @@ export default function ProductGroupForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="product-group-ncm">NCM</Label>
-                  <Input
+                  <FloatingInput
                     id="product-group-ncm"
                     {...register('ncm')}
-                    placeholder="27101210"
+                    label="NCM"
                     className="rounded-md"
                     maxLength={10}
                   />
-                  {errors.ncm && (
-                    <span className="text-sm text-red-500">{errors.ncm.message}</span>
-                  )}
+                  {errors.ncm && <span className="text-sm text-red-500">{errors.ncm.message}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="product-group-anp">ANP</Label>
-                  <Input
+                  <FloatingInput
                     id="product-group-anp"
                     {...register('anp')}
-                    placeholder="LUB-001"
+                    label="ANP"
                     className="rounded-md"
                   />
-                  {errors.anp && (
-                    <span className="text-sm text-red-500">{errors.anp.message}</span>
-                  )}
+                  {errors.anp && <span className="text-sm text-red-500">{errors.anp.message}</span>}
                 </div>
               </div>
             </div>
-          </CardContent>
-
-          <CardFooter>
-            <div className="flex items-center gap-2 ml-auto">
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={() => {
-                  router.navigate({ to: '/grupos-produtos' });
-                }}
-              >
-                Voltar
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? 'Salvando...' : 'Salvar'}
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </form>
+            <DialogFooter className="mt-6">
+              <div className="flex items-center gap-2 ml-auto">
+                <div className="flex items-center gap-2 ml-auto">
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={() => setRegisteringProductGroup(null)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? 'Salvando...' : 'Salvar Veículo'}
+                  </Button>
+                </div>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -9,10 +9,10 @@ import { Link } from '@tanstack/react-router';
 import DeleteSupplierForm from '../forms/delete-supplier-form';
 import EditSupplierForm from '../form/supplier-edit-dialog';
 import ViewSupplierForm from '../form/supplier-view-dialog';
-
+import RegisterSupplierForm from '../form/supplier-form';
 export default function SupplierHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { deletingSupplier, setDeletingSupplier } = useSupplierContext();
+  const { deletingSupplier, setDeletingSupplier, setRegisteringSupplier } = useSupplierContext();
 
   useEffect(() => {
     if (deletingSupplier) {
@@ -41,6 +41,7 @@ export default function SupplierHeaderList() {
       </ResponsiveDialog>
       <EditSupplierForm />
       <ViewSupplierForm />
+      <RegisterSupplierForm />
 
       <div className="flex mb-2 flex-wrap items-center justify-between">
         <div>
@@ -48,12 +49,10 @@ export default function SupplierHeaderList() {
           <span className="text-muted-foreground">Gerencie seus fornecedores aqui.</span>
         </div>
         <div>
-          <Link to="/fornecedores/new">
-            <Button variant="default">
-              <FilePlus className="mr-2 h-4 w-4" />
-              Novo Fornecedor
-            </Button>
-          </Link>
+          <Button onClick={() => setRegisteringSupplier(true)} variant="default">
+            <FilePlus className="mr-2 h-4 w-4" />
+            Novo Fornecedor
+          </Button>
         </div>
       </div>
     </>

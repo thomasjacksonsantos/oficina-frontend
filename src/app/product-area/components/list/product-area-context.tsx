@@ -8,12 +8,14 @@ interface AreaContextType {
   editingArea: Area | null;
   deletingArea: Area | null;
   activingArea: string | null;
+  registeringArea: boolean | null;
   deactivingArea: string | null;
   setViewingArea: (area: Area | null) => void;
   setEditingArea: (area: Area | null) => void;
   setDeletingArea: (area: Area | null) => void;
   setActivingArea: (areaId: string | null) => void;
   setDeactivingArea: (areaId: string | null) => void;
+  setRegisteringArea: (registering: boolean | null) => void;
 }
 
 const AreaContext = createContext<AreaContextType | undefined>(undefined);
@@ -24,6 +26,7 @@ export function AreaProvider({ children }: { children: ReactNode }) {
   const [deletingArea, setDeletingArea] = useState<Area | null>(null);
   const [activingArea, setActivingArea] = useState<string | null>(null);
   const [deactivingArea, setDeactivingArea] = useState<string | null>(null);
+  const [registeringArea, setRegisteringArea] = useState<boolean | null>(false);
 
   return (
     <AreaContext.Provider
@@ -33,11 +36,13 @@ export function AreaProvider({ children }: { children: ReactNode }) {
         deletingArea,
         activingArea,
         deactivingArea,
+        registeringArea,
         setViewingArea,
         setEditingArea,
         setDeletingArea,
         setActivingArea,
-        setDeactivingArea
+        setDeactivingArea,
+        setRegisteringArea
       }}
     >
       {children}
