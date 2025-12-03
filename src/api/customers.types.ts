@@ -14,10 +14,16 @@ export enum TipoDocumento {
   RG = "Rg",
 }
 
+export enum ClienteStatus {
+  ATIVO = "Ativo",
+  INATIVO = "Inativo",
+}
+
 // Main Service Order Type
 export type Customer = {
-  id: number;
+  id: string;
   nome: string; // Total Value
+  clienteStatus: ClienteStatus;
   razaoSocial: string; // Company Name
   sexo: Sexo; // Gender
   documento: string; // Document
@@ -29,7 +35,7 @@ export type Customer = {
 
 // Input types for creating/updating
 export type CreateCustomerInput = Omit<Customer, 'id' | 'criado' | 'atualizado'> & {
-  id?: number; // Optional for creation
+  id?: string; // Optional for creation
 };
 
-export type UpdateCustomerInput = Partial<CreateCustomerInput>;
+export type UpdateCustomerInput = Partial<Customer>;

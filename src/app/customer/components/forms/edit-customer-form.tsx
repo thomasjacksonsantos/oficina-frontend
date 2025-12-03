@@ -18,14 +18,14 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
 
 import {
-  CreateCustomerInput,
-  Sexo
+  Customer,
+  Sexo,
+  UpdateCustomerInput
 } from "@/api/customers.types";
 import { TipoTelefone } from "@/api/contato.types";
 
-import { customerSchema, type CreateCustomerSchema } from "./customer.schema";
+import { customerSchema, EditCustomerSchema, type CreateCustomerSchema } from "@/app/customer/components/form/customer.schema";
 import { useGetValidarDocumento } from "@/app/customer/api";
-import { useCreateCustomer } from "@/app/customer/api";
 import { useGetCep } from "@/app/customer/api";
 
 import { formatCpfCnpj } from "@/helpers/formatCpfCnpj";
@@ -36,9 +36,16 @@ import { formatToIso } from "@/helpers/formatDate";
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { useRouter } from "@tanstack/react-router";
+import { useEditCustomer } from "../../api/use-edit-customer";
 
-export default function CustomerForm(
-  { setIsOpen }: { setIsOpen: React.Dispatch<React.SetStateAction<boolean>> }
+export default function EditCustomerForm(
+  {
+    customer,
+    setIsOpen,
+  }: {
+    customer: Customer;
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  }
 ) {
   const router = useRouter();
 
@@ -50,20 +57,10 @@ export default function CustomerForm(
     setError,
     formState: { errors },
     watch,
-  } = useForm<CreateCustomerSchema>({
+  } = useForm<EditCustomerSchema>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
-      dataNascimento: "",
-      contatos: [{ numero: "", tipoTelefone: TipoTelefone.Celular }],
-      endereco: {
-        cep: "",
-        logradouro: "",
-        numero: "",
-        bairro: "",
-        cidade: "",
-        estado: "",
-        pais: "",
-      },
+      ...customer,
     },
   });
 
@@ -133,15 +130,17 @@ export default function CustomerForm(
     setCep(cepValue);
   };
 
-  const { mutate: createCustomer, isPending } = useCreateCustomer();
+  const { mutate: editCustomer, isPending } = useEditCustomer();
 
 
-  const onSubmit = async (data: CreateCustomerSchema) => {
+  const onSubmit = async (data: EditCustomerSchema) => {
     if (documentoError) {
       return;
     }
-    const create: CreateCustomerInput = {
+
+    const update: UpdateCustomerInput = {
       ...data,
+      id: customer.id,
       dataNascimento: formatToIso(data.dataNascimento),
       contatos: data.contatos.map((c) => ({
         ...c,
@@ -149,11 +148,11 @@ export default function CustomerForm(
       })),
     };
 
-    await createCustomer(create,
+    await editCustomer(update,
       {
         onSuccess: (result) => {
           if (result) {
-            toast.success("Cliente criado com sucesso!");
+            toast.success(`Cliente atualizado com sucesso!`);            
             setIsOpen(false);
           } else {
             toast.error(`Erro ao criar cliente: ${result}`);
@@ -199,7 +198,7 @@ export default function CustomerForm(
 
   return (
     <div>
-      <Toaster position="top-right" richColors />
+      <Toaster richColors />
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Card className="rounded-lg">
           <CardContent className="p-6 space-y-6">
@@ -569,7 +568,12 @@ export default function CustomerForm(
           </CardContent>
 
           <CardFooter className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isPending}>
+            <Button
+              variant="outline"
+              disabled={isPending}
+              type="button"
+              onClick={() => setIsOpen(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" className="w-auto" disabled={isPending}>

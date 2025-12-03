@@ -1,8 +1,10 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye } from "lucide-react";
 import { Customer } from "@/api/customers.types";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { IconCircleCheckFilled, IconDotsVertical } from "@tabler/icons-react";
+import { Badge } from "@/components/ui";
 
 
 type CustomerColumnsProps = {
@@ -47,7 +49,7 @@ export const createCustomerColumns = ({ onView, onEdit, onDelete }: CustomerColu
             <>
               {contatos.map((contato) => (
                 <div key={contato.ddd + contato.numero}>
-                  {contato.tipoTelefone}: {contato.ddd} {contato.numero}
+                  <span>{contato.numero}</span>
                 </div>
               ))}
             </>
@@ -58,40 +60,45 @@ export const createCustomerColumns = ({ onView, onEdit, onDelete }: CustomerColu
         </div>
       );
     }
-  }, 
+  },
+  {
+    id: "clienteStatus",
+    accessorKey: "clienteStatus",
+    header: "Status",
+    cell: ({ row }) => {
+      return (<Badge variant="outline" className="text-muted-foreground px-1.5">
+        {row.original.clienteStatus === "Ativo" ? (
+          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
+        ) : (
+          <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
+        )}
+        {row.original.clienteStatus}
+      </Badge>)
+    }
+  },
   {
     id: "actions",
     header: "Ações",
     cell: ({ row }) => {
       const customer = row.original;
-      return (
-        <div className="flex gap-2">
+
+      return (<DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            size="sm"
-            onClick={() => onView(customer)}
-            title="Visualizar"
+            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+            size="icon"
           >
-            <Eye className="h-4 w-4" />
+            <IconDotsVertical />
+            <span className="sr-only">Open menu</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(customer)}
-            title="Editar"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDelete(customer)}
-            className="text-red-600 hover:text-red-700"
-            title="Deletar"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem onClick={() => onEdit(customer)}>Editar</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" onClick={() => onDelete(customer)}>Deletar</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       );
     }
   }

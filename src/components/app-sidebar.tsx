@@ -160,7 +160,7 @@ const data = {
           url: "/entrada-manual",
         },
         {
-          title: "Entrada por NFe",
+          title: "Entrada por Chave de Acesso",
           url: "/entrada-por-nfe",
         },
         {
