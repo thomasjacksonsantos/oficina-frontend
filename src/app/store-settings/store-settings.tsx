@@ -133,11 +133,11 @@ export default function StoreSettings() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="razaoSocial">Razao Social</Label>
+              <Label htmlFor="razaoSocial">Razão Social</Label>
               <Input
                 id="razaoSocial"
                 {...register('razaoSocial')}
-                placeholder="Razao Social"
+                placeholder="Razão Social"
                 className="rounded-md"
               />
               {errors.razaoSocial && (

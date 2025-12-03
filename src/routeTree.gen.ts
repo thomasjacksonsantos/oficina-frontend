@@ -9,19 +9,54 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VeiculosRouteImport } from './routes/veiculos'
+import { Route as UnidadesProdutosRouteImport } from './routes/unidades-produtos'
+import { Route as StatusPedidoCompraRouteImport } from './routes/status-pedido-compra'
 import { Route as SignupConfirmationRouteImport } from './routes/signup-confirmation'
 import { Route as ServiceOrderRouteImport } from './routes/service-order'
 import { Route as NovaOrdemServicoRouteImport } from './routes/nova-ordem-servico'
+import { Route as MarcasProdutosRouteImport } from './routes/marcas-produtos'
+import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as GruposProdutosRouteImport } from './routes/grupos-produtos'
+import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as CustomerRouteImport } from './routes/customer'
+import { Route as AreasProdutosRouteImport } from './routes/areas-produtos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VeiculosIndexRouteImport } from './routes/veiculos/index'
+import { Route as UnidadesProdutosIndexRouteImport } from './routes/unidades-produtos/index'
+import { Route as StatusPedidoCompraIndexRouteImport } from './routes/status-pedido-compra/index'
 import { Route as ServiceOrderIndexRouteImport } from './routes/service-order/index'
+import { Route as MarcasProdutosIndexRouteImport } from './routes/marcas-produtos/index'
+import { Route as LojaIndexRouteImport } from './routes/loja/index'
+import { Route as GruposProdutosIndexRouteImport } from './routes/grupos-produtos/index'
+import { Route as FornecedoresIndexRouteImport } from './routes/fornecedores/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
+import { Route as AreasProdutosIndexRouteImport } from './routes/areas-produtos/index'
+import { Route as VeiculosNewRouteImport } from './routes/veiculos/new'
 import { Route as ServiceOrderNewRouteImport } from './routes/service-order/new'
+import { Route as GruposProdutosNewRouteImport } from './routes/grupos-produtos/new'
+import { Route as FornecedoresNewRouteImport } from './routes/fornecedores/new'
 import { Route as CustomerNewRouteImport } from './routes/customer/new'
+import { Route as AreasProdutosNewRouteImport } from './routes/areas-produtos/new'
 
+const VeiculosRoute = VeiculosRouteImport.update({
+  id: '/veiculos',
+  path: '/veiculos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnidadesProdutosRoute = UnidadesProdutosRouteImport.update({
+  id: '/unidades-produtos',
+  path: '/unidades-produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusPedidoCompraRoute = StatusPedidoCompraRouteImport.update({
+  id: '/status-pedido-compra',
+  path: '/status-pedido-compra',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupConfirmationRoute = SignupConfirmationRouteImport.update({
   id: '/signup-confirmation',
   path: '/signup-confirmation',
@@ -37,14 +72,39 @@ const NovaOrdemServicoRoute = NovaOrdemServicoRouteImport.update({
   path: '/nova-ordem-servico',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarcasProdutosRoute = MarcasProdutosRouteImport.update({
+  id: '/marcas-produtos',
+  path: '/marcas-produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GruposProdutosRoute = GruposProdutosRouteImport.update({
+  id: '/grupos-produtos',
+  path: '/grupos-produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FornecedoresRoute = FornecedoresRouteImport.update({
+  id: '/fornecedores',
+  path: '/fornecedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomerRoute = CustomerRouteImport.update({
   id: '/customer',
   path: '/customer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasProdutosRoute = AreasProdutosRouteImport.update({
+  id: '/areas-produtos',
+  path: '/areas-produtos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -57,10 +117,45 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VeiculosIndexRoute = VeiculosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => VeiculosRoute,
+} as any)
+const UnidadesProdutosIndexRoute = UnidadesProdutosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => UnidadesProdutosRoute,
+} as any)
+const StatusPedidoCompraIndexRoute = StatusPedidoCompraIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StatusPedidoCompraRoute,
+} as any)
 const ServiceOrderIndexRoute = ServiceOrderIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ServiceOrderRoute,
+} as any)
+const MarcasProdutosIndexRoute = MarcasProdutosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MarcasProdutosRoute,
+} as any)
+const LojaIndexRoute = LojaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LojaRoute,
+} as any)
+const GruposProdutosIndexRoute = GruposProdutosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GruposProdutosRoute,
+} as any)
+const FornecedoresIndexRoute = FornecedoresIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FornecedoresRoute,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/dashboard/',
@@ -72,30 +167,75 @@ const CustomerIndexRoute = CustomerIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CustomerRoute,
 } as any)
+const AreasProdutosIndexRoute = AreasProdutosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AreasProdutosRoute,
+} as any)
+const VeiculosNewRoute = VeiculosNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => VeiculosRoute,
+} as any)
 const ServiceOrderNewRoute = ServiceOrderNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => ServiceOrderRoute,
+} as any)
+const GruposProdutosNewRoute = GruposProdutosNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => GruposProdutosRoute,
+} as any)
+const FornecedoresNewRoute = FornecedoresNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => FornecedoresRoute,
 } as any)
 const CustomerNewRoute = CustomerNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => CustomerRoute,
 } as any)
+const AreasProdutosNewRoute = AreasProdutosNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AreasProdutosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/areas-produtos': typeof AreasProdutosRouteWithChildren
   '/customer': typeof CustomerRouteWithChildren
+  '/fornecedores': typeof FornecedoresRouteWithChildren
+  '/grupos-produtos': typeof GruposProdutosRouteWithChildren
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRouteWithChildren
+  '/marcas-produtos': typeof MarcasProdutosRouteWithChildren
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRouteWithChildren
   '/signup-confirmation': typeof SignupConfirmationRoute
+  '/status-pedido-compra': typeof StatusPedidoCompraRouteWithChildren
+  '/unidades-produtos': typeof UnidadesProdutosRouteWithChildren
+  '/veiculos': typeof VeiculosRouteWithChildren
+  '/areas-produtos/new': typeof AreasProdutosNewRoute
   '/customer/new': typeof CustomerNewRoute
+  '/fornecedores/new': typeof FornecedoresNewRoute
+  '/grupos-produtos/new': typeof GruposProdutosNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
+  '/veiculos/new': typeof VeiculosNewRoute
+  '/areas-produtos/': typeof AreasProdutosIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/fornecedores/': typeof FornecedoresIndexRoute
+  '/grupos-produtos/': typeof GruposProdutosIndexRoute
+  '/loja/': typeof LojaIndexRoute
+  '/marcas-produtos/': typeof MarcasProdutosIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
+  '/status-pedido-compra/': typeof StatusPedidoCompraIndexRoute
+  '/unidades-produtos/': typeof UnidadesProdutosIndexRoute
+  '/veiculos/': typeof VeiculosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,42 +243,94 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/signup-confirmation': typeof SignupConfirmationRoute
+  '/areas-produtos/new': typeof AreasProdutosNewRoute
   '/customer/new': typeof CustomerNewRoute
+  '/fornecedores/new': typeof FornecedoresNewRoute
+  '/grupos-produtos/new': typeof GruposProdutosNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
+  '/veiculos/new': typeof VeiculosNewRoute
+  '/areas-produtos': typeof AreasProdutosIndexRoute
   '/customer': typeof CustomerIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/fornecedores': typeof FornecedoresIndexRoute
+  '/grupos-produtos': typeof GruposProdutosIndexRoute
+  '/loja': typeof LojaIndexRoute
+  '/marcas-produtos': typeof MarcasProdutosIndexRoute
   '/service-order': typeof ServiceOrderIndexRoute
+  '/status-pedido-compra': typeof StatusPedidoCompraIndexRoute
+  '/unidades-produtos': typeof UnidadesProdutosIndexRoute
+  '/veiculos': typeof VeiculosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/areas-produtos': typeof AreasProdutosRouteWithChildren
   '/customer': typeof CustomerRouteWithChildren
+  '/fornecedores': typeof FornecedoresRouteWithChildren
+  '/grupos-produtos': typeof GruposProdutosRouteWithChildren
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRouteWithChildren
+  '/marcas-produtos': typeof MarcasProdutosRouteWithChildren
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
   '/service-order': typeof ServiceOrderRouteWithChildren
   '/signup-confirmation': typeof SignupConfirmationRoute
+  '/status-pedido-compra': typeof StatusPedidoCompraRouteWithChildren
+  '/unidades-produtos': typeof UnidadesProdutosRouteWithChildren
+  '/veiculos': typeof VeiculosRouteWithChildren
+  '/areas-produtos/new': typeof AreasProdutosNewRoute
   '/customer/new': typeof CustomerNewRoute
+  '/fornecedores/new': typeof FornecedoresNewRoute
+  '/grupos-produtos/new': typeof GruposProdutosNewRoute
   '/service-order/new': typeof ServiceOrderNewRoute
+  '/veiculos/new': typeof VeiculosNewRoute
+  '/areas-produtos/': typeof AreasProdutosIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/fornecedores/': typeof FornecedoresIndexRoute
+  '/grupos-produtos/': typeof GruposProdutosIndexRoute
+  '/loja/': typeof LojaIndexRoute
+  '/marcas-produtos/': typeof MarcasProdutosIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
+  '/status-pedido-compra/': typeof StatusPedidoCompraIndexRoute
+  '/unidades-produtos/': typeof UnidadesProdutosIndexRoute
+  '/veiculos/': typeof VeiculosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/areas-produtos'
     | '/customer'
+    | '/fornecedores'
+    | '/grupos-produtos'
     | '/login'
+    | '/loja'
+    | '/marcas-produtos'
     | '/nova-ordem-servico'
     | '/service-order'
     | '/signup-confirmation'
+    | '/status-pedido-compra'
+    | '/unidades-produtos'
+    | '/veiculos'
+    | '/areas-produtos/new'
     | '/customer/new'
+    | '/fornecedores/new'
+    | '/grupos-produtos/new'
     | '/service-order/new'
+    | '/veiculos/new'
+    | '/areas-produtos/'
     | '/customer/'
     | '/dashboard'
+    | '/fornecedores/'
+    | '/grupos-produtos/'
+    | '/loja/'
+    | '/marcas-produtos/'
     | '/service-order/'
+    | '/status-pedido-compra/'
+    | '/unidades-produtos/'
+    | '/veiculos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -146,40 +338,101 @@ export interface FileRouteTypes {
     | '/login'
     | '/nova-ordem-servico'
     | '/signup-confirmation'
+    | '/areas-produtos/new'
     | '/customer/new'
+    | '/fornecedores/new'
+    | '/grupos-produtos/new'
     | '/service-order/new'
+    | '/veiculos/new'
+    | '/areas-produtos'
     | '/customer'
     | '/dashboard'
+    | '/fornecedores'
+    | '/grupos-produtos'
+    | '/loja'
+    | '/marcas-produtos'
     | '/service-order'
+    | '/status-pedido-compra'
+    | '/unidades-produtos'
+    | '/veiculos'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/areas-produtos'
     | '/customer'
+    | '/fornecedores'
+    | '/grupos-produtos'
     | '/login'
+    | '/loja'
+    | '/marcas-produtos'
     | '/nova-ordem-servico'
     | '/service-order'
     | '/signup-confirmation'
+    | '/status-pedido-compra'
+    | '/unidades-produtos'
+    | '/veiculos'
+    | '/areas-produtos/new'
     | '/customer/new'
+    | '/fornecedores/new'
+    | '/grupos-produtos/new'
     | '/service-order/new'
+    | '/veiculos/new'
+    | '/areas-produtos/'
     | '/customer/'
     | '/dashboard/'
+    | '/fornecedores/'
+    | '/grupos-produtos/'
+    | '/loja/'
+    | '/marcas-produtos/'
     | '/service-order/'
+    | '/status-pedido-compra/'
+    | '/unidades-produtos/'
+    | '/veiculos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AreasProdutosRoute: typeof AreasProdutosRouteWithChildren
   CustomerRoute: typeof CustomerRouteWithChildren
+  FornecedoresRoute: typeof FornecedoresRouteWithChildren
+  GruposProdutosRoute: typeof GruposProdutosRouteWithChildren
   LoginRoute: typeof LoginRoute
+  LojaRoute: typeof LojaRouteWithChildren
+  MarcasProdutosRoute: typeof MarcasProdutosRouteWithChildren
   NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
   ServiceOrderRoute: typeof ServiceOrderRouteWithChildren
   SignupConfirmationRoute: typeof SignupConfirmationRoute
+  StatusPedidoCompraRoute: typeof StatusPedidoCompraRouteWithChildren
+  UnidadesProdutosRoute: typeof UnidadesProdutosRouteWithChildren
+  VeiculosRoute: typeof VeiculosRouteWithChildren
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/veiculos': {
+      id: '/veiculos'
+      path: '/veiculos'
+      fullPath: '/veiculos'
+      preLoaderRoute: typeof VeiculosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unidades-produtos': {
+      id: '/unidades-produtos'
+      path: '/unidades-produtos'
+      fullPath: '/unidades-produtos'
+      preLoaderRoute: typeof UnidadesProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status-pedido-compra': {
+      id: '/status-pedido-compra'
+      path: '/status-pedido-compra'
+      fullPath: '/status-pedido-compra'
+      preLoaderRoute: typeof StatusPedidoCompraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup-confirmation': {
       id: '/signup-confirmation'
       path: '/signup-confirmation'
@@ -201,6 +454,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NovaOrdemServicoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marcas-produtos': {
+      id: '/marcas-produtos'
+      path: '/marcas-produtos'
+      fullPath: '/marcas-produtos'
+      preLoaderRoute: typeof MarcasProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -208,11 +475,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grupos-produtos': {
+      id: '/grupos-produtos'
+      path: '/grupos-produtos'
+      fullPath: '/grupos-produtos'
+      preLoaderRoute: typeof GruposProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fornecedores': {
+      id: '/fornecedores'
+      path: '/fornecedores'
+      fullPath: '/fornecedores'
+      preLoaderRoute: typeof FornecedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customer': {
       id: '/customer'
       path: '/customer'
       fullPath: '/customer'
       preLoaderRoute: typeof CustomerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas-produtos': {
+      id: '/areas-produtos'
+      path: '/areas-produtos'
+      fullPath: '/areas-produtos'
+      preLoaderRoute: typeof AreasProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -229,12 +517,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/veiculos/': {
+      id: '/veiculos/'
+      path: '/'
+      fullPath: '/veiculos/'
+      preLoaderRoute: typeof VeiculosIndexRouteImport
+      parentRoute: typeof VeiculosRoute
+    }
+    '/unidades-produtos/': {
+      id: '/unidades-produtos/'
+      path: '/'
+      fullPath: '/unidades-produtos/'
+      preLoaderRoute: typeof UnidadesProdutosIndexRouteImport
+      parentRoute: typeof UnidadesProdutosRoute
+    }
+    '/status-pedido-compra/': {
+      id: '/status-pedido-compra/'
+      path: '/'
+      fullPath: '/status-pedido-compra/'
+      preLoaderRoute: typeof StatusPedidoCompraIndexRouteImport
+      parentRoute: typeof StatusPedidoCompraRoute
+    }
     '/service-order/': {
       id: '/service-order/'
       path: '/'
       fullPath: '/service-order/'
       preLoaderRoute: typeof ServiceOrderIndexRouteImport
       parentRoute: typeof ServiceOrderRoute
+    }
+    '/marcas-produtos/': {
+      id: '/marcas-produtos/'
+      path: '/'
+      fullPath: '/marcas-produtos/'
+      preLoaderRoute: typeof MarcasProdutosIndexRouteImport
+      parentRoute: typeof MarcasProdutosRoute
+    }
+    '/loja/': {
+      id: '/loja/'
+      path: '/'
+      fullPath: '/loja/'
+      preLoaderRoute: typeof LojaIndexRouteImport
+      parentRoute: typeof LojaRoute
+    }
+    '/grupos-produtos/': {
+      id: '/grupos-produtos/'
+      path: '/'
+      fullPath: '/grupos-produtos/'
+      preLoaderRoute: typeof GruposProdutosIndexRouteImport
+      parentRoute: typeof GruposProdutosRoute
+    }
+    '/fornecedores/': {
+      id: '/fornecedores/'
+      path: '/'
+      fullPath: '/fornecedores/'
+      preLoaderRoute: typeof FornecedoresIndexRouteImport
+      parentRoute: typeof FornecedoresRoute
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -250,12 +587,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomerIndexRouteImport
       parentRoute: typeof CustomerRoute
     }
+    '/areas-produtos/': {
+      id: '/areas-produtos/'
+      path: '/'
+      fullPath: '/areas-produtos/'
+      preLoaderRoute: typeof AreasProdutosIndexRouteImport
+      parentRoute: typeof AreasProdutosRoute
+    }
+    '/veiculos/new': {
+      id: '/veiculos/new'
+      path: '/new'
+      fullPath: '/veiculos/new'
+      preLoaderRoute: typeof VeiculosNewRouteImport
+      parentRoute: typeof VeiculosRoute
+    }
     '/service-order/new': {
       id: '/service-order/new'
       path: '/new'
       fullPath: '/service-order/new'
       preLoaderRoute: typeof ServiceOrderNewRouteImport
       parentRoute: typeof ServiceOrderRoute
+    }
+    '/grupos-produtos/new': {
+      id: '/grupos-produtos/new'
+      path: '/new'
+      fullPath: '/grupos-produtos/new'
+      preLoaderRoute: typeof GruposProdutosNewRouteImport
+      parentRoute: typeof GruposProdutosRoute
+    }
+    '/fornecedores/new': {
+      id: '/fornecedores/new'
+      path: '/new'
+      fullPath: '/fornecedores/new'
+      preLoaderRoute: typeof FornecedoresNewRouteImport
+      parentRoute: typeof FornecedoresRoute
     }
     '/customer/new': {
       id: '/customer/new'
@@ -264,8 +629,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomerNewRouteImport
       parentRoute: typeof CustomerRoute
     }
+    '/areas-produtos/new': {
+      id: '/areas-produtos/new'
+      path: '/new'
+      fullPath: '/areas-produtos/new'
+      preLoaderRoute: typeof AreasProdutosNewRouteImport
+      parentRoute: typeof AreasProdutosRoute
+    }
   }
 }
+
+interface AreasProdutosRouteChildren {
+  AreasProdutosNewRoute: typeof AreasProdutosNewRoute
+  AreasProdutosIndexRoute: typeof AreasProdutosIndexRoute
+}
+
+const AreasProdutosRouteChildren: AreasProdutosRouteChildren = {
+  AreasProdutosNewRoute: AreasProdutosNewRoute,
+  AreasProdutosIndexRoute: AreasProdutosIndexRoute,
+}
+
+const AreasProdutosRouteWithChildren = AreasProdutosRoute._addFileChildren(
+  AreasProdutosRouteChildren,
+)
 
 interface CustomerRouteChildren {
   CustomerNewRoute: typeof CustomerNewRoute
@@ -279,6 +665,56 @@ const CustomerRouteChildren: CustomerRouteChildren = {
 
 const CustomerRouteWithChildren = CustomerRoute._addFileChildren(
   CustomerRouteChildren,
+)
+
+interface FornecedoresRouteChildren {
+  FornecedoresNewRoute: typeof FornecedoresNewRoute
+  FornecedoresIndexRoute: typeof FornecedoresIndexRoute
+}
+
+const FornecedoresRouteChildren: FornecedoresRouteChildren = {
+  FornecedoresNewRoute: FornecedoresNewRoute,
+  FornecedoresIndexRoute: FornecedoresIndexRoute,
+}
+
+const FornecedoresRouteWithChildren = FornecedoresRoute._addFileChildren(
+  FornecedoresRouteChildren,
+)
+
+interface GruposProdutosRouteChildren {
+  GruposProdutosNewRoute: typeof GruposProdutosNewRoute
+  GruposProdutosIndexRoute: typeof GruposProdutosIndexRoute
+}
+
+const GruposProdutosRouteChildren: GruposProdutosRouteChildren = {
+  GruposProdutosNewRoute: GruposProdutosNewRoute,
+  GruposProdutosIndexRoute: GruposProdutosIndexRoute,
+}
+
+const GruposProdutosRouteWithChildren = GruposProdutosRoute._addFileChildren(
+  GruposProdutosRouteChildren,
+)
+
+interface LojaRouteChildren {
+  LojaIndexRoute: typeof LojaIndexRoute
+}
+
+const LojaRouteChildren: LojaRouteChildren = {
+  LojaIndexRoute: LojaIndexRoute,
+}
+
+const LojaRouteWithChildren = LojaRoute._addFileChildren(LojaRouteChildren)
+
+interface MarcasProdutosRouteChildren {
+  MarcasProdutosIndexRoute: typeof MarcasProdutosIndexRoute
+}
+
+const MarcasProdutosRouteChildren: MarcasProdutosRouteChildren = {
+  MarcasProdutosIndexRoute: MarcasProdutosIndexRoute,
+}
+
+const MarcasProdutosRouteWithChildren = MarcasProdutosRoute._addFileChildren(
+  MarcasProdutosRouteChildren,
 )
 
 interface ServiceOrderRouteChildren {
@@ -295,14 +731,58 @@ const ServiceOrderRouteWithChildren = ServiceOrderRoute._addFileChildren(
   ServiceOrderRouteChildren,
 )
 
+interface StatusPedidoCompraRouteChildren {
+  StatusPedidoCompraIndexRoute: typeof StatusPedidoCompraIndexRoute
+}
+
+const StatusPedidoCompraRouteChildren: StatusPedidoCompraRouteChildren = {
+  StatusPedidoCompraIndexRoute: StatusPedidoCompraIndexRoute,
+}
+
+const StatusPedidoCompraRouteWithChildren =
+  StatusPedidoCompraRoute._addFileChildren(StatusPedidoCompraRouteChildren)
+
+interface UnidadesProdutosRouteChildren {
+  UnidadesProdutosIndexRoute: typeof UnidadesProdutosIndexRoute
+}
+
+const UnidadesProdutosRouteChildren: UnidadesProdutosRouteChildren = {
+  UnidadesProdutosIndexRoute: UnidadesProdutosIndexRoute,
+}
+
+const UnidadesProdutosRouteWithChildren =
+  UnidadesProdutosRoute._addFileChildren(UnidadesProdutosRouteChildren)
+
+interface VeiculosRouteChildren {
+  VeiculosNewRoute: typeof VeiculosNewRoute
+  VeiculosIndexRoute: typeof VeiculosIndexRoute
+}
+
+const VeiculosRouteChildren: VeiculosRouteChildren = {
+  VeiculosNewRoute: VeiculosNewRoute,
+  VeiculosIndexRoute: VeiculosIndexRoute,
+}
+
+const VeiculosRouteWithChildren = VeiculosRoute._addFileChildren(
+  VeiculosRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AreasProdutosRoute: AreasProdutosRouteWithChildren,
   CustomerRoute: CustomerRouteWithChildren,
+  FornecedoresRoute: FornecedoresRouteWithChildren,
+  GruposProdutosRoute: GruposProdutosRouteWithChildren,
   LoginRoute: LoginRoute,
+  LojaRoute: LojaRouteWithChildren,
+  MarcasProdutosRoute: MarcasProdutosRouteWithChildren,
   NovaOrdemServicoRoute: NovaOrdemServicoRoute,
   ServiceOrderRoute: ServiceOrderRouteWithChildren,
   SignupConfirmationRoute: SignupConfirmationRoute,
+  StatusPedidoCompraRoute: StatusPedidoCompraRouteWithChildren,
+  UnidadesProdutosRoute: UnidadesProdutosRouteWithChildren,
+  VeiculosRoute: VeiculosRouteWithChildren,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport

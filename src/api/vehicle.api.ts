@@ -18,7 +18,7 @@ class VehiclesApi extends BaseApi {
   }
 
   async updateVehicle(vehicle: UpdateVehicleInput, id: string) {
-    return this.post<CreateVehicleInput>(`${ENDPOINT}/edit/${id}`, vehicle);
+    return this.put<UpdateVehicleInput>(`${ENDPOINT}/edit/${id}`, vehicle);
   }
 
   async deleteVehicle(id: string) {
@@ -26,11 +26,11 @@ class VehiclesApi extends BaseApi {
   }
 
   async activeVehicle(id: string) {
-    return this.put<void>(`${ENDPOINT}/${id}/activar`, {});
+    return this.put<void>(`${ENDPOINT}/${id}/ativar`, {});
   }
 
   async deactiveVehicle(id: string) {
-    return this.delete<void>(`${ENDPOINT}/${id}/desactivar`);
+    return this.delete<void>(`${ENDPOINT}/${id}/desativar`);
   }
 }
 

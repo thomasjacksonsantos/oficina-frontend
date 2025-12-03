@@ -158,7 +158,7 @@ export function VehicleList<TData extends ServiceOrder, TValue>({
     <>
       <Toaster richColors position="bottom-right" />
 
-      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">      
         <VehicleHeaderList />
         <div className="flex items-center justify-between gap-4 mb-4">
           <div className="flex flex-1 justify-start gap-2">

@@ -4,7 +4,7 @@ import { VehicleProvider } from './components/list/vehicle-context';
 export default function Vehicle() {
   return (
     <VehicleProvider>
-      <div className="container mx-auto pl-40 pr-10 px-4">
+      <div className="container mx-auto pr-10 px-4">
         <VehicleList
           columns={[]}
           sortColumns={['codigo', 'modelo', 'montadora']}
