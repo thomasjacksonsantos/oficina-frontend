@@ -10,7 +10,7 @@ interface FloatingInputProps extends React.ComponentProps<"input"> {
 }
 
 const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
-  ({ className, label, type, onChange, inputMode, ...props }, ref) => {
+  ({ className, label, type, onChange, inputMode = 'text', ...props }, ref) => {
     const internalRef = React.useRef<HTMLInputElement | null>(null);
     const mergedRef = (node: HTMLInputElement) => {
       internalRef.current = node;

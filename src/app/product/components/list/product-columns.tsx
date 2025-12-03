@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Vehicle } from '@/api/vehicle.types';
+import { Product } from '@/api/product.types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,51 +11,68 @@ import {
 import { IconCircleCheckFilled, IconDotsVertical } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
 
-type VehicleColumnsProps = {
-  onView: (vehicle: Vehicle) => void;
-  onEdit: (vehicle: Vehicle) => void;
-  onDelete: (vehicle: Vehicle) => void;
-  onActive: (vehicle: string) => void;
-  onDeactive: (vehicle: string) => void;
+type ProductColumnsProps = {
+  onView: (product: Product) => void;
+  onEdit: (product: Product) => void;
+  onDelete: (product: Product) => void;
+  onActive: (productId: string) => void;
+  onDeactive: (productId: string) => void;
 };
 
-export const createVehicleColumns = ({
+export const createProductColumns = ({
   onView,
   onEdit,
   onDelete,
   onActive,
   onDeactive,
-}: VehicleColumnsProps): ColumnDef<Vehicle>[] => [
+}: ProductColumnsProps): ColumnDef<Product>[] => [
   {
-    id: 'id',
-    accessorKey: 'id',
+    id: 'referencia',
+    accessorKey: 'referencia',
     header: 'Código',
-  },
-  {
-    id: 'placa',
-    accessorKey: 'placa',
-    header: 'Placa',
     cell: ({ row }) => {
-      const vehicle = row.original;
-      return <div className="font-medium">{vehicle.placa}</div>;
+      const product = row.original;
+      return <div className="font-medium font-mono">{product.referencia}</div>;
     },
   },
   {
-    id: 'modelo',
-    accessorKey: 'modelo',
-    header: 'Modelo',
+    id: 'descricao',
+    accessorKey: 'descricao',
+    header: 'Descrição',
     cell: ({ row }) => {
-      const vehicle = row.original;
-      return <div>{vehicle.modelo}</div>;
+      const product = row.original;
+      return <div className="max-w-[300px] truncate">{product.descricao}</div>;
     },
   },
   {
-    id: 'montadora',
-    accessorKey: 'montadora',
-    header: 'Montadora',
+    id: 'aplicacao',
+    accessorKey: 'aplicacao',
+    header: 'Aplicação',
     cell: ({ row }) => {
-      const vehicle = row.original;
-      return <div>{vehicle.montadora}</div>;
+      const product = row.original;
+      return <div className="max-w-[200px] truncate">{product.aplicacao}</div>;
+    },
+  },
+  {
+    id: 'preco.venda',
+    accessorKey: 'preco.venda',
+    header: 'Valor',
+    cell: ({ row }) => {
+      const product = row.original;
+      return (
+        <div className="font-medium">
+          R$ {product.preco.venda.toFixed(2).replace('.', ',')}
+        </div>
+      );
+    },
+  },
+  {
+    id: 'dadosComplementares.estoque',
+    accessorKey: 'dadosComplementares.estoque',
+    header: 'Est. Atual',
+    cell: ({ row }) => {
+      const product = row.original;
+      return <div className="text-center">{product.dadosComplementares.estoque}</div>;
     },
   },
   {
@@ -63,8 +80,8 @@ export const createVehicleColumns = ({
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const vehicle = row.original;
-      const isActive = vehicle.status === 'Ativo' || vehicle.status === 'Active';
+      const product = row.original;
+      const isActive = product.status === 'Ativo' || product.status === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -73,7 +90,7 @@ export const createVehicleColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
           )}
-          {vehicle.status || 'Ativo'}
+          {product.status || 'Ativo'}
         </Badge>
       );
     },
@@ -82,7 +99,7 @@ export const createVehicleColumns = ({
     id: 'actions',
     header: 'Ações',
     cell: ({ row }) => {
-      const vehicle = row.original;
+      const product = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -96,20 +113,17 @@ export const createVehicleColumns = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem onClick={() => onEdit(vehicle)}>Editar</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(product)}>Editar</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-green-600 dark:text-green-500 focus:bg-green-500/10 dark:focus:bg-green-500/20 focus:text-green-600 dark:focus:text-green-500"
-              onClick={() => onActive(vehicle.id)}
+              onClick={() => onActive(product.id)}
             >
-              Activa
+              Ativar
             </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive" onClick={() => onDeactive(vehicle.id)}>
-              Deactiva
+            <DropdownMenuItem variant="destructive" onClick={() => onDeactive(product.id)}>
+              Desativar
             </DropdownMenuItem>
-            {/* <DropdownMenuItem variant="destructive" onClick={() => onDelete(vehicle)}>
-              Deletar
-            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );
