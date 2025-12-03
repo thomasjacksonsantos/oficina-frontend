@@ -9,11 +9,13 @@ interface VehicleContextType {
   deletingVehicle: Vehicle | null;
   activingVehicle: string | null;
   deactivingVehicle: string | null;
+  registeringVehicle: boolean | null;
   setViewingVehicle: (vehicle: Vehicle | null) => void;
   setEditingVehicle: (vehicle: Vehicle | null) => void;
   setDeletingVehicle: (vehicle: Vehicle | null) => void;
   setActivingVehicle: (vehicleId: string | null) => void;
   setDeactivingVehicle: (vehicleId: string | null) => void;
+  setRegisteringVehicle: (registering: boolean | null) => void;
 }
 
 const VehicleContext = createContext<VehicleContextType | undefined>(undefined);
@@ -24,7 +26,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
   const [deletingVehicle, setDeletingVehicle] = useState<Vehicle | null>(null);
   const [activingVehicle, setActivingVehicle] = useState<string | null>(null);
   const [deactivingVehicle, setDeactivingVehicle] = useState<string | null>(null);
-
+  const [registeringVehicle, setRegisteringVehicle] = useState<boolean | null>(false);
   return (
     <VehicleContext.Provider
       value={{
@@ -33,11 +35,13 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
         deletingVehicle,
         activingVehicle,
         deactivingVehicle,
+        registeringVehicle,
         setViewingVehicle,
         setEditingVehicle,
         setDeletingVehicle,
         setActivingVehicle,
-        setDeactivingVehicle
+        setDeactivingVehicle,
+        setRegisteringVehicle
       }}
     >
       {children}

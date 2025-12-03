@@ -9,10 +9,11 @@ import { Link } from '@tanstack/react-router';
 import DeleteProductGroupForm from '../form/delete-product-group-form';
 import EditProductGroupDialog from '../form/product-group-edit-dialog';
 import ViewProductGroupDialog from '../form/product-group-view-dialog';
+import ProductGroupForm from '../form/product-group-form';
 
 export default function ProductGroupHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { deletingProductGroup, setDeletingProductGroup } = useProductGroupContext();
+  const { deletingProductGroup, setDeletingProductGroup, setRegisteringProductGroup } = useProductGroupContext();
   
   useEffect(() => {
     if (deletingProductGroup) {
@@ -44,6 +45,7 @@ export default function ProductGroupHeaderList() {
       </ResponsiveDialog>
       <EditProductGroupDialog />
       <ViewProductGroupDialog />
+        <ProductGroupForm />
 
       <div className="flex mb-2 flex-wrap items-center justify-between">
         <div>
@@ -51,12 +53,10 @@ export default function ProductGroupHeaderList() {
           <span className="text-muted-foreground">Gerencie seus grupos de produtos aqui.</span>
         </div>
         <div>
-          <Link to="/grupos-produtos/new">
-            <Button variant="default">
+            <Button onClick={() => setRegisteringProductGroup(true)} variant="default">
               <FilePlus className="mr-2 h-4 w-4" />
               Novo Grupo
             </Button>
-          </Link>
         </div>
       </div>
     </>

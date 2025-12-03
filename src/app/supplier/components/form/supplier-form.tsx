@@ -4,9 +4,15 @@ import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+// Labels are handled by FloatingInput's label prop or native html <label> elements
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Route, useRouter, useParams } from '@tanstack/react-router';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { supplierSchema, type CreateSupplierSchema } from './supplier.schema';
@@ -14,10 +20,12 @@ import { toast, Toaster } from 'sonner';
 import { useCreateSupplier } from '@/app/supplier/api';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Plus, X } from 'lucide-react';
+import { useSupplierContext } from '../list/supplier-context';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function SupplierForm() {
   const router = useRouter();
-
+  const { setRegisteringSupplier, registeringSupplier } = useSupplierContext();
   const {
     register,
     handleSubmit,
@@ -65,7 +73,7 @@ export default function SupplierForm() {
       onSuccess: (result) => {
         if (result) {
           toast.success('Fornecedor criado com sucesso!');
-          router.navigate({ to: '/fornecedores' });
+          setRegisteringSupplier(null);
         } else {
           toast.error('Erro ao criar fornecedor');
         }
@@ -79,28 +87,24 @@ export default function SupplierForm() {
 
   return (
     <div className="mx-auto w-full max-w-5xl p-6">
-      <Toaster position="top-right" richColors />
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Card className="rounded-lg">
-          <CardContent className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold">Novo Fornecedor</h2>
-              </div>
-            </div>
+      <Dialog open={!!registeringSupplier} onOpenChange={() => setRegisteringSupplier(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Novo Fornecedor</DialogTitle>
+          </DialogHeader>
 
-            <Separator />
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Separator className="my-4" />
 
             {/* Informações Básicas */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold">Informações Básicas</h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="nomeFantasia">Nome Fantasia</Label>
-                  <Input
+                  <FloatingInput
                     id="nomeFantasia"
                     {...register('nomeFantasia')}
-                    placeholder="Nome fantasia da empresa"
+                    label="Nome Fantasia"
                     className="rounded-md"
                   />
                   {errors.nomeFantasia && (
@@ -109,11 +113,10 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="razaoSocial">Razão Social</Label>
-                  <Input
+                  <FloatingInput
                     id="razaoSocial"
                     {...register('razaoSocial')}
-                    placeholder="Razão social da empresa"
+                    label="Razão Social"
                     className="rounded-md"
                   />
                   {errors.razaoSocial && (
@@ -122,17 +125,11 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="documento">CPF/CNPJ</Label>
-                  <Input
+                  <FloatingInput
                     id="documento"
                     {...register('documento')}
-                    placeholder="01010101011001"
+                    label="CPF/CNPJ"
                     className="rounded-md"
-                    maxLength={14}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      setValue('documento', value, { shouldValidate: true });
-                    }}
                   />
                   {errors.documento && (
                     <span className="text-sm text-red-500">{errors.documento.message}</span>
@@ -142,12 +139,13 @@ export default function SupplierForm() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="dataNascimento">Data de Abertura</Label>
-                  <Input
+                  <FloatingInput
                     id="dataNascimento"
                     {...register('dataNascimento')}
-                    type="date"
-                    className="rounded-md"
+                    type='date'
+                    className="peer appearance-none bg-white border border-gray-300 rounded px-3 py-2"
+                    label="Data de Abertura"
+                    defaultValue='00/00/0000'
                   />
                   {errors.dataNascimento && (
                     <span className="text-sm text-red-500">{errors.dataNascimento.message}</span>
@@ -155,11 +153,10 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="inscricaoEstadual">I.E</Label>
-                  <Input
+                  <FloatingInput
                     id="inscricaoEstadual"
                     {...register('inscricaoEstadual')}
-                    placeholder="Inscrição Estadual"
+                    label="Inscrição Estadual"
                     className="rounded-md"
                   />
                   {errors.inscricaoEstadual && (
@@ -169,19 +166,18 @@ export default function SupplierForm() {
               </div>
             </div>
 
-            <Separator />
+            <Separator className="my-4" />
 
             {/* Contato */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold">Contato</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
+                  <FloatingInput
                     id="email"
                     {...register('email')}
                     type="email"
-                    placeholder="contato@empresa.com"
+                    label="Email"
                     className="rounded-md"
                   />
                   {errors.email && (
@@ -190,11 +186,10 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="site">Site</Label>
-                  <Input
+                  <FloatingInput
                     id="site"
                     {...register('site')}
-                    placeholder="www.empresa.com"
+                    label="Site"
                     className="rounded-md"
                   />
                   {errors.site && (
@@ -206,7 +201,7 @@ export default function SupplierForm() {
               {/* Telefones */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Telefones</Label>
+                  <div className="text-sm font-medium">Telefones</div>
                   <Button
                     type="button"
                     variant="outline"
@@ -220,9 +215,9 @@ export default function SupplierForm() {
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex gap-2">
                     <div className="flex-1">
-                      <Input
+                      <FloatingInput
                         {...register(`contatos.${index}.tipoTelefone`)}
-                        placeholder="Tipo"
+                        label="Tipo Telefone"
                         className="rounded-md"
                       />
                       {errors.contatos?.[index]?.tipoTelefone && (
@@ -232,15 +227,10 @@ export default function SupplierForm() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <Input
+                      <FloatingInput
                         {...register(`contatos.${index}.numero`)}
-                        placeholder="Número"
+                        label="Número"
                         className="rounded-md"
-                        maxLength={11}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '');
-                          setValue(`contatos.${index}.numero`, value, { shouldValidate: true });
-                        }}
                       />
                       {errors.contatos?.[index]?.numero && (
                         <span className="text-sm text-red-500">
@@ -263,24 +253,18 @@ export default function SupplierForm() {
               </div>
             </div>
 
-            <Separator />
+            <Separator className="my-4" />
 
             {/* Endereço */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold">Endereço</h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="cep">CEP</Label>
-                  <Input
+                  <FloatingInput
                     id="cep"
                     {...register('endereco.cep')}
-                    placeholder="01310100"
                     className="rounded-md"
-                    maxLength={8}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      setValue('endereco.cep', value, { shouldValidate: true });
-                    }}
+                    label="CEP"
                   />
                   {errors.endereco?.cep && (
                     <span className="text-sm text-red-500">{errors.endereco.cep.message}</span>
@@ -288,11 +272,11 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2 md:col-span-2">
-                  <Label htmlFor="logradouro">Logradouro</Label>
-                  <Input
+                  <FloatingInput
                     id="logradouro"
                     {...register('endereco.logradouro')}
-                    placeholder="Av. Paulista"
+                    placeholder="Rua Exemplo"
+                    label="Logradouro"
                     className="rounded-md"
                   />
                   {errors.endereco?.logradouro && (
@@ -305,11 +289,10 @@ export default function SupplierForm() {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="numero">Número</Label>
-                  <Input
+                  <FloatingInput
                     id="numero"
                     {...register('endereco.numero')}
-                    placeholder="1000"
+                    label="Número"
                     className="rounded-md"
                   />
                   {errors.endereco?.numero && (
@@ -318,11 +301,10 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2 md:col-span-2">
-                  <Label htmlFor="complemento">Complemento</Label>
-                  <Input
+                  <FloatingInput
                     id="complemento"
                     {...register('endereco.complemento')}
-                    placeholder="Sala 101"
+                    label="Complemento"
                     className="rounded-md"
                   />
                   {errors.endereco?.complemento && (
@@ -335,11 +317,10 @@ export default function SupplierForm() {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="bairro">Bairro</Label>
-                  <Input
+                  <FloatingInput
                     id="bairro"
                     {...register('endereco.bairro')}
-                    placeholder="Centro"
+                    label="Bairro"
                     className="rounded-md"
                   />
                   {errors.endereco?.bairro && (
@@ -348,11 +329,10 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="cidade">Cidade</Label>
-                  <Input
+                  <FloatingInput
                     id="cidade"
                     {...register('endereco.cidade')}
-                    placeholder="São Paulo"
+                    label="Cidade"
                     className="rounded-md"
                   />
                   {errors.endereco?.cidade && (
@@ -361,11 +341,10 @@ export default function SupplierForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="estado">Estado</Label>
-                  <Input
+                  <FloatingInput
                     id="estado"
                     {...register('endereco.estado')}
-                    placeholder="SP"
+                    label="Estado"
                     className="rounded-md"
                     maxLength={2}
                     onChange={(e) => {
@@ -380,18 +359,17 @@ export default function SupplierForm() {
               </div>
             </div>
 
-            <Separator />
+            <Separator className="my-4" />
 
             {/* Informações Fiscais */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold">Informações Fiscais</h3>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="inscricaoMunicipal">Inscrição Municipal</Label>
-                <Input
+                <FloatingInput
                   id="inscricaoMunicipal"
                   {...register('inscricaoMunicipal')}
-                  placeholder="Inscrição Municipal"
+                  label="Inscrição Municipal"
                   className="rounded-md"
                 />
                 {errors.inscricaoMunicipal && (
@@ -400,22 +378,22 @@ export default function SupplierForm() {
               </div>
 
               <div className="space-y-2">
-                <Label>Tipo Consumidor</Label>
+                <div className="text-sm font-medium">Tipo Consumidor</div>
                 <RadioGroup
                   value={watch('tipoConsumidor')}
                   onValueChange={(value) => setValue('tipoConsumidor', value)}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Consumidor Final" id="consumidor-final" />
-                    <Label htmlFor="consumidor-final" className="font-normal">
+                    <label htmlFor="consumidor-final" className="font-normal">
                       Consumidor Final
-                    </Label>
+                    </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Revenda" id="revenda" />
-                    <Label htmlFor="revenda" className="font-normal">
+                    <label htmlFor="revenda" className="font-normal">
                       Revenda
-                    </Label>
+                    </label>
                   </div>
                 </RadioGroup>
                 {errors.tipoConsumidor && (
@@ -424,31 +402,31 @@ export default function SupplierForm() {
               </div>
 
               <div className="space-y-2">
-                <Label>Indicador de I.E</Label>
+                <div className="text-sm font-medium">Indicador de I.E</div>
                 <RadioGroup
                   value={watch('indicadorIE')}
                   onValueChange={(value) => setValue('indicadorIE', value)}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Contribuinte de ICMS (COM IE)" id="com-ie" />
-                    <Label htmlFor="com-ie" className="font-normal">
+                    <label htmlFor="com-ie" className="font-normal">
                       Contribuinte de ICMS (COM IE)
-                    </Label>
+                    </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Contribuinte Isento de ICMS (Sem IE)" id="sem-ie" />
-                    <Label htmlFor="sem-ie" className="font-normal">
+                    <label htmlFor="sem-ie" className="font-normal">
                       Contribuinte Isento de ICMS (Sem IE)
-                    </Label>
+                    </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem
                       value="Não Contribuinte de ICMS (Com ou sem IE)"
                       id="nao-contribuinte"
                     />
-                    <Label htmlFor="nao-contribuinte" className="font-normal">
+                    <label htmlFor="nao-contribuinte" className="font-normal">
                       Não Contribuinte de ICMS (Com ou sem IE)
-                    </Label>
+                    </label>
                   </div>
                 </RadioGroup>
                 {errors.indicadorIE && (
@@ -456,26 +434,26 @@ export default function SupplierForm() {
                 )}
               </div>
             </div>
-          </CardContent>
 
-          <CardFooter>
-            <div className="flex items-center gap-2 ml-auto">
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={() => {
-                  router.navigate({ to: '/fornecedores' });
-                }}
-              >
-                Voltar
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? 'Salvando...' : 'Salvar Fornecedor'}
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </form>
+            <DialogFooter className="mt-6">
+              <div className="flex items-center gap-2 ml-auto">
+                <div className="flex items-center gap-2 ml-auto">
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={() => setRegisteringSupplier(null)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? 'Salvando...' : 'Salvar Veículo'}
+                  </Button>
+                </div>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -9,10 +9,11 @@ import { Link } from '@tanstack/react-router';
 import DeleteAreaForm from '../form/delete-product-area-form';
 import EditAreaDialog from '../form/product-area-edit-dialog';
 import ViewAreaDialog from '../form/product-area-view-dialog';
+import RegisterAreaForm from '../form/product-area-form';
 
 export default function AreaHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { deletingArea, setDeletingArea } = useAreaContext();
+  const { deletingArea, setDeletingArea, setRegisteringArea } = useAreaContext();
 
   useEffect(() => {
     if (deletingArea) {
@@ -39,19 +40,17 @@ export default function AreaHeaderList() {
       </ResponsiveDialog>
       <EditAreaDialog />
       <ViewAreaDialog />
-
+    <RegisterAreaForm />
       <div className="flex mb-2 flex-wrap items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Áreas</h2>
           <span className="text-muted-foreground">Gerencie suas áreas aqui.</span>
         </div>
         <div>
-          <Link to="/areas-produtos/new">
-            <Button variant="default">
+            <Button onClick={() => setRegisteringArea(true)} variant="default">
               <FilePlus className="mr-2 h-4 w-4" />
               Nova Área
             </Button>
-          </Link>
         </div>
       </div>
     </>

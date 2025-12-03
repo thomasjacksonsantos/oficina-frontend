@@ -11,6 +11,7 @@ import { storeSchema, type StoreFormSchema } from './store.schema';
 import { toast, Toaster } from 'sonner';
 import { useGetStore, useUpdateStore, useSearchCep } from './use-store';
 import { Plus, X, Upload, Loader2 } from 'lucide-react';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function StoreSettings() {
   const { data: store, isLoading } = useGetStore();
@@ -120,11 +121,10 @@ export default function StoreSettings() {
           {/* Row 1: Nome Fantasia, Razão Social, CNPJ */}
           <div className="grid gap-4 md:grid-cols-3 mb-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="nomeFantasia">Nome Fantasia</Label>
-              <Input
+              <FloatingInput
                 id="nomeFantasia"
                 {...register('nomeFantasia')}
-                placeholder="Nome Fantasia"
+                label="Nome Fantasia"
                 className="rounded-md"
               />
               {errors.nomeFantasia && (
@@ -146,11 +146,10 @@ export default function StoreSettings() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="cnpj">CNPJ</Label>
-              <Input
+              <FloatingInput
                 id="cnpj"
                 {...register('cnpj')}
-                placeholder="CNPJ"
+                label="CNPJ"
                 className="rounded-md"
                 maxLength={14}
                 onChange={(e) => {
@@ -165,11 +164,10 @@ export default function StoreSettings() {
           {/* Row 2: Ins. Estadual, Ins. Municipal */}
           <div className="grid gap-4 md:grid-cols-2 mb-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="inscricaoEstadual">Ins. Estadual</Label>
-              <Input
+              <FloatingInput
                 id="inscricaoEstadual"
                 {...register('inscricaoEstadual')}
-                placeholder="Ins. Estadual"
+                label="Ins. Estadual"
                 className="rounded-md"
               />
               {errors.inscricaoEstadual && (
@@ -178,11 +176,10 @@ export default function StoreSettings() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="inscricaoMunicipal">Ins. Municipal</Label>
-              <Input
+              <FloatingInput
                 id="inscricaoMunicipal"
                 {...register('inscricaoMunicipal')}
-                placeholder="Ins. Municipal"
+                label="Ins. Municipal"
                 className="rounded-md"
               />
               {errors.inscricaoMunicipal && (
@@ -194,11 +191,10 @@ export default function StoreSettings() {
           {/* Row 3: CEP, Buscar Cep button */}
           <div className="grid gap-4 md:grid-cols-2 mb-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="cep">Cep</Label>
-              <Input
+              <FloatingInput
                 id="cep"
                 {...register('endereco.cep')}
-                placeholder="Cep"
+                label="CEP"
                 className="rounded-md"
                 maxLength={8}
                 onChange={(e) => {
@@ -226,11 +222,10 @@ export default function StoreSettings() {
           {/* Row 4: Logradouro, Numero, Compl */}
           <div className="grid gap-4 md:grid-cols-3 mb-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="logradouro">Logradouro</Label>
-              <Input
+              <FloatingInput
                 id="logradouro"
                 {...register('endereco.logradouro')}
-                placeholder="Logradouro"
+                label="Logradouro"
                 className="rounded-md"
               />
               {errors.endereco?.logradouro && (
@@ -239,11 +234,10 @@ export default function StoreSettings() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="numero">Numero</Label>
-              <Input
+              <FloatingInput
                 id="numero"
                 {...register('endereco.numero')}
-                placeholder="Numero"
+                label="Numero"
                 className="rounded-md"
               />
               {errors.endereco?.numero && (
@@ -252,11 +246,10 @@ export default function StoreSettings() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="complemento">Compl</Label>
-              <Input
+              <FloatingInput
                 id="complemento"
                 {...register('endereco.complemento')}
-                placeholder="Complemento"
+                label="Complemento"
                 className="rounded-md"
               />
             </div>
@@ -265,17 +258,11 @@ export default function StoreSettings() {
           {/* Row 5: Estado, Cidade, Bairro */}
           <div className="grid gap-4 md:grid-cols-3 mb-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="estado">Estado</Label>
-              <Input
+              <FloatingInput
                 id="estado"
                 {...register('endereco.estado')}
-                placeholder="Estado"
+                label="Estado"
                 className="rounded-md"
-                maxLength={2}
-                onChange={(e) => {
-                  const upper = e.target.value.toUpperCase();
-                  setValue('endereco.estado', upper, { shouldValidate: true });
-                }}
               />
               {errors.endereco?.estado && (
                 <span className="text-sm text-red-500">{errors.endereco.estado.message}</span>
@@ -283,11 +270,10 @@ export default function StoreSettings() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="cidade">Cidade</Label>
-              <Input
+              <FloatingInput
                 id="cidade"
                 {...register('endereco.cidade')}
-                placeholder="Cidade"
+                label="Cidade"
                 className="rounded-md"
               />
               {errors.endereco?.cidade && (
@@ -296,11 +282,10 @@ export default function StoreSettings() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="bairro">Bairro</Label>
-              <Input
+              <FloatingInput
                 id="bairro"
                 {...register('endereco.bairro')}
-                placeholder="Bairro"
+                label="Bairro"
                 className="rounded-md"
               />
               {errors.endereco?.bairro && (
@@ -314,10 +299,9 @@ export default function StoreSettings() {
             {fields.map((field, index) => (
               <div key={field.id} className="grid gap-4 md:grid-cols-[1fr_2fr_auto]">
                 <div className="flex flex-col gap-2">
-                  {index === 0 && <Label>Tipo</Label>}
-                  <Input
+                  <FloatingInput
                     {...register(`contato.${index}.tipo`)}
-                    placeholder="Tipo"
+                    label="Tipo"
                     className="rounded-md"
                   />
                   {errors.contato?.[index]?.tipo && (
@@ -328,16 +312,10 @@ export default function StoreSettings() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  {index === 0 && <Label>Numero</Label>}
-                  <Input
+                  <FloatingInput
                     {...register(`contato.${index}.numero`)}
-                    placeholder="Numero"
+                    label="Numero"
                     className="rounded-md"
-                    maxLength={11}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      setValue(`contato.${index}.numero`, value, { shouldValidate: true });
-                    }}
                   />
                   {errors.contato?.[index]?.numero && (
                     <span className="text-sm text-red-500">
@@ -378,11 +356,10 @@ export default function StoreSettings() {
           <div className="grid gap-4 md:grid-cols-[200px_200px_1fr] items-end">
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="site">Site</Label>
-                <Input
+                <FloatingInput
                   id="site"
                   {...register('site')}
-                  placeholder="www.site.com"
+                  label="Website"
                   className="rounded-md"
                 />
                 {errors.site && <span className="text-sm text-red-500">{errors.site.message}</span>}

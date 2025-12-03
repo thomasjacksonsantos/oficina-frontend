@@ -7,20 +7,30 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { useRouter } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { areaSchema, type CreateAreaSchema } from './product-area.schema';
 import { toast, Toaster } from 'sonner';
 import { useCreateArea } from '@/app/product-area/api';
+import { useAreaContext } from '../list';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function AreaForm() {
   const router = useRouter();
+  const { registeringArea, setRegisteringArea } = useAreaContext();
 
   const {
     register,
     handleSubmit,
     setValue,
+    reset,
     setError,
     watch,
     formState: { errors },
@@ -34,6 +44,12 @@ export default function AreaForm() {
     },
   });
 
+  React.useEffect(() => {
+    if (!registeringArea) {
+      reset();
+    }
+  }, [registeringArea, reset]);
+
   const { mutate: createArea, isPending } = useCreateArea();
 
   const onSubmit = (data: CreateAreaSchema) => {
@@ -44,7 +60,8 @@ export default function AreaForm() {
     createArea(create, {
       onSuccess: (result) => {
         if (result) {
-          router.navigate({ to: '/areas-produtos' });
+          setRegisteringArea(null);
+          toast.success('Área criada com sucesso!');
         } else {
           toast.error(`Erro ao criar área: ${result}`);
         }
@@ -80,26 +97,22 @@ export default function AreaForm() {
 
   return (
     <div className="mx-auto w-full max-w-4xl p-6">
-      <Toaster position="top-right" richColors />
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Card className="rounded-lg">
-          <CardContent className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold">Área</h2>
-              </div>
-            </div>
+      <Dialog open={!!registeringArea} onOpenChange={() => setRegisteringArea(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Grupo de Produtos</DialogTitle>
+          </DialogHeader>
 
-            <Separator />
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Separator className="my-4" />
 
             <div className="space-y-3">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="area-codigo">Código</Label>
-                  <Input
+                  <FloatingInput
                     id="area-codigo"
                     {...register('codigo')}
-                    placeholder="AUTO-001"
+                    label="Código"
                     className="rounded-md"
                     onChange={(e) => {
                       const upper = e.target.value.toUpperCase();
@@ -112,11 +125,10 @@ export default function AreaForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="area-descricao">Descrição</Label>
-                  <Input
+                  <FloatingInput
                     id="area-descricao"
                     {...register('descricao')}
-                    placeholder="Automotiva"
+                    label="Descrição"
                     className="rounded-md"
                   />
                   {errors.descricao && (
@@ -126,7 +138,6 @@ export default function AreaForm() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="area-descricao-estendida">Descrição Estendida</Label>
                 <Textarea
                   id="area-descricao-estendida"
                   {...register('descricaoEstendida')}
@@ -141,13 +152,11 @@ export default function AreaForm() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="area-garantia">Garantia (meses)</Label>
-                  <Input
+                  <FloatingInput
                     id="area-garantia"
                     {...register('garantia')}
-                    placeholder="12"
+                    label="Garantia (meses)"
                     className="rounded-md"
-                    inputMode="numeric"
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '');
                       setValue('garantia', value, { shouldValidate: true });
@@ -159,26 +168,25 @@ export default function AreaForm() {
                 </div>
               </div>
             </div>
-          </CardContent>
-
-          <CardFooter>
-            <div className="flex items-center gap-2 ml-auto">
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={() => {
-                  router.navigate({ to: '/areas-produtos' });
-                }}
-              >
-                Voltar
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? 'Salvando...' : 'Salvar'}
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </form>
+            <DialogFooter className="mt-6">
+              <div className="flex items-center gap-2 ml-auto">
+                <div className="flex items-center gap-2 ml-auto">
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={() => setRegisteringArea(null)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? 'Salvando...' : 'Salvar Veículo'}
+                  </Button>
+                </div>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

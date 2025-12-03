@@ -20,6 +20,7 @@ import { useSupplierContext } from '../list/supplier-context';
 import { useUpdateSupplier } from '@/app/supplier/api';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Plus, X } from 'lucide-react';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 export default function SupplierEditDialog() {
   const { editingSupplier, setEditingSupplier } = useSupplierContext();
@@ -144,11 +145,10 @@ export default function SupplierEditDialog() {
               <h3 className="text-sm font-semibold">Informações Básicas</h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-nomeFantasia">Nome Fantasia</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-nomeFantasia"
                     {...register('nomeFantasia')}
-                    placeholder="Nome fantasia da empresa"
+                    label="Nome Fantasia"
                   />
                   {errors.nomeFantasia && (
                     <span className="text-sm text-red-500">{errors.nomeFantasia.message}</span>
@@ -156,11 +156,10 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-razaoSocial">Razão Social</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-razaoSocial"
                     {...register('razaoSocial')}
-                    placeholder="Razão social da empresa"
+                    label="Razão Social"
                   />
                   {errors.razaoSocial && (
                     <span className="text-sm text-red-500">{errors.razaoSocial.message}</span>
@@ -168,16 +167,15 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-documento">CPF/CNPJ</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-documento"
                     {...register('documento')}
-                    placeholder="01010101011001"
                     maxLength={14}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '');
                       setValue('documento', value, { shouldValidate: true });
                     }}
+                    label="CPF/CNPJ"
                   />
                   {errors.documento && (
                     <span className="text-sm text-red-500">{errors.documento.message}</span>
@@ -187,11 +185,12 @@ export default function SupplierEditDialog() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-dataNascimento">Data de Abertura</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-dataNascimento"
                     {...register('dataNascimento')}
                     type="date"
+                    defaultValue={'00/00/0000'}
+                    label='Data de Abertura'
                   />
                   {errors.dataNascimento && (
                     <span className="text-sm text-red-500">{errors.dataNascimento.message}</span>
@@ -199,11 +198,10 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-inscricaoEstadual">I.E</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-inscricaoEstadual"
                     {...register('inscricaoEstadual')}
-                    placeholder="Inscrição Estadual"
+                    label="Inscrição Estadual"
                   />
                   {errors.inscricaoEstadual && (
                     <span className="text-sm text-red-500">{errors.inscricaoEstadual.message}</span>
@@ -219,12 +217,11 @@ export default function SupplierEditDialog() {
               <h3 className="text-sm font-semibold">Contato</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-email">Email</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-email"
                     {...register('email')}
                     type="email"
-                    placeholder="contato@empresa.com"
+                    label="Email"
                   />
                   {errors.email && (
                     <span className="text-sm text-red-500">{errors.email.message}</span>
@@ -232,11 +229,10 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-site">Site</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-site"
                     {...register('site')}
-                    placeholder="www.empresa.com"
+                    label="Site"
                   />
                   {errors.site && (
                     <span className="text-sm text-red-500">{errors.site.message}</span>
@@ -261,9 +257,9 @@ export default function SupplierEditDialog() {
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex gap-2">
                     <div className="flex-1">
-                      <Input
+                      <FloatingInput
                         {...register(`contatos.${index}.tipoTelefone`)}
-                        placeholder="Tipo"
+                        label="Tipo"
                       />
                       {errors.contatos?.[index]?.tipoTelefone && (
                         <span className="text-sm text-red-500">
@@ -272,9 +268,9 @@ export default function SupplierEditDialog() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <Input
+                      <FloatingInput
                         {...register(`contatos.${index}.numero`)}
-                        placeholder="Número"
+                        label="Número"
                         maxLength={11}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '');
@@ -309,11 +305,10 @@ export default function SupplierEditDialog() {
               <h3 className="text-sm font-semibold">Endereço</h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-cep">CEP</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-cep"
                     {...register('endereco.cep')}
-                    placeholder="01310100"
+                    label="CEP"
                     maxLength={8}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '');
@@ -326,11 +321,10 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2 md:col-span-2">
-                  <Label htmlFor="edit-logradouro">Logradouro</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-logradouro"
                     {...register('endereco.logradouro')}
-                    placeholder="Av. Paulista"
+                    label="Logradouro"
                   />
                   {errors.endereco?.logradouro && (
                     <span className="text-sm text-red-500">{errors.endereco.logradouro.message}</span>
@@ -340,11 +334,10 @@ export default function SupplierEditDialog() {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-numero">Número</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-numero"
                     {...register('endereco.numero')}
-                    placeholder="1000"
+                    label='Número'
                   />
                   {errors.endereco?.numero && (
                     <span className="text-sm text-red-500">{errors.endereco.numero.message}</span>
@@ -352,10 +345,10 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2 md:col-span-2">
-                  <Label htmlFor="edit-complemento">Complemento</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-complemento"
                     {...register('endereco.complemento')}
+                    label="Complemento"
                     placeholder="Sala 101"
                   />
                   {errors.endereco?.complemento && (
@@ -366,11 +359,10 @@ export default function SupplierEditDialog() {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-bairro">Bairro</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-bairro"
                     {...register('endereco.bairro')}
-                    placeholder="Centro"
+                    label="Bairro"
                   />
                   {errors.endereco?.bairro && (
                     <span className="text-sm text-red-500">{errors.endereco.bairro.message}</span>
@@ -378,11 +370,10 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-cidade">Cidade</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-cidade"
                     {...register('endereco.cidade')}
-                    placeholder="São Paulo"
+                    label="Cidade"
                   />
                   {errors.endereco?.cidade && (
                     <span className="text-sm text-red-500">{errors.endereco.cidade.message}</span>
@@ -390,11 +381,10 @@ export default function SupplierEditDialog() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-estado">Estado</Label>
-                  <Input
+                  <FloatingInput
                     id="edit-estado"
                     {...register('endereco.estado')}
-                    placeholder="SP"
+                    label="Estado"
                     maxLength={2}
                     onChange={(e) => {
                       const upper = e.target.value.toUpperCase();
@@ -415,11 +405,10 @@ export default function SupplierEditDialog() {
               <h3 className="text-sm font-semibold">Informações Fiscais</h3>
               
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-inscricaoMunicipal">Inscrição Municipal</Label>
-                <Input
+                <FloatingInput
                   id="edit-inscricaoMunicipal"
                   {...register('inscricaoMunicipal')}
-                  placeholder="Inscrição Municipal"
+                  label="Inscrição Municipal"
                 />
                 {errors.inscricaoMunicipal && (
                   <span className="text-sm text-red-500">{errors.inscricaoMunicipal.message}</span>

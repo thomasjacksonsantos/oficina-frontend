@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import { orderStatusSchema, type CreateOrderStatusSchema } from './product-orderStatus.schema';
 import { toast } from 'sonner';
 import { useCreateOrderStatus } from '@/app/product-order-status/api';
+import { FloatingInput } from '@/components/ui/floating-input';
 
 interface CreateOrderStatusDialogProps {
   isOpen: boolean;
@@ -90,11 +91,10 @@ export default function CreateOrderStatusDialog({ isOpen, setIsOpen }: CreateOrd
 
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="create-descricao">Descrição</Label>
-              <Input
+              <FloatingInput
                 id="create-descricao"
                 {...register('descricao')}
-                placeholder="Ex: Unidade, Caixa, Pacote..."
+                label="Descrição"
                 autoFocus
               />
               {errors.descricao && (
