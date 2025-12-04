@@ -33,7 +33,7 @@ export default function StoreSettings() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'contato',
+    name: 'contatos',
   });
 
   React.useEffect(() => {
@@ -41,10 +41,10 @@ export default function StoreSettings() {
       reset({
         nomeFantasia: store.nomeFantasia || '',
         razaoSocial: store.razaoSocial || '',
-        cnpj: store.cnpj || '',
+        documento: store.documento || '',
         inscricaoEstadual: store.inscricaoEstadual || '',
         inscricaoMunicipal: store.inscricaoMunicipal || '',
-        contato: store.contato || [{ tipo: '', numero: '' }],
+        contatos: store.contatos || [{ tipoTelefone: '', numero: '' }],
         endereco: {
           cep: store.endereco?.cep || '',
           logradouro: store.endereco?.logradouro || '',
@@ -55,11 +55,11 @@ export default function StoreSettings() {
           cidade: store.endereco?.cidade || '',
         },
         site: store.site || '',
-        logo: store.logo || '',
+        logoTipo: store.logoTipo || '',
       });
 
-      if (store.logo) {
-        setLogoPreview(store.logo);
+      if (store.logoTipo) {
+        setLogoPreview(store.logoTipo);
       }
     }
   }, [store, reset]);
@@ -71,7 +71,7 @@ export default function StoreSettings() {
       reader.onloadend = () => {
         const result = reader.result as string;
         setLogoPreview(result);
-        setValue('logo', result);
+        setValue('logoTipo', result);
       };
       reader.readAsDataURL(file);
     }
@@ -146,17 +146,17 @@ export default function StoreSettings() {
 
             <div className="flex flex-col gap-2">
               <FloatingInput
-                id="cnpj"
-                {...register('cnpj')}
+                id="documento"
+                {...register('documento')}
                 label="CNPJ"
                 className="rounded-md"
                 maxLength={14}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
-                  setValue('cnpj', value, { shouldValidate: true });
+                  setValue('documento', value, { shouldValidate: true });
                 }}
               />
-              {errors.cnpj && <span className="text-sm text-red-500">{errors.cnpj.message}</span>}
+              {errors.documento && <span className="text-sm text-red-500">{errors.documento.message}</span>}
             </div>
           </div>
 
@@ -299,26 +299,27 @@ export default function StoreSettings() {
               <div key={field.id} className="grid gap-4 md:grid-cols-[1fr_2fr_auto]">
                 <div className="flex flex-col gap-2">
                   <FloatingInput
-                    {...register(`contato.${index}.tipo`)}
+                    {...register(`contatos.${index}.tipoTelefone`)}
                     label="Tipo"
                     className="rounded-md"
                   />
-                  {errors.contato?.[index]?.tipo && (
+                  {errors.contatos?.[index]?.tipoTelefone && (
                     <span className="text-sm text-red-500">
-                      {errors.contato[index]?.tipo?.message}
+                      {errors.contatos[index]?.tipoTelefone?.message}
                     </span>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <FloatingInput
-                    {...register(`contato.${index}.numero`)}
+                    {...register(`contatos.${index}.numero`)}
                     label="Numero"
                     className="rounded-md"
+                    maxLength={11}                    
                   />
-                  {errors.contato?.[index]?.numero && (
+                  {errors.contatos?.[index]?.numero && (
                     <span className="text-sm text-red-500">
-                      {errors.contato[index]?.numero?.message}
+                      {errors.contatos[index]?.numero?.message}
                     </span>
                   )}
                 </div>
@@ -343,7 +344,7 @@ export default function StoreSettings() {
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => append({ tipo: '', numero: '' })}
+              onClick={() => append({ tipoTelefone: '', numero: '' })}
               className="rounded-md"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -378,7 +379,7 @@ export default function StoreSettings() {
                     className="hidden"
                   />
                 </label>
-                {errors.logo && <span className="text-sm text-red-500">{errors.logo.message}</span>}
+                {errors.logoTipo && <span className="text-sm text-red-500">{errors.logoTipo.message}</span>}
               </div>
             </div>
 
