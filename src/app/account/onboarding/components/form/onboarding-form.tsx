@@ -115,6 +115,7 @@ export default function Login() {
                 razaoSocial: values.storeLegalName,
                 cnpj: values.storeCnpj,
                 inscricaoEstadual: values.stateRegistration || "",
+                inscricaoMunicipal: values.inscricaoMunicipal || "",
                 site: values.site || "",
                 logoTipo: values.logoType || "",
                 endereco: {
@@ -471,6 +472,21 @@ export default function Login() {
                         render={({ field }) => (
                             <FormItem>
                                 <Label>Inscrição estadual</Label>
+                                <FormControl>
+                                    <Input placeholder="Opcional" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                    <FormField
+                        control={control}
+                        name="inscricaoMunicipal"
+                        render={({ field }) => (
+                            <FormItem>
+                                <Label>Inscrição municipal</Label>
                                 <FormControl>
                                     <Input placeholder="Opcional" {...field} />
                                 </FormControl>

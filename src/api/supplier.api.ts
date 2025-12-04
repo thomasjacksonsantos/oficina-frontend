@@ -6,7 +6,7 @@ const ENDPOINT = 'v1/fornecedores';
 
 class SuppliersApi extends BaseApi {
   async getSuppliers(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {
-    return await this.get<Page<Supplier>>(`${ENDPOINT}/all`, queryString, options);
+    return await this.get<Page<Supplier>>(`${ENDPOINT}/all`);
   }
 
   async getSupplierById(id: string) {

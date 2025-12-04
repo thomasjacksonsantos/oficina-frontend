@@ -29,7 +29,7 @@ export const createVehicleColumns = ({
   {
     id: 'id',
     accessorKey: 'id',
-    header: 'ID',
+    header: 'Código',
   },
   {
     id: 'placa',

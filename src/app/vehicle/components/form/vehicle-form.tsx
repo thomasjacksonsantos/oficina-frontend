@@ -102,7 +102,6 @@ export default function VehicleForm() {
     });
   };
 
-
   return (
     <div className="mx-auto w-full max-w-4xl p-6">
       <Toaster position="top-right" richColors />
@@ -151,7 +150,7 @@ export default function VehicleForm() {
                 <div className="flex flex-col gap-2">
                   <FloatingInput
                     id="edit-hodrometro"
-                    {...register('hodrometro')}
+                    {...register('hodrometro', { valueAsNumber: true })}
                     label="Hodômetro (km)"
                     inputMode="numeric"
                   />
@@ -166,11 +165,7 @@ export default function VehicleForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="edit-ano"
-                    {...register('ano')}
-                    label="Ano"
-                  />
+                  <FloatingInput id="edit-ano" {...register('ano')} label="Ano" />
                   {errors.ano && <span className="text-sm text-red-500">{errors.ano.message}</span>}
                 </div>
               </div>

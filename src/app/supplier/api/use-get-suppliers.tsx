@@ -12,7 +12,7 @@ type Params = {
 };
 
 // Set to true to use mock data, false to use real API
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 export function useGetSuppliers({ page, q, limit, sortField, sortDirection, status }: Params = {}) {
   return useQuery({
