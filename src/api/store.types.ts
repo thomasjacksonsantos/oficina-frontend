@@ -3,13 +3,13 @@ export type Store = {
   nomeFantasia: string;
   razaoSocial: string;
   montadora: string;
-  cnpj: string;
+  documento: string;
   inscricaoEstadual: string;
   inscricaoMunicipal: string;
   endereco: StoreAddress;
-  contato: StoreContact[];
+  contatos: StoreContact[];
   site: string;
-  logo: string;
+  logoTipo: string;
 };
 
 export type StoreAddress = {
@@ -23,7 +23,7 @@ export type StoreAddress = {
 };
 
 export type StoreContact = {
-  tipo: string;
+  tipoTelefone: string;
   numero: string;
 };
 

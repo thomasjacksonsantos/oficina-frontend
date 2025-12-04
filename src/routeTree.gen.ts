@@ -14,13 +14,18 @@ import { Route as UnidadesProdutosRouteImport } from './routes/unidades-produtos
 import { Route as StatusPedidoCompraRouteImport } from './routes/status-pedido-compra'
 import { Route as SignupConfirmationRouteImport } from './routes/signup-confirmation'
 import { Route as ServiceOrderRouteImport } from './routes/service-order'
+import { Route as ProdutosServicosRouteImport } from './routes/produtos-servicos'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as NovaOrdemServicoRouteImport } from './routes/nova-ordem-servico'
 import { Route as MarcasProdutosRouteImport } from './routes/marcas-produtos'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GruposProdutosRouteImport } from './routes/grupos-produtos'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
+import { Route as FormaPagamentoRouteImport } from './routes/forma-pagamento'
+import { Route as EntradaManualRouteImport } from './routes/entrada-manual'
 import { Route as CustomerRouteImport } from './routes/customer'
+import { Route as BandeiraCartaoRouteImport } from './routes/bandeira-cartao'
 import { Route as AreasProdutosRouteImport } from './routes/areas-produtos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -28,12 +33,16 @@ import { Route as VeiculosIndexRouteImport } from './routes/veiculos/index'
 import { Route as UnidadesProdutosIndexRouteImport } from './routes/unidades-produtos/index'
 import { Route as StatusPedidoCompraIndexRouteImport } from './routes/status-pedido-compra/index'
 import { Route as ServiceOrderIndexRouteImport } from './routes/service-order/index'
+import { Route as ProdutosServicosIndexRouteImport } from './routes/produtos-servicos/index'
 import { Route as MarcasProdutosIndexRouteImport } from './routes/marcas-produtos/index'
 import { Route as LojaIndexRouteImport } from './routes/loja/index'
 import { Route as GruposProdutosIndexRouteImport } from './routes/grupos-produtos/index'
 import { Route as FornecedoresIndexRouteImport } from './routes/fornecedores/index'
+import { Route as FormaPagamentoIndexRouteImport } from './routes/forma-pagamento/index'
+import { Route as EntradaManualIndexRouteImport } from './routes/entrada-manual/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
+import { Route as BandeiraCartaoIndexRouteImport } from './routes/bandeira-cartao/index'
 import { Route as AreasProdutosIndexRouteImport } from './routes/areas-produtos/index'
 import { Route as VeiculosNewRouteImport } from './routes/veiculos/new'
 import { Route as ServiceOrderNewRouteImport } from './routes/service-order/new'
@@ -67,6 +76,16 @@ const ServiceOrderRoute = ServiceOrderRouteImport.update({
   path: '/service-order',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProdutosServicosRoute = ProdutosServicosRouteImport.update({
+  id: '/produtos-servicos',
+  path: '/produtos-servicos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NovaOrdemServicoRoute = NovaOrdemServicoRouteImport.update({
   id: '/nova-ordem-servico',
   path: '/nova-ordem-servico',
@@ -97,9 +116,24 @@ const FornecedoresRoute = FornecedoresRouteImport.update({
   path: '/fornecedores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormaPagamentoRoute = FormaPagamentoRouteImport.update({
+  id: '/forma-pagamento',
+  path: '/forma-pagamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntradaManualRoute = EntradaManualRouteImport.update({
+  id: '/entrada-manual',
+  path: '/entrada-manual',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomerRoute = CustomerRouteImport.update({
   id: '/customer',
   path: '/customer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BandeiraCartaoRoute = BandeiraCartaoRouteImport.update({
+  id: '/bandeira-cartao',
+  path: '/bandeira-cartao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AreasProdutosRoute = AreasProdutosRouteImport.update({
@@ -137,6 +171,11 @@ const ServiceOrderIndexRoute = ServiceOrderIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ServiceOrderRoute,
 } as any)
+const ProdutosServicosIndexRoute = ProdutosServicosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProdutosServicosRoute,
+} as any)
 const MarcasProdutosIndexRoute = MarcasProdutosIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -157,6 +196,16 @@ const FornecedoresIndexRoute = FornecedoresIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FornecedoresRoute,
 } as any)
+const FormaPagamentoIndexRoute = FormaPagamentoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FormaPagamentoRoute,
+} as any)
+const EntradaManualIndexRoute = EntradaManualIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EntradaManualRoute,
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
@@ -166,6 +215,11 @@ const CustomerIndexRoute = CustomerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => CustomerRoute,
+} as any)
+const BandeiraCartaoIndexRoute = BandeiraCartaoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BandeiraCartaoRoute,
 } as any)
 const AreasProdutosIndexRoute = AreasProdutosIndexRouteImport.update({
   id: '/',
@@ -207,13 +261,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/areas-produtos': typeof AreasProdutosRouteWithChildren
+  '/bandeira-cartao': typeof BandeiraCartaoRouteWithChildren
   '/customer': typeof CustomerRouteWithChildren
+  '/entrada-manual': typeof EntradaManualRouteWithChildren
+  '/forma-pagamento': typeof FormaPagamentoRouteWithChildren
   '/fornecedores': typeof FornecedoresRouteWithChildren
   '/grupos-produtos': typeof GruposProdutosRouteWithChildren
   '/login': typeof LoginRoute
   '/loja': typeof LojaRouteWithChildren
   '/marcas-produtos': typeof MarcasProdutosRouteWithChildren
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
+  '/products': typeof ProductsRoute
+  '/produtos-servicos': typeof ProdutosServicosRouteWithChildren
   '/service-order': typeof ServiceOrderRouteWithChildren
   '/signup-confirmation': typeof SignupConfirmationRoute
   '/status-pedido-compra': typeof StatusPedidoCompraRouteWithChildren
@@ -226,12 +285,16 @@ export interface FileRoutesByFullPath {
   '/service-order/new': typeof ServiceOrderNewRoute
   '/veiculos/new': typeof VeiculosNewRoute
   '/areas-produtos/': typeof AreasProdutosIndexRoute
+  '/bandeira-cartao/': typeof BandeiraCartaoIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/entrada-manual/': typeof EntradaManualIndexRoute
+  '/forma-pagamento/': typeof FormaPagamentoIndexRoute
   '/fornecedores/': typeof FornecedoresIndexRoute
   '/grupos-produtos/': typeof GruposProdutosIndexRoute
   '/loja/': typeof LojaIndexRoute
   '/marcas-produtos/': typeof MarcasProdutosIndexRoute
+  '/produtos-servicos/': typeof ProdutosServicosIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
   '/status-pedido-compra/': typeof StatusPedidoCompraIndexRoute
   '/unidades-produtos/': typeof UnidadesProdutosIndexRoute
@@ -242,6 +305,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
+  '/products': typeof ProductsRoute
   '/signup-confirmation': typeof SignupConfirmationRoute
   '/areas-produtos/new': typeof AreasProdutosNewRoute
   '/customer/new': typeof CustomerNewRoute
@@ -250,12 +314,16 @@ export interface FileRoutesByTo {
   '/service-order/new': typeof ServiceOrderNewRoute
   '/veiculos/new': typeof VeiculosNewRoute
   '/areas-produtos': typeof AreasProdutosIndexRoute
+  '/bandeira-cartao': typeof BandeiraCartaoIndexRoute
   '/customer': typeof CustomerIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/entrada-manual': typeof EntradaManualIndexRoute
+  '/forma-pagamento': typeof FormaPagamentoIndexRoute
   '/fornecedores': typeof FornecedoresIndexRoute
   '/grupos-produtos': typeof GruposProdutosIndexRoute
   '/loja': typeof LojaIndexRoute
   '/marcas-produtos': typeof MarcasProdutosIndexRoute
+  '/produtos-servicos': typeof ProdutosServicosIndexRoute
   '/service-order': typeof ServiceOrderIndexRoute
   '/status-pedido-compra': typeof StatusPedidoCompraIndexRoute
   '/unidades-produtos': typeof UnidadesProdutosIndexRoute
@@ -266,13 +334,18 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/areas-produtos': typeof AreasProdutosRouteWithChildren
+  '/bandeira-cartao': typeof BandeiraCartaoRouteWithChildren
   '/customer': typeof CustomerRouteWithChildren
+  '/entrada-manual': typeof EntradaManualRouteWithChildren
+  '/forma-pagamento': typeof FormaPagamentoRouteWithChildren
   '/fornecedores': typeof FornecedoresRouteWithChildren
   '/grupos-produtos': typeof GruposProdutosRouteWithChildren
   '/login': typeof LoginRoute
   '/loja': typeof LojaRouteWithChildren
   '/marcas-produtos': typeof MarcasProdutosRouteWithChildren
   '/nova-ordem-servico': typeof NovaOrdemServicoRoute
+  '/products': typeof ProductsRoute
+  '/produtos-servicos': typeof ProdutosServicosRouteWithChildren
   '/service-order': typeof ServiceOrderRouteWithChildren
   '/signup-confirmation': typeof SignupConfirmationRoute
   '/status-pedido-compra': typeof StatusPedidoCompraRouteWithChildren
@@ -285,12 +358,16 @@ export interface FileRoutesById {
   '/service-order/new': typeof ServiceOrderNewRoute
   '/veiculos/new': typeof VeiculosNewRoute
   '/areas-produtos/': typeof AreasProdutosIndexRoute
+  '/bandeira-cartao/': typeof BandeiraCartaoIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/entrada-manual/': typeof EntradaManualIndexRoute
+  '/forma-pagamento/': typeof FormaPagamentoIndexRoute
   '/fornecedores/': typeof FornecedoresIndexRoute
   '/grupos-produtos/': typeof GruposProdutosIndexRoute
   '/loja/': typeof LojaIndexRoute
   '/marcas-produtos/': typeof MarcasProdutosIndexRoute
+  '/produtos-servicos/': typeof ProdutosServicosIndexRoute
   '/service-order/': typeof ServiceOrderIndexRoute
   '/status-pedido-compra/': typeof StatusPedidoCompraIndexRoute
   '/unidades-produtos/': typeof UnidadesProdutosIndexRoute
@@ -302,13 +379,18 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/areas-produtos'
+    | '/bandeira-cartao'
     | '/customer'
+    | '/entrada-manual'
+    | '/forma-pagamento'
     | '/fornecedores'
     | '/grupos-produtos'
     | '/login'
     | '/loja'
     | '/marcas-produtos'
     | '/nova-ordem-servico'
+    | '/products'
+    | '/produtos-servicos'
     | '/service-order'
     | '/signup-confirmation'
     | '/status-pedido-compra'
@@ -321,12 +403,16 @@ export interface FileRouteTypes {
     | '/service-order/new'
     | '/veiculos/new'
     | '/areas-produtos/'
+    | '/bandeira-cartao/'
     | '/customer/'
     | '/dashboard'
+    | '/entrada-manual/'
+    | '/forma-pagamento/'
     | '/fornecedores/'
     | '/grupos-produtos/'
     | '/loja/'
     | '/marcas-produtos/'
+    | '/produtos-servicos/'
     | '/service-order/'
     | '/status-pedido-compra/'
     | '/unidades-produtos/'
@@ -337,6 +423,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/login'
     | '/nova-ordem-servico'
+    | '/products'
     | '/signup-confirmation'
     | '/areas-produtos/new'
     | '/customer/new'
@@ -345,12 +432,16 @@ export interface FileRouteTypes {
     | '/service-order/new'
     | '/veiculos/new'
     | '/areas-produtos'
+    | '/bandeira-cartao'
     | '/customer'
     | '/dashboard'
+    | '/entrada-manual'
+    | '/forma-pagamento'
     | '/fornecedores'
     | '/grupos-produtos'
     | '/loja'
     | '/marcas-produtos'
+    | '/produtos-servicos'
     | '/service-order'
     | '/status-pedido-compra'
     | '/unidades-produtos'
@@ -360,13 +451,18 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/areas-produtos'
+    | '/bandeira-cartao'
     | '/customer'
+    | '/entrada-manual'
+    | '/forma-pagamento'
     | '/fornecedores'
     | '/grupos-produtos'
     | '/login'
     | '/loja'
     | '/marcas-produtos'
     | '/nova-ordem-servico'
+    | '/products'
+    | '/produtos-servicos'
     | '/service-order'
     | '/signup-confirmation'
     | '/status-pedido-compra'
@@ -379,12 +475,16 @@ export interface FileRouteTypes {
     | '/service-order/new'
     | '/veiculos/new'
     | '/areas-produtos/'
+    | '/bandeira-cartao/'
     | '/customer/'
     | '/dashboard/'
+    | '/entrada-manual/'
+    | '/forma-pagamento/'
     | '/fornecedores/'
     | '/grupos-produtos/'
     | '/loja/'
     | '/marcas-produtos/'
+    | '/produtos-servicos/'
     | '/service-order/'
     | '/status-pedido-compra/'
     | '/unidades-produtos/'
@@ -395,13 +495,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AreasProdutosRoute: typeof AreasProdutosRouteWithChildren
+  BandeiraCartaoRoute: typeof BandeiraCartaoRouteWithChildren
   CustomerRoute: typeof CustomerRouteWithChildren
+  EntradaManualRoute: typeof EntradaManualRouteWithChildren
+  FormaPagamentoRoute: typeof FormaPagamentoRouteWithChildren
   FornecedoresRoute: typeof FornecedoresRouteWithChildren
   GruposProdutosRoute: typeof GruposProdutosRouteWithChildren
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRouteWithChildren
   MarcasProdutosRoute: typeof MarcasProdutosRouteWithChildren
   NovaOrdemServicoRoute: typeof NovaOrdemServicoRoute
+  ProductsRoute: typeof ProductsRoute
+  ProdutosServicosRoute: typeof ProdutosServicosRouteWithChildren
   ServiceOrderRoute: typeof ServiceOrderRouteWithChildren
   SignupConfirmationRoute: typeof SignupConfirmationRoute
   StatusPedidoCompraRoute: typeof StatusPedidoCompraRouteWithChildren
@@ -447,6 +552,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiceOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/produtos-servicos': {
+      id: '/produtos-servicos'
+      path: '/produtos-servicos'
+      fullPath: '/produtos-servicos'
+      preLoaderRoute: typeof ProdutosServicosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/nova-ordem-servico': {
       id: '/nova-ordem-servico'
       path: '/nova-ordem-servico'
@@ -489,11 +608,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FornecedoresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forma-pagamento': {
+      id: '/forma-pagamento'
+      path: '/forma-pagamento'
+      fullPath: '/forma-pagamento'
+      preLoaderRoute: typeof FormaPagamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrada-manual': {
+      id: '/entrada-manual'
+      path: '/entrada-manual'
+      fullPath: '/entrada-manual'
+      preLoaderRoute: typeof EntradaManualRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customer': {
       id: '/customer'
       path: '/customer'
       fullPath: '/customer'
       preLoaderRoute: typeof CustomerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bandeira-cartao': {
+      id: '/bandeira-cartao'
+      path: '/bandeira-cartao'
+      fullPath: '/bandeira-cartao'
+      preLoaderRoute: typeof BandeiraCartaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/areas-produtos': {
@@ -545,6 +685,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiceOrderIndexRouteImport
       parentRoute: typeof ServiceOrderRoute
     }
+    '/produtos-servicos/': {
+      id: '/produtos-servicos/'
+      path: '/'
+      fullPath: '/produtos-servicos/'
+      preLoaderRoute: typeof ProdutosServicosIndexRouteImport
+      parentRoute: typeof ProdutosServicosRoute
+    }
     '/marcas-produtos/': {
       id: '/marcas-produtos/'
       path: '/'
@@ -573,6 +720,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FornecedoresIndexRouteImport
       parentRoute: typeof FornecedoresRoute
     }
+    '/forma-pagamento/': {
+      id: '/forma-pagamento/'
+      path: '/'
+      fullPath: '/forma-pagamento/'
+      preLoaderRoute: typeof FormaPagamentoIndexRouteImport
+      parentRoute: typeof FormaPagamentoRoute
+    }
+    '/entrada-manual/': {
+      id: '/entrada-manual/'
+      path: '/'
+      fullPath: '/entrada-manual/'
+      preLoaderRoute: typeof EntradaManualIndexRouteImport
+      parentRoute: typeof EntradaManualRoute
+    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/dashboard'
@@ -586,6 +747,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/customer/'
       preLoaderRoute: typeof CustomerIndexRouteImport
       parentRoute: typeof CustomerRoute
+    }
+    '/bandeira-cartao/': {
+      id: '/bandeira-cartao/'
+      path: '/'
+      fullPath: '/bandeira-cartao/'
+      preLoaderRoute: typeof BandeiraCartaoIndexRouteImport
+      parentRoute: typeof BandeiraCartaoRoute
     }
     '/areas-produtos/': {
       id: '/areas-produtos/'
@@ -653,6 +821,18 @@ const AreasProdutosRouteWithChildren = AreasProdutosRoute._addFileChildren(
   AreasProdutosRouteChildren,
 )
 
+interface BandeiraCartaoRouteChildren {
+  BandeiraCartaoIndexRoute: typeof BandeiraCartaoIndexRoute
+}
+
+const BandeiraCartaoRouteChildren: BandeiraCartaoRouteChildren = {
+  BandeiraCartaoIndexRoute: BandeiraCartaoIndexRoute,
+}
+
+const BandeiraCartaoRouteWithChildren = BandeiraCartaoRoute._addFileChildren(
+  BandeiraCartaoRouteChildren,
+)
+
 interface CustomerRouteChildren {
   CustomerNewRoute: typeof CustomerNewRoute
   CustomerIndexRoute: typeof CustomerIndexRoute
@@ -665,6 +845,30 @@ const CustomerRouteChildren: CustomerRouteChildren = {
 
 const CustomerRouteWithChildren = CustomerRoute._addFileChildren(
   CustomerRouteChildren,
+)
+
+interface EntradaManualRouteChildren {
+  EntradaManualIndexRoute: typeof EntradaManualIndexRoute
+}
+
+const EntradaManualRouteChildren: EntradaManualRouteChildren = {
+  EntradaManualIndexRoute: EntradaManualIndexRoute,
+}
+
+const EntradaManualRouteWithChildren = EntradaManualRoute._addFileChildren(
+  EntradaManualRouteChildren,
+)
+
+interface FormaPagamentoRouteChildren {
+  FormaPagamentoIndexRoute: typeof FormaPagamentoIndexRoute
+}
+
+const FormaPagamentoRouteChildren: FormaPagamentoRouteChildren = {
+  FormaPagamentoIndexRoute: FormaPagamentoIndexRoute,
+}
+
+const FormaPagamentoRouteWithChildren = FormaPagamentoRoute._addFileChildren(
+  FormaPagamentoRouteChildren,
 )
 
 interface FornecedoresRouteChildren {
@@ -716,6 +920,17 @@ const MarcasProdutosRouteChildren: MarcasProdutosRouteChildren = {
 const MarcasProdutosRouteWithChildren = MarcasProdutosRoute._addFileChildren(
   MarcasProdutosRouteChildren,
 )
+
+interface ProdutosServicosRouteChildren {
+  ProdutosServicosIndexRoute: typeof ProdutosServicosIndexRoute
+}
+
+const ProdutosServicosRouteChildren: ProdutosServicosRouteChildren = {
+  ProdutosServicosIndexRoute: ProdutosServicosIndexRoute,
+}
+
+const ProdutosServicosRouteWithChildren =
+  ProdutosServicosRoute._addFileChildren(ProdutosServicosRouteChildren)
 
 interface ServiceOrderRouteChildren {
   ServiceOrderNewRoute: typeof ServiceOrderNewRoute
@@ -771,13 +986,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AreasProdutosRoute: AreasProdutosRouteWithChildren,
+  BandeiraCartaoRoute: BandeiraCartaoRouteWithChildren,
   CustomerRoute: CustomerRouteWithChildren,
+  EntradaManualRoute: EntradaManualRouteWithChildren,
+  FormaPagamentoRoute: FormaPagamentoRouteWithChildren,
   FornecedoresRoute: FornecedoresRouteWithChildren,
   GruposProdutosRoute: GruposProdutosRouteWithChildren,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRouteWithChildren,
   MarcasProdutosRoute: MarcasProdutosRouteWithChildren,
   NovaOrdemServicoRoute: NovaOrdemServicoRoute,
+  ProductsRoute: ProductsRoute,
+  ProdutosServicosRoute: ProdutosServicosRouteWithChildren,
   ServiceOrderRoute: ServiceOrderRouteWithChildren,
   SignupConfirmationRoute: SignupConfirmationRoute,
   StatusPedidoCompraRoute: StatusPedidoCompraRouteWithChildren,
