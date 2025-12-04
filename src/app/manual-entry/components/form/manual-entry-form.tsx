@@ -31,6 +31,14 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ManualEntryProductInput } from '@/api/manual-entry.types';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { FilePlus, FileDown, FileUp, FileText, Power, Unlock } from 'lucide-react';
 
 export default function ManualEntryForm() {
   const { registeringEntry, setRegisteringEntry } = useManualEntryContext();
@@ -189,10 +197,41 @@ export default function ManualEntryForm() {
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Informações Gerais</h3>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm">
-                  <IconFileImport className="w-4 h-4 mr-2" />
-                  Importar XML
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button type="button" variant="outline" size="sm">
+                      <IconFileImport className="w-4 h-4 mr-2" />
+                      Importar XML
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuItem>
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Imprimir
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <FileUp className="mr-2 h-4 w-4" />
+                      Importar XML
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <FileText className="mr-2 h-4 w-4" />
+                      Gerar NFe Devolução
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Unlock className="mr-2 h-4 w-4" />
+                      Unificar C. Pagar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Power className="mr-2 h-4 w-4" />
+                      Inativar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Power className="mr-2 h-4 w-4" />
+                      Desbloquear
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 

@@ -69,8 +69,10 @@ export class BaseApi {
     return data;
   }
 
-  protected async post<T>(endpoint: string, body: any): Promise<T> {
-    const { data } = await axios.post<T>(endpoint, body);
+  protected async post<T>(endpoint: string, body: any, options?: { headers?: Record<string, string> }): Promise<T> {
+    const { data } = await axios.post<T>(endpoint, body, {
+      headers: options?.headers,
+    });
     return data;
   }
 

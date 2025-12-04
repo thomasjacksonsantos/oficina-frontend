@@ -5,7 +5,7 @@ const ENDPOINT = 'v1/lojas';
 
 class StoreApi extends BaseApi {
   async getStore() {
-    return this.get<Store>(`${ENDPOINT}`);
+    return this.get<Store>(`${ENDPOINT}/context`);
   }
 
   async updateStore(store: UpdateStoreInput) {
@@ -16,11 +16,11 @@ class StoreApi extends BaseApi {
     const formData = new FormData();
     formData.append('logo', file);
 
-    // return this.post<{ url: string }>(`${ENDPOINT}/logo`, formData, {
-    // headers: {
-    // 'Content-Type': 'multipart/form-data',
-    // },
-    // });
+    return this.post<{ url: string }>(`${ENDPOINT}/logo`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   }
 
   async deleteLogo() {

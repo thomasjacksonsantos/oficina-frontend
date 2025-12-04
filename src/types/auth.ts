@@ -27,6 +27,7 @@ export interface Store {
   razaoSocial: string;
   cnpj: string;
   inscricaoEstadual: string;
+  inscricaoMunicipal: string;
   site: string;
   logoTipo: string;
   endereco: Address;

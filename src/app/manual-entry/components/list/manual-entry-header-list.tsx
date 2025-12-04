@@ -9,13 +9,6 @@ import DeleteManualEntryForm from '../form/delete-manual-entry-form';
 import ManualEntryEditDialog from '../form/manual-entry-edit-dialog';
 import ManualEntryViewDialog from '../form/manual-entry-view-dialog';
 import ManualEntryForm from '../form/manual-entry-form';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 export default function ManualEntryHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -59,38 +52,6 @@ export default function ManualEntryHeaderList() {
             <FilePlus className="mr-2 h-4 w-4" />
             Nova Entrada
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">Ações</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem>
-                <FileDown className="mr-2 h-4 w-4" />
-                Imprimir
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileUp className="mr-2 h-4 w-4" />
-                Importar XML
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileText className="mr-2 h-4 w-4" />
-                Gerar NFe Devolução
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Unlock className="mr-2 h-4 w-4" />
-                Unificar C. Pagar
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Power className="mr-2 h-4 w-4" />
-                Inativar
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Power className="mr-2 h-4 w-4" />
-                Desbloquear
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </>

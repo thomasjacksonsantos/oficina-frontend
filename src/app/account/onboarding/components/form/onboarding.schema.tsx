@@ -50,6 +50,7 @@ export const onboardingSchema = z
       .refine((v) => v.length === 14, { message: "CNPJ inválido" }),
 
     stateRegistration: z.string().optional(),
+    inscricaoMunicipal: z.string().optional(),
     site: z.string().url("URL inválida").optional().or(z.literal("")),
     logoType: z.string().optional(),
     country: z.string().min(1, "País é obrigatório"),

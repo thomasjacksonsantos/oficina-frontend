@@ -3,14 +3,14 @@ import { getMockStore, updateMockStore } from './mock-data/store-mock-data';
 import { UpdateStoreInput } from '@/api/store.types';
 import StoreApi from '@/api/store.api';
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 export function useGetStore() {
   return useQuery({
     queryKey: ['store'],
     queryFn: async () => {
       if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 300));
         return getMockStore();
       }
       return StoreApi.getStore();
@@ -20,12 +20,11 @@ export function useGetStore() {
 
 export function useUpdateStore() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (store: UpdateStoreInput) => {
       if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
         // Clean up empty optional fields
         const cleanedStore = { ...store };
         if (cleanedStore.inscricaoEstadual === '') cleanedStore.inscricaoEstadual = undefined;
@@ -35,7 +34,7 @@ export function useUpdateStore() {
         if (cleanedStore.endereco?.complemento === '') {
           cleanedStore.endereco = { ...cleanedStore.endereco, complemento: undefined };
         }
-        
+
         return updateMockStore(cleanedStore);
       }
       return StoreApi.updateStore(store);
@@ -57,7 +56,7 @@ export function useUploadLogo() {
   return useMutation({
     mutationFn: async (file: File) => {
       if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
         // Simulate file upload by creating local URL
         return { url: URL.createObjectURL(file) };
       }
