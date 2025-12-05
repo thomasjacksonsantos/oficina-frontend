@@ -65,7 +65,7 @@ export const supplierSchema = z.object({
     .min(1, 'Data de abertura é obrigatória')
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD'),
 
-  email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
+  emailFornecedor: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
 
   site: z.string().optional(),
 

@@ -6,7 +6,14 @@ const ENDPOINT = 'v1/fornecedores';
 
 class SuppliersApi extends BaseApi {
   async getSuppliers(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {
-    return await this.get<Page<Supplier>>(`${ENDPOINT}/all`);
+    return await this.get<Page<Supplier>>(
+      `${ENDPOINT}/all`,
+      {
+        pagina: queryString?.page,
+        totalPagina: queryString?.limit,
+      },
+      options
+    );
   }
 
   async getSupplierById(id: string) {
@@ -18,7 +25,7 @@ class SuppliersApi extends BaseApi {
   }
 
   async updateSupplier(supplier: UpdateSupplierInput, id: string) {
-    return this.post<CreateSupplierInput>(`${ENDPOINT}/edit/${id}`, supplier);
+    return this.put<CreateSupplierInput>(`${ENDPOINT}/edit/${id}`, supplier);
   }
 
   async deleteSupplier(id: string) {
@@ -26,11 +33,11 @@ class SuppliersApi extends BaseApi {
   }
 
   async activeSupplier(id: string) {
-    return this.put<void>(`${ENDPOINT}/${id}/activar`, {});
+    return this.put<void>(`${ENDPOINT}/${id}/ativar`, {});
   }
 
   async deactiveSupplier(id: string) {
-    return this.delete<void>(`${ENDPOINT}/${id}/desactivar`);
+    return this.delete<void>(`${ENDPOINT}/${id}/desativar`);
   }
 }
 

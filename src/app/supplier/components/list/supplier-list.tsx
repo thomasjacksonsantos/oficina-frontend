@@ -123,7 +123,7 @@ export function SupplierList<TData extends Supplier, TValue>({
     limit,
     sortField,
     sortDirection,
-    status: statusFilter || undefined,
+    fornecedorStatus: statusFilter || undefined,
   });
 
   const { items, totalRecords } = React.useMemo(() => {
