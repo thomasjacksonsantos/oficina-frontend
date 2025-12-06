@@ -3,7 +3,7 @@ import { CreateSupplierInput } from '@/api/supplier.types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createMockSupplier } from '../mock-data';
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 export function useCreateSupplier() {
   const queryClient = useQueryClient();

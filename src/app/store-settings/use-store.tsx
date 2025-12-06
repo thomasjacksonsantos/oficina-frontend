@@ -19,6 +19,7 @@ export function useGetStore() {
 }
 
 export function useUpdateStore() {
+  console.log('Updating store with data: out');
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (store: UpdateStoreInput) => {
@@ -30,13 +31,14 @@ export function useUpdateStore() {
         if (cleanedStore.inscricaoEstadual === '') cleanedStore.inscricaoEstadual = undefined;
         if (cleanedStore.inscricaoMunicipal === '') cleanedStore.inscricaoMunicipal = undefined;
         if (cleanedStore.site === '') cleanedStore.site = undefined;
-        if (cleanedStore.logo === '') cleanedStore.logo = undefined;
+        if (cleanedStore.logoTipo === '') cleanedStore.logoTipo = undefined;
         if (cleanedStore.endereco?.complemento === '') {
           cleanedStore.endereco = { ...cleanedStore.endereco, complemento: undefined };
         }
 
         return updateMockStore(cleanedStore);
       }
+      console.log('Updating store with data:', store);
       return StoreApi.updateStore(store);
     },
     onSuccess: () => {

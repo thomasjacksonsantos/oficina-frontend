@@ -9,7 +9,7 @@ let mockSuppliers: Supplier[] = [
     razaoSocial: 'Tech Solutions LTDA',
     documento: '01010101011001',
     dataNascimento: '2015-03-15',
-    email: 'contato@techsolutions.com.br',
+    emailFornecedor: 'contato@techsolutions.com.br',
     site: 'www.techsolutions.com.br',
     contatos: [
       { numero: '11987654321', tipoTelefone: 'Celular' },
@@ -29,7 +29,7 @@ let mockSuppliers: Supplier[] = [
     inscricaoMunicipal: '987654321',
     tipoConsumidor: 'Consumidor Final',
     indicadorIE: 'Contribuinte de ICMS (COM IE)',
-    status: 'Ativo',
+    fornecedorStatus: 'Ativo',
   },
   {
     id: '2',
@@ -37,7 +37,7 @@ let mockSuppliers: Supplier[] = [
     razaoSocial: 'ABC Distribuidora LTDA',
     documento: '02020202022002',
     dataNascimento: '2018-07-20',
-    email: 'vendas@abcdistribuidora.com',
+    emailFornecedor: 'vendas@abcdistribuidora.com',
     site: 'www.abcdistribuidora.com',
     contatos: [{ numero: '21987654321', tipoTelefone: 'Celular' }],
     endereco: {
@@ -54,7 +54,7 @@ let mockSuppliers: Supplier[] = [
     inscricaoMunicipal: '123456789',
     tipoConsumidor: 'Revenda',
     indicadorIE: 'Contribuinte Isento de ICMS (Sem IE)',
-    status: 'Ativo',
+    fornecedorStatus: 'Ativo',
   },
   {
     id: '3',
@@ -62,7 +62,7 @@ let mockSuppliers: Supplier[] = [
     razaoSocial: 'XYZ Comércio e Serviços LTDA',
     documento: '03030303033003',
     dataNascimento: '2020-01-10',
-    email: 'contato@xyz.com',
+    emailFornecedor: 'contato@xyz.com',
     site: 'www.xyz.com',
     contatos: [
       { numero: '31987654321', tipoTelefone: 'Celular' },
@@ -82,7 +82,7 @@ let mockSuppliers: Supplier[] = [
     inscricaoMunicipal: '456789123',
     tipoConsumidor: 'Consumidor Final',
     indicadorIE: 'Não Contribuinte de ICMS (Com ou sem IE)',
-    status: 'Inativo',
+    fornecedorStatus: 'Inativo',
   },
 ];
 
@@ -94,7 +94,7 @@ type GetSuppliersParams = {
   limit?: number;
   sortField?: string;
   sortDirection?: string;
-  status?: string;
+  fornecedorStatus?: string;
 };
 
 export function getMockSuppliersPage(params: GetSuppliersParams = {}): Page<Supplier> {
@@ -104,7 +104,7 @@ export function getMockSuppliersPage(params: GetSuppliersParams = {}): Page<Supp
     limit = 10,
     sortField = 'nomeFantasia',
     sortDirection = 'asc',
-    status = '',
+    fornecedorStatus = '',
   } = params;
 
   // Filter by search query
@@ -120,9 +120,9 @@ export function getMockSuppliersPage(params: GetSuppliersParams = {}): Page<Supp
     );
   }
 
-  // Filter by status
-  if (status) {
-    filtered = filtered.filter((supplier) => supplier.status === status);
+  // Filter by fornecedorStatus
+  if (fornecedorStatus) {
+    filtered = filtered.filter((supplier) => supplier.fornecedorStatus === fornecedorStatus);
   }
 
   // Sort
@@ -158,11 +158,11 @@ export function getMockSupplierById(id: string): Supplier | undefined {
   return mockSuppliers.find((s) => s.id === id);
 }
 
-export function createMockSupplier(supplier: Omit<Supplier, 'id' | 'status'>): Supplier {
+export function createMockSupplier(supplier: Omit<Supplier, 'id' | 'fornecedorStatus'>): Supplier {
   const newSupplier: Supplier = {
     ...supplier,
     id: String(nextId++),
-    status: 'Ativo',
+    fornecedorStatus: 'Ativo',
   };
   mockSuppliers.push(newSupplier);
   return newSupplier;
@@ -188,7 +188,7 @@ export function activeMockSupplier(id: string): boolean {
   const supplier = mockSuppliers.find((s) => s.id === id);
   if (!supplier) return false;
 
-  supplier.status = 'Ativo';
+  supplier.fornecedorStatus = 'Ativo';
   return true;
 }
 
@@ -196,6 +196,6 @@ export function deactiveMockSupplier(id: string): boolean {
   const supplier = mockSuppliers.find((s) => s.id === id);
   if (!supplier) return false;
 
-  supplier.status = 'Inativo';
+  supplier.fornecedorStatus = 'Inativo';
   return true;
 }

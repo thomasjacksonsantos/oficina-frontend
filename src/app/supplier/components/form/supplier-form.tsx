@@ -41,7 +41,7 @@ export default function SupplierForm() {
       razaoSocial: '',
       documento: '',
       dataNascimento: '',
-      email: '',
+      emailFornecedor: '',
       site: '',
       contatos: [{ numero: '', tipoTelefone: '' }],
       endereco: {
@@ -56,7 +56,7 @@ export default function SupplierForm() {
       },
       inscricaoEstadual: '',
       inscricaoMunicipal: '',
-      tipoConsumidor: 'Consumidor Final',
+      tipoConsumidor: 'ConsumidorFinal',
       indicadorIE: 'Contribuinte de ICMS (COM IE)',
     },
   });
@@ -142,10 +142,10 @@ export default function SupplierForm() {
                   <FloatingInput
                     id="dataNascimento"
                     {...register('dataNascimento')}
-                    type='date'
+                    type="date"
                     className="peer appearance-none bg-white border border-gray-300 rounded px-3 py-2"
-                    label="Data de Abertura"
-                    defaultValue='00/00/0000'
+                    label=" "
+                    defaultValue="00/00/0000"
                   />
                   {errors.dataNascimento && (
                     <span className="text-sm text-red-500">{errors.dataNascimento.message}</span>
@@ -175,13 +175,13 @@ export default function SupplierForm() {
                 <div className="flex flex-col gap-2">
                   <FloatingInput
                     id="email"
-                    {...register('email')}
+                    {...register('emailFornecedor')}
                     type="email"
                     label="Email"
                     className="rounded-md"
                   />
-                  {errors.email && (
-                    <span className="text-sm text-red-500">{errors.email.message}</span>
+                  {errors.emailFornecedor && (
+                    <span className="text-sm text-red-500">{errors.emailFornecedor.message}</span>
                   )}
                 </div>
 
@@ -384,7 +384,7 @@ export default function SupplierForm() {
                   onValueChange={(value) => setValue('tipoConsumidor', value)}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Consumidor Final" id="consumidor-final" />
+                    <RadioGroupItem value="ConsumidorFinal" id="consumidor-final" />
                     <label htmlFor="consumidor-final" className="font-normal">
                       Consumidor Final
                     </label>
@@ -414,7 +414,7 @@ export default function SupplierForm() {
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Contribuinte Isento de ICMS (Sem IE)" id="sem-ie" />
+                    <RadioGroupItem value="ContribuinteIsentoICMS" id="sem-ie" />
                     <label htmlFor="sem-ie" className="font-normal">
                       Contribuinte Isento de ICMS (Sem IE)
                     </label>

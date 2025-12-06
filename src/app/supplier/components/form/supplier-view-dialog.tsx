@@ -59,7 +59,7 @@ export default function SupplierViewDialog() {
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label className="text-muted-foreground">Email</Label>
-                <p className="font-medium">{viewingSupplier.email}</p>
+                <p className="font-medium">{viewingSupplier.emailFornecedor}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Site</Label>
