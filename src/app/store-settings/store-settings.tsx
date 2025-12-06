@@ -42,7 +42,6 @@ export default function StoreSettings() {
       reset({
         nomeFantasia: store.nomeFantasia || '',
         razaoSocial: store.razaoSocial || '',
-        montadora: store.montadora || '',
         documento: store.documento || '',
         inscricaoEstadual: store.inscricaoEstadual || '',
         inscricaoMunicipal: store.inscricaoMunicipal || '',
@@ -168,21 +167,6 @@ export default function StoreSettings() {
               )}
             </div>
 
-            <div className="flex flex-col gap-2">
-              <FloatingInput
-                id="montadora"
-                {...register('montadora')}
-                label="Montadora"
-                className="rounded-md"
-              />
-              {errors.montadora && (
-                <span className="text-sm text-red-500">{errors.montadora.message}</span>
-              )}
-            </div>
-          </div>
-
-          {/* Row 2: CNPJ, Ins. Estadual, Ins. Municipal */}
-          <div className="grid gap-4 md:grid-cols-3 mb-4">
             <div className="flex flex-col gap-2">
               <FloatingInput
                 id="documento"
