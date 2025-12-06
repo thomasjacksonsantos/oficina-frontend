@@ -2,7 +2,7 @@ import SuppliersApi from '@/api/supplier.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deactiveMockSupplier } from '../mock-data';
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 export function useDeactiveSupplier() {
   const queryClient = useQueryClient();

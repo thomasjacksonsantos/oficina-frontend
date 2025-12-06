@@ -69,12 +69,12 @@ export const createSupplierColumns = ({
     },
   },
   {
-    id: 'status',
-    accessorKey: 'status',
+    id: 'fornecedorStatus',
+    accessorKey: 'fornecedorStatus',
     header: 'Status',
     cell: ({ row }) => {
       const supplier = row.original;
-      const isActive = supplier.status === 'Ativo' || supplier.status === 'Active';
+      const isActive = supplier.fornecedorStatus === 'Ativo' || supplier.fornecedorStatus === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -83,7 +83,7 @@ export const createSupplierColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
           )}
-          {supplier.status || 'Ativo'}
+          {supplier.fornecedorStatus || 'Ativo'}
         </Badge>
       );
     },

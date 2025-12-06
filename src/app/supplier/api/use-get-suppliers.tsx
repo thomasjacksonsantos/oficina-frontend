@@ -8,15 +8,15 @@ type Params = {
   limit?: number;
   sortField?: string;
   sortDirection?: string;
-  status?: string;
+  fornecedorStatus?: string;
 };
 
 // Set to true to use mock data, false to use real API
 const USE_MOCK_DATA = false;
 
-export function useGetSuppliers({ page, q, limit, sortField, sortDirection, status }: Params = {}) {
+export function useGetSuppliers({ page, q, limit, sortField, sortDirection, fornecedorStatus }: Params = {}) {
   return useQuery({
-    queryKey: ['getSuppliers', [{ page, q, limit, sortField, sortDirection, status }]],
+    queryKey: ['getSuppliers', [{ page, q, limit, sortField, sortDirection, fornecedorStatus }]],
     queryFn: async ({ signal }) => {
       if (USE_MOCK_DATA) {
         // Simulate API delay
@@ -27,11 +27,11 @@ export function useGetSuppliers({ page, q, limit, sortField, sortDirection, stat
           throw new Error('Query cancelled');
         }
 
-        return getMockSuppliersPage({ page, q, limit, sortField, sortDirection, status });
+        return getMockSuppliersPage({ page, q, limit, sortField, sortDirection, fornecedorStatus });
       }
 
       return SuppliersApi.getSuppliers(
-        { page, q, limit, sortField, sortDirection, status },
+        { page, q, limit, sortField, sortDirection, fornecedorStatus },
         { signal }
       );
     },

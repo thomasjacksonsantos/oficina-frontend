@@ -51,7 +51,7 @@ export default function SupplierEditDialog() {
         razaoSocial: editingSupplier.razaoSocial || '',
         documento: editingSupplier.documento || '',
         dataNascimento: editingSupplier.dataNascimento || '',
-        email: editingSupplier.email || '',
+        emailFornecedor: editingSupplier.emailFornecedor || '',
         site: editingSupplier.site || '',
         contatos: editingSupplier.contatos || [{ numero: '', tipoTelefone: '' }],
         endereco: {
@@ -219,12 +219,12 @@ export default function SupplierEditDialog() {
                 <div className="flex flex-col gap-2">
                   <FloatingInput
                     id="edit-email"
-                    {...register('email')}
+                    {...register('emailFornecedor')}
                     type="email"
                     label="Email"
                   />
-                  {errors.email && (
-                    <span className="text-sm text-red-500">{errors.email.message}</span>
+                  {errors.emailFornecedor && (
+                    <span className="text-sm text-red-500">{errors.emailFornecedor.message}</span>
                   )}
                 </div>
 
@@ -422,7 +422,7 @@ export default function SupplierEditDialog() {
                   onValueChange={(value) => setValue('tipoConsumidor', value)}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Consumidor Final" id="edit-consumidor-final" />
+                    <RadioGroupItem value="ConsumidorFinal" id="edit-consumidor-final" />
                     <Label htmlFor="edit-consumidor-final" className="font-normal">
                       Consumidor Final
                     </Label>
@@ -446,19 +446,19 @@ export default function SupplierEditDialog() {
                   onValueChange={(value) => setValue('indicadorIE', value)}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Contribuinte de ICMS (COM IE)" id="edit-com-ie" />
+                    <RadioGroupItem value="ContribuinteICMS" id="edit-com-ie" />
                     <Label htmlFor="edit-com-ie" className="font-normal">
                       Contribuinte de ICMS (COM IE)
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Contribuinte Isento de ICMS (Sem IE)" id="edit-sem-ie" />
+                    <RadioGroupItem value="ContribuinteIsentoICMS" id="edit-sem-ie" />
                     <Label htmlFor="edit-sem-ie" className="font-normal">
                       Contribuinte Isento de ICMS (Sem IE)
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Não Contribuinte de ICMS (Com ou sem IE)" id="edit-nao-contribuinte" />
+                    <RadioGroupItem value="NaoContribuinteICMS" id="edit-nao-contribuinte" />
                     <Label htmlFor="edit-nao-contribuinte" className="font-normal">
                       Não Contribuinte de ICMS (Com ou sem IE)
                     </Label>

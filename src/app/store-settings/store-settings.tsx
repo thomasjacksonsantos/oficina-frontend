@@ -12,6 +12,7 @@ import { toast, Toaster } from 'sonner';
 import { useGetStore, useUpdateStore, useSearchCep } from './use-store';
 import { Plus, X, Upload, Loader2 } from 'lucide-react';
 import { FloatingInput } from '@/components/ui/floating-input';
+import { UpdateStoreInput } from '@/api/store.types';
 
 export default function StoreSettings() {
   const { data: store, isLoading } = useGetStore();
@@ -33,7 +34,7 @@ export default function StoreSettings() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'contato',
+    name: 'contatos',
   });
 
   React.useEffect(() => {
@@ -41,10 +42,11 @@ export default function StoreSettings() {
       reset({
         nomeFantasia: store.nomeFantasia || '',
         razaoSocial: store.razaoSocial || '',
-        cnpj: store.cnpj || '',
+        montadora: store.montadora || '',
+        documento: store.documento || '',
         inscricaoEstadual: store.inscricaoEstadual || '',
         inscricaoMunicipal: store.inscricaoMunicipal || '',
-        contato: store.contato || [{ tipo: '', numero: '' }],
+        contatos: store.contatos || [{ tipoTelefone: '', numero: '' }],
         endereco: {
           cep: store.endereco?.cep || '',
           logradouro: store.endereco?.logradouro || '',
@@ -55,11 +57,11 @@ export default function StoreSettings() {
           cidade: store.endereco?.cidade || '',
         },
         site: store.site || '',
-        logo: store.logo || '',
+        logoTipo: store.logoTipo || '',
       });
 
-      if (store.logo) {
-        setLogoPreview(store.logo);
+      if (store.logoTipo) {
+        setLogoPreview(store.logoTipo);
       }
     }
   }, [store, reset]);
@@ -71,7 +73,7 @@ export default function StoreSettings() {
       reader.onloadend = () => {
         const result = reader.result as string;
         setLogoPreview(result);
-        setValue('logo', result);
+        setValue('logoTipo', result);
       };
       reader.readAsDataURL(file);
     }
@@ -98,11 +100,33 @@ export default function StoreSettings() {
   };
 
   const onSubmit = (data: StoreFormSchema) => {
-    updateStore(data as any, {
+    console.log('Form data before submit:', data);
+    
+    // Build the update payload
+    const updatePayload: UpdateStoreInput = {
+      nomeFantasia: data.nomeFantasia,
+      razaoSocial: data.razaoSocial,
+      montadora: data.montadora,
+      documento: data.documento,
+      inscricaoEstadual: data.inscricaoEstadual || undefined,
+      inscricaoMunicipal: data.inscricaoMunicipal || undefined,
+      contatos: data.contatos,
+      endereco: {
+        ...data.endereco,
+        complemento: data.endereco.complemento || undefined,
+      },
+      site: data.site || undefined,
+      logoTipo: data.logoTipo || undefined,
+    };
+
+    console.log('Update payload:', updatePayload);
+
+    updateStore(updatePayload, {
       onSuccess: () => {
         toast.success('Loja atualizada com sucesso!');
       },
-      onError: () => {
+      onError: (error) => {
+        console.error('Update error:', error);
         toast.error('Erro ao atualizar loja');
       },
     });
@@ -118,7 +142,7 @@ export default function StoreSettings() {
 
       <Card className="rounded-lg">
         <CardContent className="p-6">
-          {/* Row 1: Nome Fantasia, Razão Social, CNPJ */}
+          {/* Row 1: Nome Fantasia, Razão Social, Montadora */}
           <div className="grid gap-4 md:grid-cols-3 mb-4">
             <div className="flex flex-col gap-2">
               <FloatingInput
@@ -146,22 +170,34 @@ export default function StoreSettings() {
 
             <div className="flex flex-col gap-2">
               <FloatingInput
-                id="cnpj"
-                {...register('cnpj')}
+                id="montadora"
+                {...register('montadora')}
+                label="Montadora"
+                className="rounded-md"
+              />
+              {errors.montadora && (
+                <span className="text-sm text-red-500">{errors.montadora.message}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: CNPJ, Ins. Estadual, Ins. Municipal */}
+          <div className="grid gap-4 md:grid-cols-3 mb-4">
+            <div className="flex flex-col gap-2">
+              <FloatingInput
+                id="documento"
+                {...register('documento')}
                 label="CNPJ"
                 className="rounded-md"
                 maxLength={14}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
-                  setValue('cnpj', value, { shouldValidate: true });
+                  setValue('documento', value, { shouldValidate: true });
                 }}
               />
-              {errors.cnpj && <span className="text-sm text-red-500">{errors.cnpj.message}</span>}
+              {errors.documento && <span className="text-sm text-red-500">{errors.documento.message}</span>}
             </div>
-          </div>
 
-          {/* Row 2: Ins. Estadual, Ins. Municipal */}
-          <div className="grid gap-4 md:grid-cols-2 mb-4">
             <div className="flex flex-col gap-2">
               <FloatingInput
                 id="inscricaoEstadual"
@@ -262,6 +298,7 @@ export default function StoreSettings() {
                 {...register('endereco.estado')}
                 label="Estado"
                 className="rounded-md"
+                maxLength={2}
               />
               {errors.endereco?.estado && (
                 <span className="text-sm text-red-500">{errors.endereco.estado.message}</span>
@@ -299,26 +336,31 @@ export default function StoreSettings() {
               <div key={field.id} className="grid gap-4 md:grid-cols-[1fr_2fr_auto]">
                 <div className="flex flex-col gap-2">
                   <FloatingInput
-                    {...register(`contato.${index}.tipo`)}
+                    {...register(`contatos.${index}.tipoTelefone`)}
                     label="Tipo"
                     className="rounded-md"
                   />
-                  {errors.contato?.[index]?.tipo && (
+                  {errors.contatos?.[index]?.tipoTelefone && (
                     <span className="text-sm text-red-500">
-                      {errors.contato[index]?.tipo?.message}
+                      {errors.contatos[index]?.tipoTelefone?.message}
                     </span>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <FloatingInput
-                    {...register(`contato.${index}.numero`)}
+                    {...register(`contatos.${index}.numero`)}
                     label="Numero"
                     className="rounded-md"
+                    maxLength={11}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setValue(`contatos.${index}.numero`, value, { shouldValidate: true });
+                    }}
                   />
-                  {errors.contato?.[index]?.numero && (
+                  {errors.contatos?.[index]?.numero && (
                     <span className="text-sm text-red-500">
-                      {errors.contato[index]?.numero?.message}
+                      {errors.contatos[index]?.numero?.message}
                     </span>
                   )}
                 </div>
@@ -343,7 +385,7 @@ export default function StoreSettings() {
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => append({ tipo: '', numero: '' })}
+              onClick={() => append({ tipoTelefone: '', numero: '' })}
               className="rounded-md"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -378,7 +420,7 @@ export default function StoreSettings() {
                     className="hidden"
                   />
                 </label>
-                {errors.logo && <span className="text-sm text-red-500">{errors.logo.message}</span>}
+                {errors.logoTipo && <span className="text-sm text-red-500">{errors.logoTipo.message}</span>}
               </div>
             </div>
 

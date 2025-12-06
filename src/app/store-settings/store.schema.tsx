@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const contactSchema = z.object({
-  tipo: z
+  tipoTelefone: z
     .string()
     .min(1, 'Tipo é obrigatório'),
   numero: z
@@ -62,7 +62,7 @@ export const storeSchema = z.object({
     .min(2, 'Montadora deve ter pelo menos 2 caracteres')
     .max(100, 'Montadora deve ter no máximo 100 caracteres'),
 
-  cnpj: z
+  documento: z
     .string()
     .min(1, 'CNPJ é obrigatório')
     .regex(/^\d{14}$/, 'CNPJ deve ter 14 dígitos'),
@@ -75,7 +75,7 @@ export const storeSchema = z.object({
     .string()
     .optional(),
 
-  contato: z
+  contatos: z
     .array(contactSchema)
     .min(1, 'Pelo menos um contato é obrigatório'),
 
@@ -85,7 +85,7 @@ export const storeSchema = z.object({
     .string()
     .optional(),
 
-  logo: z
+  logoTipo: z
     .string()
     .optional(),
 });

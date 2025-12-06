@@ -4,7 +4,7 @@ export type Supplier = {
   razaoSocial: string;
   documento: string;
   dataNascimento: string;
-  email: string;
+  emailFornecedor: string;
   site?: string;
   contatos: Contact[];
   endereco: Address;
@@ -12,7 +12,7 @@ export type Supplier = {
   inscricaoMunicipal?: string;
   tipoConsumidor: string;
   indicadorIE: string;
-  status: string;
+  fornecedorStatus: string;
 };
 
 export type Contact = {
