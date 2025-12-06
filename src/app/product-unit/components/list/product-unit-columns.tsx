@@ -47,12 +47,12 @@ export const createUnitColumns = ({
     },
   },
     {
-    id: 'status',
-    accessorKey: 'status',
+    id: 'unidadeProdutoStatus',
+    accessorKey: 'unidadeProdutoStatus',
     header: 'Status',
     cell: ({ row }) => {
       const unit = row.original;
-      const isActive = unit.status === 'Ativo' || unit.status === 'Active';
+      const isActive = unit.unidadeProdutoStatus === 'Ativo' || unit.unidadeProdutoStatus === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -61,7 +61,7 @@ export const createUnitColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
           )}
-          {unit.status || 'Ativo'}
+          {unit.unidadeProdutoStatus || 'Ativo'}
         </Badge>
       );
     },

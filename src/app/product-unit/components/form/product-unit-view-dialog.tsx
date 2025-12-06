@@ -30,7 +30,7 @@ export default function UnitViewDialog() {
 
           <div>
             <Label className="text-muted-foreground">Status</Label>
-            <p className="font-medium">{viewingUnit.status || 'Ativo'}</p>
+            <p className="font-medium">{viewingUnit.unidadeProdutoStatus || 'Ativo'}</p>
           </div>
         </div>
       </DialogContent>

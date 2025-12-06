@@ -2,11 +2,18 @@ import { Page } from '@/typings/page.types';
 import { BaseApi } from './base.api';
 import { CreateAreaInput, Area, UpdateAreaInput } from './area.types';
 
-const ENDPOINT = 'v1/areas';
+const ENDPOINT = 'v1/produtos/areas-produtos';
 
 class AreasApi extends BaseApi {
   async getAreas(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {
-    return await this.get<Page<Area>>(`${ENDPOINT}/all`, queryString, options);
+    return await this.get<Page<Area>>(
+      `${ENDPOINT}/all`,
+      {
+        pagina: queryString?.page,
+        totalPagina: queryString?.limit,
+      },
+      options
+    );
   }
 
   async getAreaById(id: string) {
@@ -18,7 +25,7 @@ class AreasApi extends BaseApi {
   }
 
   async updateArea(area: UpdateAreaInput, id: string) {
-    return this.post<CreateAreaInput>(`${ENDPOINT}/edit/${id}`, area);
+    return this.put<UpdateAreaInput>(`${ENDPOINT}`, { id: id, ...area });
   }
 
   async deleteArea(id: string) {
@@ -26,11 +33,11 @@ class AreasApi extends BaseApi {
   }
 
   async activeArea(id: string) {
-    return this.put<void>(`${ENDPOINT}/${id}/activar`, {});
+    return this.put<void>(`${ENDPOINT}/${id}/ativar`, {});
   }
 
   async deactiveArea(id: string) {
-    return this.delete<void>(`${ENDPOINT}/${id}/desactivar`);
+    return this.delete<void>(`${ENDPOINT}/${id}/desativar`);
   }
 }
 

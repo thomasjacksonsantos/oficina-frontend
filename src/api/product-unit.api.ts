@@ -10,11 +10,18 @@ import {
   GetUnitsResponse,
 } from './product-unit.types';
 
-const ENDPOINT = 'v1/units';
+const ENDPOINT = 'v1/produtos/unidades-produtos';
 
 class UnitsApi extends BaseApi {
   async getUnits(queryString?: GetUnitsParams, options?: { signal?: AbortSignal }) {
-    return await this.get<GetUnitsResponse>(ENDPOINT, queryString, options);
+    return await this.get<GetUnitsResponse>(
+      `${ENDPOINT}/all`,
+      {
+        pagina: queryString?.page,
+        totalPagina: queryString?.limit,
+      },
+      options
+    );
   }
 
   async getUnitById(id: string) {
@@ -26,7 +33,7 @@ class UnitsApi extends BaseApi {
   }
 
   async updateUnit(unit: UpdateUnitInput, id: string) {
-    return this.put<Unit>(`${ENDPOINT}/${id}`, unit);
+    return this.put<Unit>(`${ENDPOINT}`, { id: id, ...unit });
   }
 
   async deleteUnit(id: string) {
@@ -34,11 +41,11 @@ class UnitsApi extends BaseApi {
   }
 
   async activeUnit(id: string) {
-    return this.put<void>(`${ENDPOINT}/${id}/active`, {});
+    return this.put<void>(`${ENDPOINT}/${id}/ativar`, {});
   }
 
   async deactiveUnit(id: string) {
-    return this.delete<void>(`${ENDPOINT}/${id}/deactive`);
+    return this.delete<void>(`${ENDPOINT}/${id}/desativar`);
   }
 }
 

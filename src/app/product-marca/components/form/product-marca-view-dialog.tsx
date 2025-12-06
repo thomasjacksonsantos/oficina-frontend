@@ -30,7 +30,7 @@ export default function MarcaViewDialog() {
 
           <div>
             <Label className="text-muted-foreground">Status</Label>
-            <p className="font-medium">{viewingMarca.status || 'Ativo'}</p>
+            <p className="font-medium">{viewingMarca.marcaProdutoStatus || 'Ativo'}</p>
           </div>
         </div>
       </DialogContent>

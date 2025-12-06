@@ -47,12 +47,12 @@ export const createMarcaColumns = ({
     },
   },
     {
-    id: 'status',
-    accessorKey: 'status',
+    id: 'marcaProdutoStatus',
+    accessorKey: 'marcaProdutoStatus',
     header: 'Status',
     cell: ({ row }) => {
       const marca = row.original;
-      const isActive = marca.status === 'Ativo' || marca.status === 'Active';
+      const isActive = marca.marcaProdutoStatus === 'Ativo' || marca.marcaProdutoStatus === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -61,7 +61,7 @@ export const createMarcaColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
           )}
-          {marca.status || 'Ativo'}
+          {marca.marcaProdutoStatus || 'Ativo'}
         </Badge>
       );
     },

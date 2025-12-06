@@ -10,11 +10,18 @@ import {
   GetMarcasResponse,
 } from './product-marca.types';
 
-const ENDPOINT = 'v1/marcas';
+const ENDPOINT = 'v1/produtos/marcas-produtos';
 
 class MarcasApi extends BaseApi {
   async getMarcas(queryString?: GetMarcasParams, options?: { signal?: AbortSignal }) {
-    return await this.get<GetMarcasResponse>(ENDPOINT, queryString, options);
+    return await this.get<GetMarcasResponse>(
+      `${ENDPOINT}/all`,
+      {
+        pagina: queryString?.page,
+        totalPagina: queryString?.limit,
+      },
+      options
+    );
   }
 
   async getMarcaById(id: string) {
@@ -26,7 +33,10 @@ class MarcasApi extends BaseApi {
   }
 
   async updateMarca(marca: UpdateMarcaInput, id: string) {
-    return this.put<Marca>(`${ENDPOINT}/${id}`, marca);
+    return this.put<Marca>(`${ENDPOINT}`, {
+      id: id,
+      ...marca,
+    });
   }
 
   async deleteMarca(id: string) {
@@ -34,11 +44,11 @@ class MarcasApi extends BaseApi {
   }
 
   async activeMarca(id: string) {
-    return this.put<void>(`${ENDPOINT}/${id}/active`, {});
+    return this.put<void>(`${ENDPOINT}/${id}/ativar`, {});
   }
 
   async deactiveMarca(id: string) {
-    return this.delete<void>(`${ENDPOINT}/${id}/deactive`);
+    return this.delete<void>(`${ENDPOINT}/${id}/desativar`);
   }
 }
 

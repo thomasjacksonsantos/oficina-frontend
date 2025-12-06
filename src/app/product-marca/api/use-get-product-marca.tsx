@@ -1,16 +1,16 @@
 // app/product-marca/api/use-get-product-marcas.tsx
 
-import { useQuery } from "@tanstack/react-query";
-import MarcasApi from "@/api/product-marca.api";
+import { useQuery } from '@tanstack/react-query';
+import MarcasApi from '@/api/product-marca.api';
 
 type Params = {
-  page?: number
-  q?: string
-  limit?: number
-  sortField?: string
-  sortDirection?: string
-  status?: string
-}
+  page?: number;
+  q?: string;
+  limit?: number;
+  sortField?: string;
+  sortDirection?: string;
+  status?: string;
+};
 
 // Mock data for demonstration
 const getMockMarcasPage = ({ page = 1, limit = 10, q = '' }: Params) => {
@@ -32,10 +32,8 @@ const getMockMarcasPage = ({ page = 1, limit = 10, q = '' }: Params) => {
     { id: '15', descricao: 'Mililitro', status: 'Ativo' },
   ];
 
-  const filtered = q 
-    ? allMarcas.filter(u => 
-        u.descricao.toLowerCase().includes(q.toLowerCase())
-      )
+  const filtered = q
+    ? allMarcas.filter((u) => u.descricao.toLowerCase().includes(q.toLowerCase()))
     : allMarcas;
 
   const start = (page - 1) * limit;
@@ -52,26 +50,24 @@ const getMockMarcasPage = ({ page = 1, limit = 10, q = '' }: Params) => {
 };
 
 // Set to true to use mock data, false to use real API
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
-export function useGetMarcas(
-  { page, q, limit, sortField, sortDirection, status }: Params = {}
-) {
+export function useGetMarcas({ page, q, limit, sortField, sortDirection, status }: Params = {}) {
   return useQuery({
     queryKey: ['getMarcas', [{ page, q, limit, sortField, sortDirection, status }]],
     queryFn: async ({ signal }) => {
       if (USE_MOCK_DATA) {
         // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
         // Check if query was cancelled
         if (signal?.aborted) {
           throw new Error('Query cancelled');
         }
-        
+
         return getMockMarcasPage({ page, q, limit, sortField, sortDirection, status });
       }
-      
+
       return MarcasApi.getMarcas({ page, q, limit, sortField, sortDirection, status }, { signal });
     },
   });

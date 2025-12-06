@@ -28,11 +28,11 @@ export const createAreaColumns = ({
 }: AreaColumnsProps): ColumnDef<Area>[] => [
   {
     id: 'codigo',
-    accessorKey: 'codigo',
+    accessorKey: 'id',
     header: 'Código',
     cell: ({ row }) => {
       const area = row.original;
-      return <div className="font-medium">{area.codigo}</div>;
+      return <div className="font-medium">{area.id}</div>;
     },
   },
   {
@@ -54,12 +54,12 @@ export const createAreaColumns = ({
     },
   },
   {
-    id: 'status',
-    accessorKey: 'status',
+    id: 'areaProdutoStatus',
+    accessorKey: 'areaProdutoStatus',
     header: 'Status',
     cell: ({ row }) => {
       const area = row.original;
-      const isActive = area.status === 'Ativo' || area.status === 'Active';
+      const isActive = area.areaProdutoStatus === 'Ativo' || area.areaProdutoStatus === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -68,7 +68,7 @@ export const createAreaColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
           )}
-          {area.status || 'Ativo'}
+          {area.areaProdutoStatus || 'Ativo'}
         </Badge>
       );
     },

@@ -3,7 +3,7 @@
 export interface Marca {
   id: string;
   descricao: string;
-  status?: string;
+  marcaProdutoStatus?: string;
 }
 
 export interface CreateMarcaInput {

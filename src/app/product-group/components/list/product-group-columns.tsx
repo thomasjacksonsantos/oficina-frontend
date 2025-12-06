@@ -72,12 +72,13 @@ export const createProductGroupColumns = ({
     },
   },
   {
-    id: 'status',
-    accessorKey: 'status',
+    id: 'grupoProdutoStatus',
+    accessorKey: 'grupoProdutoStatus',
     header: 'Status',
     cell: ({ row }) => {
       const productGroup = row.original;
-      const isActive = productGroup.status === 'Ativo' || productGroup.status === 'Active';
+      const isActive =
+        productGroup.grupoProdutoStatus === 'Ativo' || productGroup.grupoProdutoStatus === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -86,7 +87,7 @@ export const createProductGroupColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
           )}
-          {productGroup.status || 'Ativo'}
+          {productGroup.grupoProdutoStatus || 'Ativo'}
         </Badge>
       );
     },

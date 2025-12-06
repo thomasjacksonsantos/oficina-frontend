@@ -4,10 +4,10 @@ export type ProductGroup = {
   area: string;
   ncm: string;
   anp: string;
-  status?: string;
+  grupoProdutoStatus?: string;
 };
 
-export type CreateProductGroupInput = Omit<ProductGroup, 'id' | 'status'> & {
+export type CreateProductGroupInput = Omit<ProductGroup, 'id' | 'grupoProdutoStatus'> & {
   id?: string;
 };
 

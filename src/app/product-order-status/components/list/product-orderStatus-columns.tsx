@@ -47,12 +47,12 @@ export const createOrderStatusColumns = ({
     },
   },
     {
-    id: 'status',
-    accessorKey: 'status',
+    id: 'statusPedidoCompraStatus',
+    accessorKey: 'statusPedidoCompraStatus',
     header: 'Status',
     cell: ({ row }) => {
       const orderStatus = row.original;
-      const isActive = orderStatus.status === 'Ativo' || orderStatus.status === 'Active';
+      const isActive = orderStatus.statusPedidoCompraStatus === 'Ativo' || orderStatus.statusPedidoCompraStatus === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -61,7 +61,7 @@ export const createOrderStatusColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-red-500 dark:fill-red-400" />
           )}
-          {orderStatus.status || 'Ativo'}
+          { orderStatus.statusPedidoCompraStatus || 'Ativo'}
         </Badge>
       );
     },

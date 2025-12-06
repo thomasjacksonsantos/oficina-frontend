@@ -8,11 +8,18 @@ import {
   GetOrderStatusResponse,
 } from './product-orderStatus.types';
 
-const ENDPOINT = 'v1/orderStatus';
+const ENDPOINT = 'v1/produtos/status-pedido-compras';
 
 class OrderStatusApi extends BaseApi {
   async getOrderStatus(queryString?: GetOrderStatusParams, options?: { signal?: AbortSignal }) {
-    return await this.get<GetOrderStatusResponse>(ENDPOINT, queryString, options);
+    return await this.get<GetOrderStatusResponse>(
+      ENDPOINT,
+      {
+        pagina: queryString?.page,
+        totalPagina: queryString?.limit,
+      },
+      options
+    );
   }
 
   async getOrderStatusById(id: string) {
@@ -24,7 +31,7 @@ class OrderStatusApi extends BaseApi {
   }
 
   async updateOrderStatus(orderStatus: UpdateOrderStatusInput, id: string) {
-    return this.put<OrderStatus>(`${ENDPOINT}/${id}`, orderStatus);
+    return this.put<OrderStatus>(`${ENDPOINT}`, { id: id, ...orderStatus });
   }
 
   async deleteOrderStatus(id: string) {
@@ -32,11 +39,11 @@ class OrderStatusApi extends BaseApi {
   }
 
   async activeOrderStatus(id: string) {
-    return this.put<void>(`${ENDPOINT}/${id}/active`, {});
+    return this.put<void>(`${ENDPOINT}/${id}/ativar`, {});
   }
 
   async deactiveOrderStatus(id: string) {
-    return this.delete<void>(`${ENDPOINT}/${id}/deactive`);
+    return this.delete<void>(`${ENDPOINT}/${id}/desativar`);
   }
 }
 

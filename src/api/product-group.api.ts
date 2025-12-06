@@ -1,12 +1,23 @@
 import { Page } from '@/typings/page.types';
 import { BaseApi } from './base.api';
-import { CreateProductGroupInput, ProductGroup, UpdateProductGroupInput } from './product-group.types';
+import {
+  CreateProductGroupInput,
+  ProductGroup,
+  UpdateProductGroupInput,
+} from './product-group.types';
 
-const ENDPOINT = 'v1/grupos-produtos';
+const ENDPOINT = 'v1/produtos/grupos-produtos';
 
 class ProductGroupsApi extends BaseApi {
   async getProductGroups(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {
-    return await this.get<Page<ProductGroup>>(`${ENDPOINT}/all`, queryString, options);
+    return await this.get<Page<ProductGroup>>(
+      `${ENDPOINT}/all`,
+      {
+        pagina: queryString?.page,
+        totalPagina: queryString?.limit,
+      },
+      options
+    );
   }
 
   async getProductGroupById(id: string) {
@@ -18,7 +29,7 @@ class ProductGroupsApi extends BaseApi {
   }
 
   async updateProductGroup(productGroup: UpdateProductGroupInput, id: string) {
-    return this.post<CreateProductGroupInput>(`${ENDPOINT}/edit/${id}`, productGroup);
+    return this.put<UpdateProductGroupInput>(`${ENDPOINT}`, { id: id, ...productGroup });
   }
 
   async deleteProductGroup(id: string) {
@@ -26,11 +37,11 @@ class ProductGroupsApi extends BaseApi {
   }
 
   async activeProductGroup(id: string) {
-    return this.put<void>(`${ENDPOINT}/${id}/activar`, {});
+    return this.put<void>(`${ENDPOINT}/${id}/ativar`, {});
   }
 
   async deactiveProductGroup(id: string) {
-    return this.delete<void>(`${ENDPOINT}/${id}/desactivar`);
+    return this.delete<void>(`${ENDPOINT}/${id}/desativar`);
   }
 }
 

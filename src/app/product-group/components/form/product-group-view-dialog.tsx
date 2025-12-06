@@ -51,7 +51,7 @@ export default function ProductGroupViewDialog() {
           <div className="grid gap-4 md:grid-cols-1">
             <div>
               <Label className="text-muted-foreground">Status</Label>
-              <p className="font-medium">{viewingProductGroup.status || 'Ativo'}</p>
+              <p className="font-medium">{viewingProductGroup.grupoProdutoStatus || 'Ativo'}</p>
             </div>
           </div>
         </div>

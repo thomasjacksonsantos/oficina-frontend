@@ -1,10 +1,8 @@
 export type Area = {
   id: string;
-  codigo: string;
   descricao: string;
-  descricaoEstendida: string;
   garantia: string;
-  status?: string;
+  areaProdutoStatus?: string;
 };
 
 export type CreateAreaInput = Omit<Area, 'id' | 'status'> & {

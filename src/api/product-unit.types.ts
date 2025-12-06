@@ -3,7 +3,7 @@
 export interface Unit {
   id: string;
   descricao: string;
-  status?: string;
+  unidadeProdutoStatus?: string;
 }
 
 export interface CreateUnitInput {

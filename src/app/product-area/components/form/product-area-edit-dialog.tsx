@@ -40,9 +40,7 @@ export default function AreaEditDialog() {
   React.useEffect(() => {
     if (editingArea) {
       reset({
-        codigo: editingArea.codigo || '',
         descricao: editingArea.descricao || '',
-        descricaoEstendida: editingArea.descricaoEstendida || '',
         garantia: editingArea.garantia || '',
       });
     }
@@ -118,14 +116,14 @@ export default function AreaEditDialog() {
             {/* Full-width Descrição Estendida textarea */}
             <div className="flex flex-col gap-2">
               <Textarea
-                id="edit-descricao-estendida"
-                {...register('descricaoEstendida')}
-                placeholder="Descrição detalhada da área..."
+                id="edit-garantia"
+                {...register('garantia')}
+                placeholder="Descrição textarea..."
                 rows={4}
                 className="resize-none"
               />
-              {errors.descricaoEstendida && (
-                <span className="text-sm text-red-500">{errors.descricaoEstendida.message}</span>
+              {errors.garantia && (
+                <span className="text-sm text-red-500">{errors.garantia.message}</span>
               )}
             </div>
           </div>

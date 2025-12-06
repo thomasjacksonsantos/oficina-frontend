@@ -37,9 +37,7 @@ export default function AreaForm() {
   } = useForm<CreateAreaSchema>({
     resolver: zodResolver(areaSchema),
     defaultValues: {
-      codigo: '',
       descricao: '',
-      descricaoEstendida: '',
       garantia: '',
     },
   });
@@ -68,9 +66,7 @@ export default function AreaForm() {
       },
       onError: (error: any) => {
         const fieldMapping: Record<string, string> = {
-          codigo: 'codigo',
           descricao: 'descricao',
-          descricaoEstendida: 'descricaoEstendida',
           garantia: 'garantia',
         };
 
@@ -107,22 +103,7 @@ export default function AreaForm() {
             <Separator className="my-4" />
 
             <div className="space-y-3">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="area-codigo"
-                    {...register('codigo')}
-                    label="Código"
-                    className="rounded-md"
-                    onChange={(e) => {
-                      const upper = e.target.value.toUpperCase();
-                      setValue('codigo', upper, { shouldValidate: true });
-                    }}
-                  />
-                  {errors.codigo && (
-                    <span className="text-sm text-red-500">{errors.codigo.message}</span>
-                  )}
-                </div>
+              <div className="flex flex-col gap-2">
 
                 <div className="flex flex-col gap-2">
                   <FloatingInput
@@ -139,33 +120,15 @@ export default function AreaForm() {
 
               <div className="flex flex-col gap-2">
                 <Textarea
-                  id="area-descricao-estendida"
-                  {...register('descricaoEstendida')}
-                  placeholder="Descrição detalhada da área..."
+                  id="area-garantia"
+                  {...register('garantia')}
+                  placeholder="Descrição textarea..."
                   className="rounded-md resize-none"
                   rows={4}
                 />
-                {errors.descricaoEstendida && (
-                  <span className="text-sm text-red-500">{errors.descricaoEstendida.message}</span>
+                {errors.garantia && (
+                  <span className="text-sm text-red-500">{errors.garantia.message}</span>
                 )}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="area-garantia"
-                    {...register('garantia')}
-                    label="Garantia (meses)"
-                    className="rounded-md"
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      setValue('garantia', value, { shouldValidate: true });
-                    }}
-                  />
-                  {errors.garantia && (
-                    <span className="text-sm text-red-500">{errors.garantia.message}</span>
-                  )}
-                </div>
               </div>
             </div>
             <DialogFooter className="mt-6">
