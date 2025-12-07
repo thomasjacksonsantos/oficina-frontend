@@ -1,22 +1,20 @@
 "use client"
 
 import * as React from "react"
+import { useEffect } from "react"
+import { useLocation, Link } from "@tanstack/react-router"
 import {
   AudioWaveform,
   BookOpen,
   Bot,
   Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
-  SquareTerminal,
   User,
+  ChevronRight,
 } from "lucide-react"
+import { IconDashboard } from "@tabler/icons-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -25,8 +23,16 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+  SidebarMenuCollapsible,
+  useSidebar,
 } from "@/components/ui/sidebar"
-import { IconDashboard } from "@tabler/icons-react"
 
 // This is sample data.
 const data = {
@@ -54,6 +60,7 @@ const data = {
   ],
   navMain: [
     {
+      id: "inicio",
       title: "Inicio",
       url: "#",
       icon: IconDashboard,
@@ -66,6 +73,7 @@ const data = {
       ],
     },
     {
+      id: "dados",
       title: "Dados",
       url: "#",
       icon: User,
@@ -85,6 +93,7 @@ const data = {
       ],
     },
     {
+      id: "operacoes",
       title: "Operações",
       url: "#",
       icon: Bot,
@@ -116,6 +125,7 @@ const data = {
       ],
     },
     {
+      id: "estoque",
       title: "Estoque",
       url: "#",
       icon: BookOpen,
@@ -147,6 +157,7 @@ const data = {
       ],
     },
     {
+      id: "gestao-de-estoque",
       title: "Gestão de Estoque",
       url: "#",
       icon: BookOpen,
@@ -182,6 +193,7 @@ const data = {
       ],
     },
     {
+      id: "financeiro",
       title: "Financeiro",
       url: "#",
       icon: Settings2,
@@ -201,6 +213,7 @@ const data = {
       ],
     },
     {
+      id: "pagamentos-cartao",
       title: "Pagamentos Cartão",
       url: "#",
       icon: Settings2,
@@ -232,6 +245,7 @@ const data = {
       ],
     },
     {
+      id: "colaboradores",
       title: "Colaboradores",
       url: "#",
       icon: Settings2,
@@ -255,6 +269,7 @@ const data = {
       ],
     },
     {
+      id: "comissoes",
       title: "Comissões",
       url: "#",
       icon: Settings2,
@@ -282,6 +297,7 @@ const data = {
       ],
     },
     {
+      id: "relatorios",
       title: "Relatórios",
       url: "#",
       icon: Settings2,
@@ -313,38 +329,112 @@ const data = {
       ],
     },
   ],
-  // relatorios: [
-  //   {
-  //     name: "Relatórios Financeiros",
-  //     url: "#",
-  //     icon: Frame,
-  //   },
-  //   {
-  //     name: "Sales & Marketing",
-  //     url: "#",
-  //     icon: PieChart,
-  //   },
-  //   {
-  //     name: "Travel",
-  //     url: "#",
-  //     icon: Map,
-  //   },
-  // ],
+}
+
+// Helper function to check if a menu item is active
+function isMenuActive(menuItem: typeof data.navMain[0], currentPath: string): boolean {
+  if (menuItem.items) {
+    return menuItem.items.some(item => item.url === currentPath)
+  }
+  return false
+}
+
+// Component that automatically expands parent menus based on current route
+function SidebarMenuManager() {
+  const location = useLocation()
+  const { setMenuOpen } = useSidebar()
+
+  useEffect(() => {
+    // Auto-expand parent menu when route matches a submenu item
+    data.navMain.forEach(item => {
+      if (item.items && isMenuActive(item, location.pathname)) {
+        setMenuOpen(item.id, true)
+      }
+    })
+  }, [location.pathname, setMenuOpen])
+
+  return null
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const location = useLocation()
+  const { toggleMenu, openMenus } = useSidebar()
+
   return (
     <Sidebar collapsible="icon" {...props}>
+      <SidebarMenuManager />
+      
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
+      
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavProjects projects={data.projects} /> */}
+        <SidebarGroup>
+          <SidebarMenu>
+            {data.navMain.map((item) => {
+              const Icon = item.icon
+              const hasSubItems = item.items && item.items.length > 0
+              const isOpen = openMenus.has(item.id)
+
+              if (!hasSubItems) {
+                // Simple menu item without submenu (shouldn't happen in this case)
+                return (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                      <Link to={item.url}>
+                        <Icon />
+                        {item.title}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              }
+
+              // Menu item with collapsible submenu
+              return (
+                <SidebarMenuCollapsible key={item.id} menuId={item.id}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => toggleMenu(item.id)}
+                      isActive={isMenuActive(item, location.pathname)}
+                    >
+                      <Icon />
+                      {item.title}
+                      <ChevronRight
+                        className={`ml-auto h-4 w-4 transition-transform ${
+                          isOpen ? "rotate-90" : ""
+                        }`}
+                      />
+                    </SidebarMenuButton>
+                    
+                    {isOpen && (
+                      <SidebarMenuSub>
+                        {item.items.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.url}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={location.pathname === subItem.url}
+                            >
+                              <Link to={subItem.url}>
+                                {subItem.title}
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    )}
+                  </SidebarMenuItem>
+                </SidebarMenuCollapsible>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
+      
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+      
       <SidebarRail />
     </Sidebar>
   )
