@@ -156,9 +156,9 @@ export function AreaList<TData extends Area, TValue>({
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <AreaHeaderList />
         <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex flex-1 justify-start gap-2">
+          <div className="flex flex-1 flex-col sm:flex-row sm:items-center sm:justify-start gap-2">
             <Input
-              className="w-[200px]"
+              className="w-full sm:w-[200px]"
               value={inputValue}
               onChange={handleTextareaChange}
               placeholder="Código"
@@ -169,8 +169,9 @@ export function AreaList<TData extends Area, TValue>({
                 }
               }}
             />
+
             <Input
-              className="w-[200px]"
+              className="w-full sm:w-[200px]"
               value={inputValue}
               onChange={handleTextareaChange}
               placeholder="Descrição"
@@ -181,8 +182,10 @@ export function AreaList<TData extends Area, TValue>({
                 }
               }}
             />
-            <div className="flex gap-x-2">
+
+            <div className="flex sm:block">
               <Button
+                className="w-full sm:w-auto"
                 onClick={() => {
                   setQ(inputValue);
                   setPagination({ ...pagination, pageIndex: 0 });

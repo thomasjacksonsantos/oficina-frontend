@@ -9,10 +9,11 @@ import { Link } from '@tanstack/react-router';
 import DeleteSupplierForm from '../forms/delete-supplier-form';
 import EditSupplierForm from '../form/supplier-edit-dialog';
 import ViewSupplierForm from '../form/supplier-view-dialog';
-import RegisterSupplierForm from '../form/supplier-form';
+import SupplierForm from '../form/supplier-form';
 export default function SupplierHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { deletingSupplier, setDeletingSupplier, setRegisteringSupplier } = useSupplierContext();
+  const { deletingSupplier, setDeletingSupplier, setRegisteringSupplier, registeringSupplier } =
+    useSupplierContext();
 
   useEffect(() => {
     if (deletingSupplier) {
@@ -41,7 +42,10 @@ export default function SupplierHeaderList() {
       </ResponsiveDialog>
       <EditSupplierForm />
       <ViewSupplierForm />
-      <RegisterSupplierForm />
+      <SupplierForm
+        isOpen={registeringSupplier || false}
+        setIsOpen={setRegisteringSupplier}
+      />
 
       <div className="flex mb-2 flex-wrap items-center justify-between">
         <div>

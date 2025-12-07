@@ -59,9 +59,9 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
 
         <label
           className={cn(
-            'absolute left-3 text-white transition-all duration-200 pointer-events-none select-none',
+            'absolute left-3 text-gray-600 transition-all duration-200 pointer-events-none select-none',
             hasValue || inputMode === 'numeric'
-              ? '-top-2 text-xs font-medium bg-[#09090B] text-ring px-1'
+              ? '-top-2 text-xs font-medium bg-[#09090B] text-white text-ring px-1'
               : 'top-1/2 -translate-y-1/2 text-sm px-1'
           )}
         >

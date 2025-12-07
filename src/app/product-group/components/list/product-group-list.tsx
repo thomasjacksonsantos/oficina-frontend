@@ -1,7 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useGetProductGroups, useActiveProductGroup, useDeactiveProductGroup } from '@/app/product-group/api';
+import {
+  useGetProductGroups,
+  useActiveProductGroup,
+  useDeactiveProductGroup,
+} from '@/app/product-group/api';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
   TableHeader,
@@ -53,11 +57,8 @@ export function ProductGroupList<TData extends ProductGroup, TValue>({
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || 'desc');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const {
-    setViewingProductGroup,
-    setEditingProductGroup,
-    setDeletingProductGroup,
-  } = useProductGroupContext();
+  const { setViewingProductGroup, setEditingProductGroup, setDeletingProductGroup } =
+    useProductGroupContext();
 
   // Add the mutation hooks
   const { mutate: activeProductGroup, isPending: isActivating } = useActiveProductGroup();
@@ -91,13 +92,20 @@ export function ProductGroupList<TData extends ProductGroup, TValue>({
             toast.success('Grupo de produto desativado com sucesso!');
           },
           onError: (error: any) => {
-            const errorMessage = error.response?.data?.message || 'Erro ao desativar grupo de produto';
+            const errorMessage =
+              error.response?.data?.message || 'Erro ao desativar grupo de produto';
             toast.error(errorMessage);
           },
         });
       },
     }),
-    [setViewingProductGroup, setEditingProductGroup, setDeletingProductGroup, activeProductGroup, deactiveProductGroup]
+    [
+      setViewingProductGroup,
+      setEditingProductGroup,
+      setDeletingProductGroup,
+      activeProductGroup,
+      deactiveProductGroup,
+    ]
   );
 
   const cols = useMemo(() => {
@@ -144,7 +152,7 @@ export function ProductGroupList<TData extends ProductGroup, TValue>({
     data: items as unknown as TData[],
     columns: cols,
     manualPagination: true, // Manual pagination (server-side)
-    pageCount: Math.ceil((totalRecords || 0) / pagination.pageSize), // Calculate total pages
+    pageCount: Math.ceil((totalRecords || 0) / pagination.pageSize),
     rowCount: totalRecords || 0,
     getCoreRowModel: getCoreRowModel(),
     state: {
@@ -160,9 +168,9 @@ export function ProductGroupList<TData extends ProductGroup, TValue>({
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <ProductGroupHeaderList />
         <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex flex-1 justify-start gap-2">
+          <div className="flex flex-col sm:flex-row flex-1 justify-start gap-2">
             <Input
-              className="w-[272px]"
+              className="w-full sm:w-[272px]"
               value={inputValue}
               onChange={handleTextareaChange}
               placeholder="Buscar por descrição, NCM, ANP..."
@@ -173,8 +181,10 @@ export function ProductGroupList<TData extends ProductGroup, TValue>({
                 }
               }}
             />
-            <div className="flex gap-x-2">
+
+            <div className="flex sm:block">
               <Button
+                className="w-full sm:w-auto"
                 onClick={() => {
                   setQ(inputValue);
                   setPagination({ ...pagination, pageIndex: 0 });

@@ -148,14 +148,12 @@ export function SupplierList<TData extends Supplier, TValue>({
 
   return (
     <>
-      <Toaster richColors position="bottom-right" />
-
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <SupplierHeaderList />
         <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex flex-1 justify-start gap-2">
+          <div className="flex flex-col sm:flex-row flex-1 justify-start gap-2">
             <Input
-              className="w-[272px]"
+              className="w-full sm:w-[272px]"
               value={inputValue}
               onChange={handleTextareaChange}
               placeholder="Buscar por nome, razão social, documento..."
@@ -166,8 +164,10 @@ export function SupplierList<TData extends Supplier, TValue>({
                 }
               }}
             />
-            <div className="flex gap-x-2">
+
+            <div className="flex sm:block">
               <Button
+                className="w-full sm:w-auto"
                 onClick={() => {
                   setQ(inputValue);
                   setPagination({ ...pagination, pageIndex: 0 });

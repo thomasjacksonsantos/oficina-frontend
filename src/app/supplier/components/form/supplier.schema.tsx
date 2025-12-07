@@ -1,18 +1,14 @@
 import { z } from 'zod';
 
 const contactSchema = z.object({
-  numero: z
-    .string()
-    .min(1, 'Número é obrigatório')
-    .regex(/^\d{10,11}$/, 'Número deve ter 10 ou 11 dígitos'),
+  numero: z.string().min(1, 'Número é obrigatório'),
   tipoTelefone: z.string().min(1, 'Tipo de telefone é obrigatório'),
 });
 
 const addressSchema = z.object({
   cep: z
     .string()
-    .min(1, 'CEP é obrigatório')
-    .regex(/^\d{8}$/, 'CEP deve ter 8 dígitos'),
+    .min(1, 'CEP é obrigatório'),
   logradouro: z
     .string()
     .min(1, 'Logradouro é obrigatório')
@@ -60,10 +56,7 @@ export const supplierSchema = z.object({
     .min(1, 'CPF/CNPJ é obrigatório')
     .regex(/^\d{11}$|^\d{14}$/, 'CPF deve ter 11 dígitos ou CNPJ 14 dígitos'),
 
-  dataNascimento: z
-    .string()
-    .min(1, 'Data de abertura é obrigatória')
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD'),
+  dataNascimento: z.string().min(1, 'Data de abertura é obrigatória'),
 
   emailFornecedor: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
 

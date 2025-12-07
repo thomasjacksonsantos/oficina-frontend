@@ -8,12 +8,12 @@ import {
   GetOrderStatusResponse,
 } from './product-orderStatus.types';
 
-const ENDPOINT = 'v1/produtos/status-pedido-compras';
+const ENDPOINT = 'v1/produtos/status-pedidos-compras';
 
 class OrderStatusApi extends BaseApi {
   async getOrderStatus(queryString?: GetOrderStatusParams, options?: { signal?: AbortSignal }) {
     return await this.get<GetOrderStatusResponse>(
-      ENDPOINT,
+      `${ENDPOINT}/all`,
       {
         pagina: queryString?.page,
         totalPagina: queryString?.limit,

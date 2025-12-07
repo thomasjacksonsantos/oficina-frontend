@@ -3,7 +3,11 @@
 import React, { useMemo, useState } from 'react';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useGetOrderStatuss, useActiveOrderStatus, useDeactiveOrderStatus } from '@/app/product-order-status/api';
+import {
+  useGetOrderStatuss,
+  useActiveOrderStatus,
+  useDeactiveOrderStatus,
+} from '@/app/product-order-status/api';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
   TableHeader,
@@ -55,7 +59,8 @@ export function OrderStatusList<TData extends OrderStatus, TValue>({
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || 'desc');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const { setViewingOrderStatus, setEditingOrderStatus, setDeletingOrderStatus } = useOrderStatusContext();
+  const { setViewingOrderStatus, setEditingOrderStatus, setDeletingOrderStatus } =
+    useOrderStatusContext();
 
   // Add the mutation hooks
   const { mutate: activeOrderStatus, isPending: isActivating } = useActiveOrderStatus();
@@ -95,7 +100,13 @@ export function OrderStatusList<TData extends OrderStatus, TValue>({
         });
       },
     }),
-    [setViewingOrderStatus, setEditingOrderStatus, setDeletingOrderStatus, activeOrderStatus, deactiveOrderStatus]
+    [
+      setViewingOrderStatus,
+      setEditingOrderStatus,
+      setDeletingOrderStatus,
+      activeOrderStatus,
+      deactiveOrderStatus,
+    ]
   );
 
   const cols = useMemo(() => {
@@ -156,9 +167,9 @@ export function OrderStatusList<TData extends OrderStatus, TValue>({
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <OrderStatusHeaderList />
         <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex flex-1 justify-start gap-2">
+          <div className="flex flex-col sm:flex-row flex-1 gap-2">
             <Input
-              className="w-[300px]"
+              className="w-full sm:w-[300px]"
               value={inputValue}
               onChange={handleTextareaChange}
               placeholder="Descrição"
@@ -169,16 +180,16 @@ export function OrderStatusList<TData extends OrderStatus, TValue>({
                 }
               }}
             />
-            <div className="flex gap-x-2">
-              <Button
-                onClick={() => {
-                  setQ(inputValue);
-                  setPagination({ ...pagination, pageIndex: 0 });
-                }}
-              >
-                Buscar
-              </Button>
-            </div>
+
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => {
+                setQ(inputValue);
+                setPagination({ ...pagination, pageIndex: 0 });
+              }}
+            >
+              Buscar
+            </Button>
           </div>
         </div>
         <div className="overflow-hidden rounded-lg border">
