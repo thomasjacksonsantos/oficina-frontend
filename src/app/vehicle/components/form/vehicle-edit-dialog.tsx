@@ -116,7 +116,7 @@ export default function VehicleEditDialog() {
 
   return (
     <Dialog open={!!editingVehicle} onOpenChange={() => setEditingVehicle(null)}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
         <DialogHeader>
           <DialogTitle>Editar Veículo</DialogTitle>
         </DialogHeader>
@@ -127,7 +127,6 @@ export default function VehicleEditDialog() {
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-placa">Placa</Label>
                 <FloatingInput
                   id="edit-placa"
                   {...register('placa')}
@@ -139,7 +138,6 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-modelo">Modelo</Label>
                 <FloatingInput id="edit-modelo" {...register('modelo')} label="Modelo" />
                 {errors.modelo && (
                   <span className="text-sm text-red-500">{errors.modelo.message}</span>
@@ -147,7 +145,6 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-montadora">Montadora</Label>
                 <FloatingInput id="edit-montadora" {...register('montadora')} label='Montadora' />
                 {errors.montadora && (
                   <span className="text-sm text-red-500">{errors.montadora.message}</span>
@@ -157,7 +154,6 @@ export default function VehicleEditDialog() {
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-hodrometro">Hodômetro (km)</Label>
                 <FloatingInput
                   id="edit-hodrometro"
                   {...register('hodrometro')}
@@ -170,13 +166,11 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-cor">Cor</Label>
                 <FloatingInput id="edit-cor" {...register('cor')} label='Cor' />
                 {errors.cor && <span className="text-sm text-red-500">{errors.cor.message}</span>}
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-ano">Ano</Label>
                 <FloatingInput
                   id="edit-ano"
                   {...register('ano')}
@@ -188,7 +182,6 @@ export default function VehicleEditDialog() {
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-motorizacao">Motorização</Label>
                 <FloatingInput
                   id="edit-motorizacao"
                   {...register('motorizacao')}
@@ -200,7 +193,6 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-chassi">Chassi</Label>
                 <FloatingInput
                   id="edit-chassi"
                   {...register('chassi')}
@@ -212,7 +204,6 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-numero-serie">Número de Série</Label>
                 <FloatingInput
                   id="edit-numero-serie"
                   {...register('numeroSerie')}

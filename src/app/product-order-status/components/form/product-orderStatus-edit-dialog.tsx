@@ -89,7 +89,7 @@ export default function OrderStatusEditDialog() {
 
   return (
     <Dialog open={!!editingOrderStatus} onOpenChange={() => setEditingOrderStatus(null)}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-card">
         <DialogHeader>
           <DialogTitle>Editar Unidade</DialogTitle>
         </DialogHeader>

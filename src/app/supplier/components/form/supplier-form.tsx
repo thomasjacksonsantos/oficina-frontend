@@ -184,7 +184,7 @@ export default function SupplierForm({
     <>
       <Toaster position="top-right" richColors />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
           <DialogHeader>
             <DialogTitle>Novo Fornecedor</DialogTitle>
           </DialogHeader>

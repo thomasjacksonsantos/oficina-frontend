@@ -106,7 +106,7 @@ export default function VehicleForm() {
     <div className="mx-auto w-full max-w-4xl p-6">
       <Toaster position="top-right" richColors />
       <Dialog open={!!registeringVehicle} onOpenChange={() => setRegisteringVehicle(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
           <DialogHeader>
             <DialogTitle>Registor Veículo</DialogTitle>
           </DialogHeader>

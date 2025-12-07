@@ -96,7 +96,7 @@ export default function AreaEditDialog() {
 
   return (
     <Dialog open={!!editingArea} onOpenChange={() => setEditingArea(null)}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card">
         <DialogHeader>
           <DialogTitle>Editar Área</DialogTitle>
         </DialogHeader>

@@ -50,6 +50,7 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
           type={type}
           className={cn(
             'file:text-foreground placeholder:text-transparent selection:bg-primary selection:text-primary-foreground bg-transparent border-input peer h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base shadow-xs transition-[color,box-shadow,border-color] outline-none disabled:opacity-50 md:text-sm',
+            'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
             className
           )}
           onChange={onChange}
@@ -59,9 +60,9 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
 
         <label
           className={cn(
-            'absolute left-3 text-gray-600 transition-all duration-200 pointer-events-none select-none',
+            'absolute left-3 text-muted-foreground transition-all duration-200 pointer-events-none select-none',
             hasValue || inputMode === 'numeric'
-              ? '-top-2 text-xs font-medium bg-[#09090B] text-white text-ring px-1'
+              ? '-top-2 text-xs font-medium bg-card text-white text-ring px-1'
               : 'top-1/2 -translate-y-1/2 text-sm px-1'
           )}
         >

@@ -94,7 +94,7 @@ export default function AreaForm() {
   return (
     <div className="mx-auto w-full max-w-4xl p-6">
       <Dialog open={!!registeringArea} onOpenChange={() => setRegisteringArea(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
           <DialogHeader>
             <DialogTitle>Grupo de Produtos</DialogTitle>
           </DialogHeader>

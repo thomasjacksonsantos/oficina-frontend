@@ -89,7 +89,7 @@ export default function UnitEditDialog() {
 
   return (
     <Dialog open={!!editingUnit} onOpenChange={() => setEditingUnit(null)}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-card">
         <DialogHeader>
           <DialogTitle>Editar Unidade</DialogTitle>
         </DialogHeader>

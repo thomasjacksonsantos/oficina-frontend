@@ -15,9 +15,9 @@ export const Route = createFileRoute('/produtos-servicos/')({
       throw redirect({ to: search.redirect || '/login' });
     }
   },
-  component: ProductComponent,
+  component: ProdutosServicos,
 });
 
-function ProductComponent() {
+function ProdutosServicos() {
   return <Product />;
 }

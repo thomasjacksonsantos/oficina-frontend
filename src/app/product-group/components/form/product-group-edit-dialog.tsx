@@ -100,7 +100,7 @@ export default function ProductGroupEditDialog() {
 
   return (
     <Dialog open={!!editingProductGroup} onOpenChange={() => setEditingProductGroup(null)}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card">
         <DialogHeader>
           <DialogTitle>Editar Grupo de Produto</DialogTitle>
         </DialogHeader>

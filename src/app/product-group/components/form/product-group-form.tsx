@@ -118,7 +118,7 @@ export default function ProductGroupForm() {
         open={!!registeringProductGroup}
         onOpenChange={() => setRegisteringProductGroup(null)}
       >
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
           <DialogHeader>
             <DialogTitle>Grupo de Produtos</DialogTitle>
           </DialogHeader>

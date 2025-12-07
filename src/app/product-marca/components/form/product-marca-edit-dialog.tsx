@@ -89,7 +89,7 @@ export default function MarcaEditDialog() {
 
   return (
     <Dialog open={!!editingMarca} onOpenChange={() => setEditingMarca(null)}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-card">
         <DialogHeader>
           <DialogTitle>Editar Unidade</DialogTitle>
         </DialogHeader>

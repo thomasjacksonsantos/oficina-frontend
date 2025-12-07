@@ -81,7 +81,7 @@ export default function CreateUnitDialog({ isOpen, setIsOpen }: CreateUnitDialog
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-card">
         <DialogHeader>
           <DialogTitle>Nova Unidade</DialogTitle>
         </DialogHeader>
