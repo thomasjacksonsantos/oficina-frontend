@@ -13,6 +13,12 @@ import { FloatingInput } from '@/components/ui/floating-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { DatetimePicker } from '@/components/ui/datetime-picker';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+
 import {
   Select,
   SelectTrigger,
@@ -228,7 +234,7 @@ export default function SupplierForm({
                       {...register('documento')}
                       label="CPF/CNPJ"
                       className="rounded-md"
-                      maxLength={14}
+                      maxLength={18}
                       onChange={(e) => {
                         const masked = formatCpfCnpj(e.target.value);
                         setValue('documento', masked, { shouldValidate: true });
@@ -243,14 +249,53 @@ export default function SupplierForm({
                 <Label>Data Nascimento</Label>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-2">
-                    <FloatingInput
-                      id="dataNascimento"
-                      label=""
-                      className="rounded-md bg-transparent"
-                      {...register('dataNascimento')}
-                      type="date"
-                      onChange={(e) => {
-                        setValue('dataNascimento', e.target.value, { shouldValidate: true });
+                    <Controller
+                      name="dataNascimento"
+                      control={control}
+                      render={({ field }) => {
+                        const parseDate = (dateString: string) => {
+                          if (!dateString) return undefined;
+                          const datePart = dateString.split('T')[0];
+                          const [year, month, day] = datePart.split('-').map(Number);
+                          const date = new Date(year, month - 1, day);
+
+                          return date;
+                        };
+
+                        const selectedDate = field.value ? parseDate(field.value) : undefined;
+
+                        return (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-between text-left font-normal rounded-md bg-transparent"
+                              >
+                                <span>
+                                  {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : 'DD/MM/YYYY'}
+                                </span>
+                                <CalendarIcon className="ml-2 h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={selectedDate}
+                                defaultMonth={selectedDate}
+                                onSelect={(date) => {
+                                  if (date) {
+                                    const year = date.getFullYear();
+                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                    const day = String(date.getDate()).padStart(2, '0');
+                                    const formattedDate = `${year}-${month}-${day + 1}`;
+                                    field.onChange(formattedDate);
+                                  }
+                                }}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        );
                       }}
                     />
                     {errors.dataNascimento && (

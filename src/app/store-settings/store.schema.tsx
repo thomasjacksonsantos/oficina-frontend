@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const contactSchema = z.object({
   tipoTelefone: z.string().min(1, 'Tipo é obrigatório'),
-  numero: z.string().min(1, "Número é obrigatório"),
+  numero: z.string().min(1, 'Número é obrigatório'),
 });
 
 const addressSchema = z.object({
@@ -44,10 +44,7 @@ export const storeSchema = z.object({
     .min(2, 'Razão Social deve ter pelo menos 2 caracteres')
     .max(200, 'Razão Social deve ter no máximo 200 caracteres'),
 
-  documento: z
-    .string()
-    .min(11, 'Documento deve ter pelo menos 11 dígitos')
-    .max(18, 'Documento deve ter no máximo 18 caracteres'),
+  documento: z.string().max(18, 'Documento deve ter no máximo 18 caracteres'),
 
   inscricaoEstadual: z.string().optional(),
 

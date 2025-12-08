@@ -212,7 +212,7 @@ export default function StoreSettings() {
                 {...register('documento')}
                 label="CNPJ"
                 className="rounded-md"
-                maxLength={14}
+                maxLength={18}
                 onChange={(e) => {
                   const masked = formatCpfCnpj(e.target.value);
                   setValue('documento', masked, { shouldValidate: true });

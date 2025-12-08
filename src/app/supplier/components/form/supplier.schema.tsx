@@ -49,10 +49,7 @@ export const supplierSchema = z.object({
     .min(2, 'Razão Social deve ter pelo menos 2 caracteres')
     .max(200, 'Razão Social deve ter no máximo 200 caracteres'),
 
-  documento: z
-    .string()
-    .min(11, 'Documento deve ter pelo menos 11 dígitos')
-    .max(18, 'Documento deve ter no máximo 18 caracteres'),
+  documento: z.string().max(18, 'Documento deve ter no máximo 18 caracteres'),
 
   dataNascimento: z.string().min(1, 'Data de abertura é obrigatória'),
 
