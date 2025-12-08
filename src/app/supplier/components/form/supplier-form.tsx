@@ -240,16 +240,17 @@ export default function SupplierForm({
                   </div>
                 </div>
 
+                <Label>Data Nascimento</Label>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-2">
                     <FloatingInput
                       id="dataNascimento"
-                      label="Data de Abertura"
+                      label=""
                       className="rounded-md bg-transparent"
                       {...register('dataNascimento')}
+                      type="date"
                       onChange={(e) => {
-                        const masked = formatBirthDate(e.target.value);
-                        setValue('dataNascimento', masked, { shouldValidate: true });
+                        setValue('dataNascimento', e.target.value, { shouldValidate: true });
                       }}
                     />
                     {errors.dataNascimento && (

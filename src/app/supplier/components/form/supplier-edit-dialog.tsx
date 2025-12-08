@@ -97,13 +97,18 @@ export default function SupplierEditDialog() {
       reset({
         nomeFantasia: editingSupplier.nomeFantasia || '',
         razaoSocial: editingSupplier.razaoSocial || '',
-        documento: editingSupplier.documento || '',
-        dataNascimento: editingSupplier.dataNascimento || '',
+        documento: formatCpfCnpj(editingSupplier.documento) || '',
+        dataNascimento: editingSupplier.dataNascimento
+          ? new Date(editingSupplier.dataNascimento).toISOString().split('T')[0]
+          : '',
         emailFornecedor: editingSupplier.emailFornecedor || '',
         site: editingSupplier.site || '',
-        contatos: editingSupplier.contatos || [{ numero: '', tipoTelefone: 'Comercial' }],
+        contatos: editingSupplier.contatos.map((contatos) => ({
+          ...contatos,
+          numero: formatPhone(contatos.numero),
+        })) || [{ numero: '', tipoTelefone: 'Comercial' }],
         endereco: {
-          cep: editingSupplier.endereco?.cep || '',
+          cep: formatCep(editingSupplier.endereco?.cep) || '',
           logradouro: editingSupplier.endereco?.logradouro || '',
           numero: editingSupplier.endereco?.numero || '',
           complemento: editingSupplier.endereco?.complemento || '',
@@ -238,8 +243,9 @@ export default function SupplierEditDialog() {
                       className="rounded-md"
                       maxLength={14}
                       onChange={(e) => {
-                        const value = formatCpfCnpj(e.target.value);
-                        setValue('documento', value, { shouldValidate: true });
+                        setValue('documento', formatCpfCnpj(e.target.value), {
+                          shouldValidate: true,
+                        });
                       }}
                     />
                     {errors.documento && (
@@ -247,17 +253,17 @@ export default function SupplierEditDialog() {
                     )}
                   </div>
                 </div>
-
+                <Label>Data de Abertura</Label>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-2">
                     <FloatingInput
                       id="edit-dataNascimento"
-                      label="Data de Abertura"
+                      label=""
                       className="rounded-md bg-transparent"
                       {...register('dataNascimento')}
+                      type="date"
                       onChange={(e) => {
-                        const masked = formatBirthDate(e.target.value);
-                        setValue('dataNascimento', masked, { shouldValidate: true });
+                        setValue('dataNascimento', e.target.value, { shouldValidate: true });
                       }}
                     />
                     {errors.dataNascimento && (
@@ -351,10 +357,13 @@ export default function SupplierEditDialog() {
                           className="rounded-md"
                           {...register(`contatos.${idx}.numero` as const)}
                           onChange={(e) => {
-                            const masked = formatPhone(e.target.value);
-                            setValue(`contatos.${idx}.numero` as const, masked, {
-                              shouldValidate: true,
-                            });
+                            setValue(
+                              `contatos.${idx}.numero` as const,
+                              formatPhone(e.target.value),
+                              {
+                                shouldValidate: true,
+                              }
+                            );
                           }}
                         />
                         {errors.contatos?.[idx]?.numero && (

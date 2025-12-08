@@ -59,12 +59,15 @@ export default function StoreSettings() {
       reset({
         nomeFantasia: store.nomeFantasia || '',
         razaoSocial: store.razaoSocial || '',
-        documento: store.documento || '',
+        documento: formatCpfCnpj(store.documento) || '',
         inscricaoEstadual: store.inscricaoEstadual || '',
         inscricaoMunicipal: store.inscricaoMunicipal || '',
-        contatos: store.contatos || [{ tipoTelefone: TipoTelefone.Celular, numero: '' }],
+        contatos: store.contatos.map((contatos) => ({
+          ...contatos,
+          numero: formatPhone(contatos.numero),
+        })) || [{ numero: '', tipoTelefone: 'Comercial' }],
         endereco: {
-          cep: store.endereco?.cep || '',
+          cep: formatCep(store.endereco?.cep) || '',
           logradouro: store.endereco?.logradouro || '',
           numero: store.endereco?.numero || '',
           complemento: store.endereco?.complemento || '',
@@ -147,18 +150,21 @@ export default function StoreSettings() {
 
     console.log('Update payload:', updatePayload);
 
-    updateStore({
-      store: updatePayload,
-      id: store?.id
-    }, {
-      onSuccess: () => {
-        toast.success('Loja atualizada com sucesso!');
+    updateStore(
+      {
+        store: updatePayload,
+        id: store?.id,
       },
-      onError: (error) => {
-        console.error('Update error:', error);
-        toast.error('Erro ao atualizar loja');
-      },
-    });
+      {
+        onSuccess: () => {
+          toast.success('Loja atualizada com sucesso!');
+        },
+        onError: (error) => {
+          console.error('Update error:', error);
+          toast.error('Erro ao atualizar loja');
+        },
+      }
+    );
   };
 
   if (isLoading) {

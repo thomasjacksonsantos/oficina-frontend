@@ -11,7 +11,7 @@ class AreasApi extends BaseApi {
       {
         pagina: queryString?.pagina,
         totalPagina: queryString?.totalPagina,
-        q: 'test',
+        q: queryString?.q,
       },
       options
     );

@@ -11,7 +11,7 @@ class SuppliersApi extends BaseApi {
       {
         pagina: queryString?.page,
         totalPagina: queryString?.limit,
-        q: 'test',
+        q: queryString?.q,
       },
       options
     );

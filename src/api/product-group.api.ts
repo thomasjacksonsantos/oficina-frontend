@@ -15,6 +15,7 @@ class ProductGroupsApi extends BaseApi {
       {
         pagina: queryString?.pagina,
         totalPagina: queryString?.limit,
+        q: queryString?.q,
       },
       options
     );
