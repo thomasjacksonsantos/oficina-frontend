@@ -5,3 +5,4 @@ export { useDeleteSupplier } from './use-delete-supplier';
 export { useActiveSupplier } from './use-active-supplier';
 export { useDeactiveSupplier } from './use-deactive-supplier';
 export { useGetCep } from './use-get-cep';
+export { useGetSupplier } from './use-get-supplier';

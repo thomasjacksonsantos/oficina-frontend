@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { useForm } from 'react-hook-form';
 import { vehicleSchema, type CreateVehicleSchema } from './vehicle.schema';
 import { toast } from 'sonner';
-import { useVehicleContext } from '../list/vehicle-context' ;
+import { useVehicleContext } from '../list/vehicle-context';
 import { useUpdateVehicle } from '@/app/vehicle/api';
 import { FloatingInput } from '@/components/ui/floating-input';
 
@@ -45,7 +45,7 @@ export default function VehicleEditDialog() {
         hodrometro: editingVehicle.hodrometro || 0,
         cor: editingVehicle.cor || '',
         motorizacao: editingVehicle.motorizacao || '',
-        ano: editingVehicle.ano || '',
+        ano: String(editingVehicle.ano) || '',
         numeroSerie: editingVehicle.numeroSerie || '',
         chassi: editingVehicle.chassi || '',
       });
@@ -65,7 +65,7 @@ export default function VehicleEditDialog() {
     updateVehicle(
       {
         vehicle: data, // Send data directly, not wrapped in vehicle object
-        id: editingVehicle.id
+        id: editingVehicle.id,
       },
       {
         onSuccess: () => {
@@ -74,7 +74,7 @@ export default function VehicleEditDialog() {
         },
         onError: (error: any) => {
           console.error('Update error:', error);
-          
+
           const fieldMapping: Record<string, string> = {
             placa: 'placa',
             modelo: 'modelo',
@@ -127,11 +127,7 @@ export default function VehicleEditDialog() {
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-2">
-                <FloatingInput
-                  id="edit-placa"
-                  {...register('placa')}
-                  label='Placa'
-                />
+                <FloatingInput id="edit-placa" {...register('placa')} label="Placa" />
                 {errors.placa && (
                   <span className="text-sm text-red-500">{errors.placa.message}</span>
                 )}
@@ -145,7 +141,7 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <FloatingInput id="edit-montadora" {...register('montadora')} label='Montadora' />
+                <FloatingInput id="edit-montadora" {...register('montadora')} label="Montadora" />
                 {errors.montadora && (
                   <span className="text-sm text-red-500">{errors.montadora.message}</span>
                 )}
@@ -166,16 +162,12 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <FloatingInput id="edit-cor" {...register('cor')} label='Cor' />
+                <FloatingInput id="edit-cor" {...register('cor')} label="Cor" />
                 {errors.cor && <span className="text-sm text-red-500">{errors.cor.message}</span>}
               </div>
 
               <div className="flex flex-col gap-2">
-                <FloatingInput
-                  id="edit-ano"
-                  {...register('ano')}
-                  label='Ano'
-                />
+                <FloatingInput id="edit-ano" {...register('ano')} label="Ano" />
                 {errors.ano && <span className="text-sm text-red-500">{errors.ano.message}</span>}
               </div>
             </div>
@@ -185,7 +177,7 @@ export default function VehicleEditDialog() {
                 <FloatingInput
                   id="edit-motorizacao"
                   {...register('motorizacao')}
-                  label='Motorizacao'
+                  label="Motorizacao"
                 />
                 {errors.motorizacao && (
                   <span className="text-sm text-red-500">{errors.motorizacao.message}</span>
@@ -193,11 +185,7 @@ export default function VehicleEditDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <FloatingInput
-                  id="edit-chassi"
-                  {...register('chassi')}
-                  label="Chassi"
-                />
+                <FloatingInput id="edit-chassi" {...register('chassi')} label="Chassi" />
                 {errors.chassi && (
                   <span className="text-sm text-red-500">{errors.chassi.message}</span>
                 )}

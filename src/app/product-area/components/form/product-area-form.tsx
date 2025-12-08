@@ -92,64 +92,57 @@ export default function AreaForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
-      <Dialog open={!!registeringArea} onOpenChange={() => setRegisteringArea(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
-          <DialogHeader>
-            <DialogTitle>Grupo de Produtos</DialogTitle>
-          </DialogHeader>
+    <Dialog open={!!registeringArea} onOpenChange={() => setRegisteringArea(null)}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
+        <DialogHeader>
+          <DialogTitle>Grupo de Produtos</DialogTitle>
+        </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Separator className="my-4" />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Separator className="my-4" />
 
-            <div className="space-y-3">
+          <div className="space-y-3">
+            <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-2">
-
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="area-descricao"
-                    {...register('descricao')}
-                    label="Descrição"
-                    className="rounded-md"
-                  />
-                  {errors.descricao && (
-                    <span className="text-sm text-red-500">{errors.descricao.message}</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Textarea
-                  id="area-garantia"
-                  {...register('garantia')}
-                  placeholder="Descrição textarea..."
-                  className="rounded-md resize-none"
-                  rows={4}
+                <FloatingInput
+                  id="area-descricao"
+                  {...register('descricao')}
+                  label="Descrição"
+                  className="rounded-md"
                 />
-                {errors.garantia && (
-                  <span className="text-sm text-red-500">{errors.garantia.message}</span>
+                {errors.descricao && (
+                  <span className="text-sm text-red-500">{errors.descricao.message}</span>
                 )}
               </div>
             </div>
-            <DialogFooter className="mt-6">
+
+            <div className="flex flex-col gap-2">
+              <Textarea
+                id="area-garantia"
+                {...register('garantia')}
+                placeholder="Descrição textarea..."
+                className="rounded-md resize-none"
+                rows={4}
+              />
+              {errors.garantia && (
+                <span className="text-sm text-red-500">{errors.garantia.message}</span>
+              )}
+            </div>
+          </div>
+          <DialogFooter className="mt-6">
+            <div className="flex items-center gap-2 ml-auto">
               <div className="flex items-center gap-2 ml-auto">
-                <div className="flex items-center gap-2 ml-auto">
-                  <Button
-                    variant="secondary"
-                    type="button"
-                    onClick={() => setRegisteringArea(null)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={isPending}>
-                    {isPending ? 'Salvando...' : 'Salvar Veículo'}
-                  </Button>
-                </div>
+                <Button variant="secondary" type="button" onClick={() => setRegisteringArea(null)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? 'Salvando...' : 'Salvar Veículo'}
+                </Button>
               </div>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+            </div>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

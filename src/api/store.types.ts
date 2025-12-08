@@ -2,7 +2,6 @@ export type Store = {
   id: string;
   nomeFantasia: string;
   razaoSocial: string;
-  montadora: string;
   documento: string;
   inscricaoEstadual: string;
   inscricaoMunicipal: string;

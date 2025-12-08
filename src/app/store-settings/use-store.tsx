@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMockStore, updateMockStore } from './mock-data/store-mock-data';
 import { UpdateStoreInput } from '@/api/store.types';
 import StoreApi from '@/api/store.api';
+import CepApi from '@/api/cep.api';
 
 const USE_MOCK_DATA = false;
 
@@ -22,7 +23,7 @@ export function useUpdateStore() {
   console.log('Updating store with data: out');
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (store: UpdateStoreInput) => {
+    mutationFn: async ({ id, store }: { id?: string; store: UpdateStoreInput }) => {
       if (USE_MOCK_DATA) {
         await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -39,7 +40,7 @@ export function useUpdateStore() {
         return updateMockStore(cleanedStore);
       }
       console.log('Updating store with data:', store);
-      return StoreApi.updateStore(store);
+      return StoreApi.updateStore(store, id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -81,5 +82,13 @@ export function useSearchCep() {
       // Always use real ViaCEP API (free public service)
       return StoreApi.searchCep(cep);
     },
+  });
+}
+
+export function useGetCep(cep: string) {
+  return useQuery({
+    queryKey: ['getCep', cep],
+    queryFn: ({ signal }) => CepApi.getCep(cep),
+    enabled: !!cep,
   });
 }

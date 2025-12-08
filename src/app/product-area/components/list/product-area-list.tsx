@@ -116,13 +116,13 @@ export function AreaList<TData extends Area, TValue>({
   });
 
   // Calculate page (1-based) from pageIndex
-  const page = pagination.pageIndex + 1;
-  const limit = pagination.pageSize;
+  const pagina = pagination.pageIndex + 1;
+  const totalPagina = pagination.pageSize;
 
   const { data, isLoading } = useGetAreas({
-    page,
+    pagina,
     q,
-    limit,
+    totalPagina,
     sortField,
     sortDirection,
     status: statusFilter || undefined,
@@ -161,7 +161,7 @@ export function AreaList<TData extends Area, TValue>({
               className="w-full sm:w-[200px]"
               value={inputValue}
               onChange={handleTextareaChange}
-              placeholder="Código"
+              placeholder="Código, Descrição"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   setQ(inputValue);
@@ -169,20 +169,6 @@ export function AreaList<TData extends Area, TValue>({
                 }
               }}
             />
-
-            <Input
-              className="w-full sm:w-[200px]"
-              value={inputValue}
-              onChange={handleTextareaChange}
-              placeholder="Descrição"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setQ(inputValue);
-                  setPagination({ ...pagination, pageIndex: 0 });
-                }
-              }}
-            />
-
             <div className="flex sm:block">
               <Button
                 className="w-full sm:w-auto"

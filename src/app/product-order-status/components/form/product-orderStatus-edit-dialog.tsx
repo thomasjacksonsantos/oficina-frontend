@@ -91,7 +91,7 @@ export default function OrderStatusEditDialog() {
     <Dialog open={!!editingOrderStatus} onOpenChange={() => setEditingOrderStatus(null)}>
       <DialogContent className="max-w-md bg-card">
         <DialogHeader>
-          <DialogTitle>Editar Unidade</DialogTitle>
+          <DialogTitle>Editar Status Pedido</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -99,11 +99,7 @@ export default function OrderStatusEditDialog() {
 
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <FloatingInput
-                id="edit-descricao"
-                {...register('descricao')}
-                label="Descrição"
-              />
+              <FloatingInput id="edit-descricao" {...register('descricao')} label="Descrição" />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>
               )}

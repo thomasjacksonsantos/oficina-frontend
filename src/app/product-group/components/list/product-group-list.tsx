@@ -128,13 +128,13 @@ export function ProductGroupList<TData extends ProductGroup, TValue>({
   });
 
   // Calculate page (1-based) from pageIndex
-  const page = pagination.pageIndex + 1;
-  const limit = pagination.pageSize;
+  const pagina = pagination.pageIndex + 1;
+  const totalPagina = pagination.pageSize;
 
   const { data, isLoading } = useGetProductGroups({
-    page,
+    pagina,
     q,
-    limit,
+    totalPagina,
     sortField,
     sortDirection,
     status: statusFilter || undefined,

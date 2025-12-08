@@ -27,7 +27,6 @@ export default function VehicleHeaderList() {
     setDeletingVehicle(null);
   };
 
-
   return (
     <>
       <ResponsiveDialog

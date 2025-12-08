@@ -1,31 +1,19 @@
 import { z } from 'zod';
 
 const contactSchema = z.object({
-  tipoTelefone: z
-    .string()
-    .min(1, 'Tipo é obrigatório'),
-  numero: z
-    .string()
-    .min(1, 'Número é obrigatório')
-    .regex(/^\d{10,11}$/, 'Número deve ter 10 ou 11 dígitos'),
+  tipoTelefone: z.string().min(1, 'Tipo é obrigatório'),
+  numero: z.string().min(1, "Número é obrigatório"),
 });
 
 const addressSchema = z.object({
-  cep: z
-    .string()
-    .min(1, 'CEP é obrigatório')
-    .regex(/^\d{8}$/, 'CEP deve ter 8 dígitos'),
+  cep: z.string().regex(/^\d{5}-?\d{3}$/, 'CEP deve ter formato válido (00000-000)'),
   logradouro: z
     .string()
     .min(1, 'Logradouro é obrigatório')
     .min(3, 'Logradouro deve ter pelo menos 3 caracteres')
     .max(200, 'Logradouro deve ter no máximo 200 caracteres'),
-  numero: z
-    .string()
-    .min(1, 'Número é obrigatório'),
-  complemento: z
-    .string()
-    .optional(),
+  numero: z.string().min(1, 'Número é obrigatório'),
+  complemento: z.string().optional(),
   bairro: z
     .string()
     .min(1, 'Bairro é obrigatório')
@@ -56,38 +44,22 @@ export const storeSchema = z.object({
     .min(2, 'Razão Social deve ter pelo menos 2 caracteres')
     .max(200, 'Razão Social deve ter no máximo 200 caracteres'),
 
-  montadora: z
-    .string()
-    .min(1, 'Montadora é obrigatória')
-    .min(2, 'Montadora deve ter pelo menos 2 caracteres')
-    .max(100, 'Montadora deve ter no máximo 100 caracteres'),
-
   documento: z
     .string()
-    .min(1, 'CNPJ é obrigatório')
-    .regex(/^\d{14}$/, 'CNPJ deve ter 14 dígitos'),
+    .min(11, 'Documento deve ter pelo menos 11 dígitos')
+    .max(18, 'Documento deve ter no máximo 18 caracteres'),
 
-  inscricaoEstadual: z
-    .string()
-    .optional(),
+  inscricaoEstadual: z.string().optional(),
 
-  inscricaoMunicipal: z
-    .string()
-    .optional(),
+  inscricaoMunicipal: z.string().optional(),
 
-  contatos: z
-    .array(contactSchema)
-    .min(1, 'Pelo menos um contato é obrigatório'),
+  contatos: z.array(contactSchema).min(1, 'Pelo menos um contato é obrigatório'),
 
   endereco: addressSchema,
 
-  site: z
-    .string()
-    .optional(),
+  site: z.string().optional(),
 
-  logoTipo: z
-    .string()
-    .optional(),
+  logoTipo: z.string().optional(),
 });
 
 export type StoreFormSchema = z.infer<typeof storeSchema>;

@@ -8,8 +8,8 @@ class StoreApi extends BaseApi {
     return this.get<Store>(`${ENDPOINT}/context`);
   }
 
-  async updateStore(store: UpdateStoreInput) {
-    return this.put<Store>(`${ENDPOINT}`, store);
+  async updateStore(store: UpdateStoreInput, id: string | undefined) {
+    return this.put<Store>(`${ENDPOINT}/${id}`, store);
   }
 
   async uploadLogo(file: File) {

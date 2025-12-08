@@ -19,6 +19,7 @@ class MarcasApi extends BaseApi {
       {
         pagina: queryString?.page,
         totalPagina: queryString?.limit,
+        q: 'test',
       },
       options
     );

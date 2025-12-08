@@ -1,7 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useGetSuppliers, useActiveSupplier, useDeactiveSupplier } from '@/app/supplier/api';
+import {
+  useGetSuppliers,
+  useActiveSupplier,
+  useDeactiveSupplier,
+  useGetSupplier,
+} from '@/app/supplier/api';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
   TableHeader,
@@ -57,14 +62,23 @@ export function SupplierList<TData extends Supplier, TValue>({
 
   const { mutate: activeSupplier, isPending: isActivating } = useActiveSupplier();
   const { mutate: deactiveSupplier, isPending: isDeactivating } = useDeactiveSupplier();
+  const { mutate: getSupplier } = useGetSupplier();
 
   const handlers = useMemo(
     () => ({
       onView: (supplier: Supplier) => {
         setViewingSupplier(supplier);
       },
-      onEdit: (supplier: Supplier) => {
-        setEditingSupplier(supplier);
+      onEdit: (id: string) => {
+        getSupplier(id, {
+          onSuccess: (data) => {
+            setEditingSupplier(data || null);
+          },
+          onError: (error: any) => {
+            const errorMessage = error.response?.data?.message || 'Erro ao buscar fornecedor';
+            toast.error(errorMessage);
+          },
+        });
       },
       onDelete: (supplier: Supplier) => {
         setDeletingSupplier(supplier);

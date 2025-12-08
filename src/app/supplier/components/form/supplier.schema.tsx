@@ -6,9 +6,7 @@ const contactSchema = z.object({
 });
 
 const addressSchema = z.object({
-  cep: z
-    .string()
-    .min(1, 'CEP é obrigatório'),
+  cep: z.string().min(1, 'CEP é obrigatório'),
   logradouro: z
     .string()
     .min(1, 'Logradouro é obrigatório')
@@ -53,8 +51,8 @@ export const supplierSchema = z.object({
 
   documento: z
     .string()
-    .min(1, 'CPF/CNPJ é obrigatório')
-    .regex(/^\d{11}$|^\d{14}$/, 'CPF deve ter 11 dígitos ou CNPJ 14 dígitos'),
+    .min(11, 'Documento deve ter pelo menos 11 dígitos')
+    .max(18, 'Documento deve ter no máximo 18 caracteres'),
 
   dataNascimento: z.string().min(1, 'Data de abertura é obrigatória'),
 

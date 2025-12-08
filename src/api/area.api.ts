@@ -9,8 +9,9 @@ class AreasApi extends BaseApi {
     return await this.get<Page<Area>>(
       `${ENDPOINT}/all`,
       {
-        pagina: queryString?.page,
-        totalPagina: queryString?.limit,
+        pagina: queryString?.pagina,
+        totalPagina: queryString?.totalPagina,
+        q: 'test',
       },
       options
     );

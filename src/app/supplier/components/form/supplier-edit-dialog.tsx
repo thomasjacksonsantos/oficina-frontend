@@ -33,6 +33,7 @@ import { formatBirthDate } from '@/helpers/formatBirthDate';
 import { formatToIso } from '@/helpers/formatDate';
 import { useEffect, useState } from 'react';
 import { FloatingInput } from '@/components/ui/floating-input';
+import { formatCpfCnpj } from '@/helpers/formatCpfCnpj';
 
 export default function SupplierEditDialog() {
   const { editingSupplier, setEditingSupplier } = useSupplierContext();
@@ -113,8 +114,8 @@ export default function SupplierEditDialog() {
         },
         inscricaoEstadual: editingSupplier.inscricaoEstadual || '',
         inscricaoMunicipal: editingSupplier.inscricaoMunicipal || '',
-        tipoConsumidor: editingSupplier.tipoConsumidor || 'Consumidor Final',
-        indicadorIE: editingSupplier.indicadorIE || 'Contribuinte de ICMS (COM IE)',
+        tipoConsumidor: editingSupplier.tipoConsumidor || 'ConsumidorFinal',
+        indicadorIE: editingSupplier.indicadorIE || 'ContribuinteICMS',
       });
     }
   }, [editingSupplier, reset]);
@@ -191,7 +192,7 @@ export default function SupplierEditDialog() {
     <>
       <Toaster position="top-right" richColors />
       <Dialog open={!!editingSupplier} onOpenChange={() => setEditingSupplier(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
           <DialogHeader>
             <DialogTitle>Editar Fornecedor</DialogTitle>
           </DialogHeader>
@@ -205,7 +206,6 @@ export default function SupplierEditDialog() {
                 <h3 className="text-sm font-semibold">Informações Básicas</h3>
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="edit-nomeFantasia">Nome Fantasia</Label>
                     <FloatingInput
                       id="edit-nomeFantasia"
                       {...register('nomeFantasia')}
@@ -238,7 +238,7 @@ export default function SupplierEditDialog() {
                       className="rounded-md"
                       maxLength={14}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
+                        const value = formatCpfCnpj(e.target.value);
                         setValue('documento', value, { shouldValidate: true });
                       }}
                     />
@@ -553,7 +553,7 @@ export default function SupplierEditDialog() {
                       <>
                         <RadioGroup value={field.value} onValueChange={field.onChange}>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Consumidor Final" id="edit-consumidor-final" />
+                            <RadioGroupItem value="ConsumidorFinal" id="edit-consumidor-final" />
                             <Label htmlFor="edit-consumidor-final" className="font-normal">
                               Consumidor Final
                             </Label>
@@ -584,26 +584,20 @@ export default function SupplierEditDialog() {
                       <>
                         <RadioGroup value={field.value} onValueChange={field.onChange}>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem
-                              value="Contribuinte de ICMS (COM IE)"
-                              id="edit-com-ie"
-                            />
+                            <RadioGroupItem value="ContribuinteICMS" id="edit-com-ie" />
                             <Label htmlFor="edit-com-ie" className="font-normal">
                               Contribuinte de ICMS (COM IE)
                             </Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem
-                              value="Contribuinte Isento de ICMS (Sem IE)"
-                              id="edit-sem-ie"
-                            />
+                            <RadioGroupItem value="ContribuinteIsentoICMS" id="edit-sem-ie" />
                             <Label htmlFor="edit-sem-ie" className="font-normal">
                               Contribuinte Isento de ICMS (Sem IE)
                             </Label>
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem
-                              value="Não Contribuinte de ICMS (Com ou sem IE)"
+                              value="NaoContribuinteICMS"
                               id="edit-nao-contribuinte"
                             />
                             <Label htmlFor="edit-nao-contribuinte" className="font-normal">

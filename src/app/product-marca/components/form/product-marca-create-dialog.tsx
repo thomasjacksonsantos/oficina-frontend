@@ -83,7 +83,7 @@ export default function CreateMarcaDialog({ isOpen, setIsOpen }: CreateMarcaDial
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="max-w-md bg-card">
         <DialogHeader>
-          <DialogTitle>Nova Unidade</DialogTitle>
+          <DialogTitle>Nova Marca do Produto</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>

@@ -1,10 +1,9 @@
-
-import Axios from "axios";
-import { auth } from '@/firebase/config'
-import { signOut } from "firebase/auth";
+import Axios from 'axios';
+import { auth } from '@/firebase/config';
+import { signOut } from 'firebase/auth';
 
 export const axios = Axios.create({
-  baseURL: import.meta.env.VITE_PUBLIC_API_BASE_URL
+  baseURL: import.meta.env.VITE_PUBLIC_API_BASE_URL,
 });
 
 // Interceptor de requisição para adicionar token
@@ -36,7 +35,7 @@ axios.interceptors.response.use(
       try {
         // Tenta forçar refresh do token
         const token = await auth.currentUser?.getIdToken(true);
-        
+
         if (token) {
           // Atualiza o header da requisição original
           originalRequest.headers.Authorization = `Bearer ${token}`;
@@ -69,15 +68,25 @@ export class BaseApi {
     return data;
   }
 
-  protected async post<T>(endpoint: string, body: any, options?: { headers?: Record<string, string> }): Promise<T> {
+  protected async post<T>(
+    endpoint: string,
+    body: any,
+    options?: { headers?: Record<string, string> }
+  ): Promise<T> {
     const { data } = await axios.post<T>(endpoint, body, {
       headers: options?.headers,
     });
     return data;
   }
 
-  protected async put<T>(endpoint: string, body: any): Promise<T> {
-    const { data } = await axios.put<T>(endpoint, body);
+  protected async put<T>(
+    endpoint: string,
+    body: any,
+    options?: { headers?: Record<string, string> }
+  ): Promise<T> {
+    const { data } = await axios.put<T>(endpoint, body, {
+      headers: options?.headers,
+    });
     return data;
   }
 

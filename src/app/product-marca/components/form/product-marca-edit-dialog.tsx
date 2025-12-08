@@ -91,7 +91,7 @@ export default function MarcaEditDialog() {
     <Dialog open={!!editingMarca} onOpenChange={() => setEditingMarca(null)}>
       <DialogContent className="max-w-md bg-card">
         <DialogHeader>
-          <DialogTitle>Editar Unidade</DialogTitle>
+          <DialogTitle>Editar Marca do Produto</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -100,11 +100,7 @@ export default function MarcaEditDialog() {
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="edit-descricao">Descrição</Label>
-              <FloatingInput
-                id="edit-descricao"
-                {...register('descricao')}
-                label="Descrição"
-              />
+              <FloatingInput id="edit-descricao" {...register('descricao')} label="Descrição" />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>
               )}

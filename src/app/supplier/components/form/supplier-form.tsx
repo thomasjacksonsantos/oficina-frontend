@@ -31,6 +31,7 @@ import { formatPhone } from '@/helpers/formatPhone';
 import { formatBirthDate } from '@/helpers/formatBirthDate';
 import { formatToIso } from '@/helpers/formatDate';
 import { useEffect, useState } from 'react';
+import { formatCpfCnpj } from '@/helpers/formatCpfCnpj';
 
 export default function SupplierForm({
   isOpen,
@@ -87,16 +88,16 @@ export default function SupplierForm({
   // Auto-fill address fields when CEP data arrives
   useEffect(() => {
     if (cepData) {
-      setValue('endereco.logradouro', cepData.logradouro || '', {
+      setValue('endereco.logradouro', cepData.logradouro || ' ', {
         shouldValidate: true,
       });
-      setValue('endereco.bairro', cepData.bairro || '', {
+      setValue('endereco.bairro', cepData.bairro || ' ', {
         shouldValidate: true,
       });
-      setValue('endereco.cidade', cepData.cidade || '', {
+      setValue('endereco.cidade', cepData.cidade || ' ', {
         shouldValidate: true,
       });
-      setValue('endereco.estado', cepData.estado || '', {
+      setValue('endereco.estado', cepData.estado || ' ', {
         shouldValidate: true,
       });
       setValue('endereco.pais', cepData.pais || 'Brasil', {
@@ -182,7 +183,6 @@ export default function SupplierForm({
 
   return (
     <>
-      <Toaster position="top-right" richColors />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
           <DialogHeader>
@@ -230,8 +230,8 @@ export default function SupplierForm({
                       className="rounded-md"
                       maxLength={14}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        setValue('documento', value, { shouldValidate: true });
+                        const masked = formatCpfCnpj(e.target.value);
+                        setValue('documento', masked, { shouldValidate: true });
                       }}
                     />
                     {errors.documento && (

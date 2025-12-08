@@ -2,16 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import AreasApi from "@/api/area.api";
 
 type Params = {
-  page?: number
+  pagina?: number
   q?: string
-  limit?: number
+  totalPagina?: number
   sortField?: string
   sortDirection?: string
   status?: string
 }
 
 // Mock data for demonstration
-const getMockAreasPage = ({ page = 1, limit = 10, q = '' }: Params) => {
+const getMockAreasPage = ({ pagina = 1, totalPagina = 10, q = '' }: Params) => {
   const allAreas = [
     { id: '1', codigo: 'AUTO-001', descricao: 'Automotiva', descricaoEstendida: 'Área dedicada a produtos e serviços automotivos, incluindo lubrificantes, óleos e fluidos para veículos.', garantia: '12', status: 'Ativo' },
     { id: '2', codigo: 'IND-001', descricao: 'Industrial', descricaoEstendida: 'Área para produtos industriais de alta performance, incluindo lubrificantes e graxas para máquinas pesadas.', garantia: '24', status: 'Ativo' },
@@ -38,16 +38,16 @@ const getMockAreasPage = ({ page = 1, limit = 10, q = '' }: Params) => {
       )
     : allAreas;
 
-  const start = (page - 1) * limit;
-  const end = start + limit;
+  const start = (pagina - 1) * totalPagina;
+  const end = start + totalPagina;
   const paginatedData = filtered.slice(start, end);
 
   return {
     dados: paginatedData,
     totalRegistros: filtered.length,
-    paginaAtual: page,
-    itensPorPagina: limit,
-    totalPaginas: Math.ceil(filtered.length / limit),
+    paginaAtual: pagina,
+    itensPorPagina: totalPagina,
+    totalPaginas: Math.ceil(filtered.length / totalPagina),
   };
 };
 
@@ -55,10 +55,10 @@ const getMockAreasPage = ({ page = 1, limit = 10, q = '' }: Params) => {
 const USE_MOCK_DATA = false;
 
 export function useGetAreas(
-  { page, q, limit, sortField, sortDirection, status }: Params = {}
+  { pagina, q, totalPagina, sortField, sortDirection, status }: Params = {}
 ) {
   return useQuery({
-    queryKey: ['getAreas', [{ page, q, limit, sortField, sortDirection, status }]],
+    queryKey: ['getAreas', [{ pagina, q, totalPagina, sortField, sortDirection, status }]],
     queryFn: async ({ signal }) => {
       if (USE_MOCK_DATA) {
         // Simulate API delay
@@ -69,10 +69,10 @@ export function useGetAreas(
           throw new Error('Query cancelled');
         }
         
-        return getMockAreasPage({ page, q, limit, sortField, sortDirection, status });
+        return getMockAreasPage({ pagina, q, totalPagina, sortField, sortDirection, status });
       }
       
-      return AreasApi.getAreas({ page, q, limit, sortField, sortDirection, status }, { signal });
+      return AreasApi.getAreas({ pagina, q, totalPagina, sortField, sortDirection, status }, { signal });
     },
   });
 }

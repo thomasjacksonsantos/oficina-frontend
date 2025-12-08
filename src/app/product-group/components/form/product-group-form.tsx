@@ -113,95 +113,88 @@ export default function ProductGroupForm() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
-      <Dialog
-        open={!!registeringProductGroup}
-        onOpenChange={() => setRegisteringProductGroup(null)}
-      >
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
-          <DialogHeader>
-            <DialogTitle>Grupo de Produtos</DialogTitle>
-          </DialogHeader>
+    <Dialog open={!!registeringProductGroup} onOpenChange={() => setRegisteringProductGroup(null)}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
+        <DialogHeader>
+          <DialogTitle>Grupo de Produtos</DialogTitle>
+        </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Separator className="my-4" />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Separator className="my-4" />
 
-            <div className="space-y-3">
+          <div className="space-y-3">
+            <div className="flex flex-col gap-2">
+              <FloatingInput
+                id="product-group-descricao"
+                {...register('descricao')}
+                label="Descrição"
+                className="rounded-md"
+              />
+              {errors.descricao && (
+                <span className="text-sm text-red-500">{errors.descricao.message}</span>
+              )}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="flex flex-col gap-2">
+                <Select
+                  value={watch('area')}
+                  onValueChange={(value) => setValue('area', value, { shouldValidate: true })}
+                >
+                  <SelectTrigger id="product-group-area" className="rounded-md">
+                    <SelectValue placeholder="Selecione uma área" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {commonAreas.map((area) => (
+                      <SelectItem key={area} value={area}>
+                        {area}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.area && <span className="text-sm text-red-500">{errors.area.message}</span>}
+              </div>
+
               <div className="flex flex-col gap-2">
                 <FloatingInput
-                  id="product-group-descricao"
-                  {...register('descricao')}
-                  label="Descrição"
+                  id="product-group-ncm"
+                  {...register('ncm')}
+                  label="NCM"
+                  className="rounded-md"
+                  maxLength={10}
+                />
+                {errors.ncm && <span className="text-sm text-red-500">{errors.ncm.message}</span>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <FloatingInput
+                  id="product-group-anp"
+                  {...register('anp')}
+                  label="ANP"
                   className="rounded-md"
                 />
-                {errors.descricao && (
-                  <span className="text-sm text-red-500">{errors.descricao.message}</span>
-                )}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="flex flex-col gap-2">
-                  <Select
-                    value={watch('area')}
-                    onValueChange={(value) => setValue('area', value, { shouldValidate: true })}
-                  >
-                    <SelectTrigger id="product-group-area" className="rounded-md">
-                      <SelectValue placeholder="Selecione uma área" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {commonAreas.map((area) => (
-                        <SelectItem key={area} value={area}>
-                          {area}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.area && (
-                    <span className="text-sm text-red-500">{errors.area.message}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-group-ncm"
-                    {...register('ncm')}
-                    label="NCM"
-                    className="rounded-md"
-                    maxLength={10}
-                  />
-                  {errors.ncm && <span className="text-sm text-red-500">{errors.ncm.message}</span>}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-group-anp"
-                    {...register('anp')}
-                    label="ANP"
-                    className="rounded-md"
-                  />
-                  {errors.anp && <span className="text-sm text-red-500">{errors.anp.message}</span>}
-                </div>
+                {errors.anp && <span className="text-sm text-red-500">{errors.anp.message}</span>}
               </div>
             </div>
-            <DialogFooter className="mt-6">
+          </div>
+          <DialogFooter className="mt-6">
+            <div className="flex items-center gap-2 ml-auto">
               <div className="flex items-center gap-2 ml-auto">
-                <div className="flex items-center gap-2 ml-auto">
-                  <Button
-                    variant="secondary"
-                    type="button"
-                    onClick={() => setRegisteringProductGroup(null)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={isPending}>
-                    {isPending ? 'Salvando...' : 'Salvar Veículo'}
-                  </Button>
-                </div>
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => setRegisteringProductGroup(null)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? 'Salvando...' : 'Salvar Veículo'}
+                </Button>
               </div>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+            </div>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

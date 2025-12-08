@@ -10,7 +10,7 @@ interface FloatingInputProps extends React.ComponentProps<'input'> {
 }
 
 const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
-  ({ className, label, type, onChange, inputMode = 'text', ...props }, ref) => {
+  ({ className, label, type, onChange, ...props }, ref) => {
     const internalRef = React.useRef<HTMLInputElement | null>(null);
     const mergedRef = (node: HTMLInputElement) => {
       internalRef.current = node;
@@ -20,28 +20,40 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
 
     const [hasValue, setHasValue] = React.useState(false);
 
-    // Detect initial value and changes caused by reset()
+    // Check if input has value
+    const checkValue = React.useCallback(() => {
+      const input = internalRef.current;
+      if (!input) return;
+      setHasValue(input.value.trim() !== '');
+    }, []);
+
+    // Detect changes using polling for React Hook Form setValue
     React.useEffect(() => {
       const input = internalRef.current;
       if (!input) return;
 
-      const update = () => setHasValue(input.value.trim() !== '');
-
       // Initial check
-      update();
+      checkValue();
 
-      // Listen to input changes
-      input.addEventListener('input', update);
+      // Listen to input changes (user typing)
+      const handleInput = () => checkValue();
+      input.addEventListener('input', handleInput);
+      input.addEventListener('change', handleInput);
 
-      // MutationObserver catches reset() updates
-      const observer = new MutationObserver(update);
-      observer.observe(input, { attributes: true, attributeFilter: ['value'] });
+      // Poll to detect programmatic changes (React Hook Form setValue)
+      const intervalId = setInterval(checkValue, 100);
 
       return () => {
-        input.removeEventListener('input', update);
-        observer.disconnect();
+        input.removeEventListener('input', handleInput);
+        input.removeEventListener('change', handleInput);
+        clearInterval(intervalId);
       };
-    }, []);
+    }, [checkValue]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      checkValue();
+      onChange?.(e);
+    };
 
     return (
       <div className="relative">
@@ -53,7 +65,7 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
             'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
             className
           )}
-          onChange={onChange}
+          onChange={handleChange}
           placeholder=" "
           {...props}
         />
@@ -61,8 +73,8 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
         <label
           className={cn(
             'absolute left-3 text-muted-foreground transition-all duration-200 pointer-events-none select-none',
-            hasValue || inputMode === 'numeric'
-              ? '-top-2 text-xs font-medium bg-card text-white text-ring px-1'
+            hasValue
+              ? '-top-2 text-xs font-medium bg-card px-1'
               : 'top-1/2 -translate-y-1/2 text-sm px-1'
           )}
         >

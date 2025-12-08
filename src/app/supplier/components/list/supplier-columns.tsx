@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 
 type SupplierColumnsProps = {
   onView: (supplier: Supplier) => void;
-  onEdit: (supplier: Supplier) => void;
+  onEdit: (id: string) => void;
   onDelete: (supplier: Supplier) => void;
   onActive: (supplier: string) => void;
   onDeactive: (supplier: string) => void;
@@ -74,7 +74,8 @@ export const createSupplierColumns = ({
     header: 'Status',
     cell: ({ row }) => {
       const supplier = row.original;
-      const isActive = supplier.fornecedorStatus === 'Ativo' || supplier.fornecedorStatus === 'Active';
+      const isActive =
+        supplier.fornecedorStatus === 'Ativo' || supplier.fornecedorStatus === 'Active';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -106,7 +107,7 @@ export const createSupplierColumns = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem onClick={() => onEdit(supplier)}>Editar</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(supplier.id)}>Editar</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-green-600 dark:text-green-500 focus:bg-green-500/10 dark:focus:bg-green-500/20 focus:text-green-600 dark:focus:text-green-500"

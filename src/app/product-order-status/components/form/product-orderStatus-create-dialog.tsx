@@ -26,7 +26,10 @@ interface CreateOrderStatusDialogProps {
   setIsOpen: (open: boolean) => void;
 }
 
-export default function CreateOrderStatusDialog({ isOpen, setIsOpen }: CreateOrderStatusDialogProps) {
+export default function CreateOrderStatusDialog({
+  isOpen,
+  setIsOpen,
+}: CreateOrderStatusDialogProps) {
   const { mutate: createOrderStatus, isPending } = useCreateOrderStatus();
 
   const {
@@ -83,7 +86,7 @@ export default function CreateOrderStatusDialog({ isOpen, setIsOpen }: CreateOrd
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="max-w-md bg-card">
         <DialogHeader>
-          <DialogTitle>Nova Unidade</DialogTitle>
+          <DialogTitle>Nova Status Pedido</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>

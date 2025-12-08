@@ -2,22 +2,35 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { storeSchema, type StoreFormSchema } from './store.schema';
 import { toast, Toaster } from 'sonner';
-import { useGetStore, useUpdateStore, useSearchCep } from './use-store';
+import { useGetStore, useUpdateStore, useSearchCep, useGetCep } from './use-store';
 import { Plus, X, Upload, Loader2 } from 'lucide-react';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { UpdateStoreInput } from '@/api/store.types';
+import { Trash2 } from 'lucide-react';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
+import { StoreContact } from '@/api/store.types';
+import { formatCpfCnpj } from '@/helpers/formatCpfCnpj';
+import { formatPhone } from '@/helpers/formatPhone';
+import { formatCep } from '@/helpers/formatCep';
+import { TipoTelefone } from '@/api/contato.types';
+import { Separator } from '@radix-ui/react-separator';
 
 export default function StoreSettings() {
   const { data: store, isLoading } = useGetStore();
   const { mutate: updateStore, isPending } = useUpdateStore();
-  const { mutate: searchCep, isPending: isSearchingCep } = useSearchCep();
   const [logoPreview, setLogoPreview] = React.useState<string>('');
 
   const {
@@ -30,8 +43,12 @@ export default function StoreSettings() {
     formState: { errors },
   } = useForm<StoreFormSchema>({
     resolver: zodResolver(storeSchema),
+    defaultValues: {
+      contatos: [{ numero: '', tipoTelefone: TipoTelefone.Celular }],
+    },
   });
 
+  const [cep, setCep] = React.useState<string>('');
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'contatos',
@@ -42,11 +59,10 @@ export default function StoreSettings() {
       reset({
         nomeFantasia: store.nomeFantasia || '',
         razaoSocial: store.razaoSocial || '',
-        montadora: store.montadora || '',
         documento: store.documento || '',
         inscricaoEstadual: store.inscricaoEstadual || '',
         inscricaoMunicipal: store.inscricaoMunicipal || '',
-        contatos: store.contatos || [{ tipoTelefone: '', numero: '' }],
+        contatos: store.contatos || [{ tipoTelefone: TipoTelefone.Celular, numero: '' }],
         endereco: {
           cep: store.endereco?.cep || '',
           logradouro: store.endereco?.logradouro || '',
@@ -79,34 +95,44 @@ export default function StoreSettings() {
     }
   };
 
-  const handleCepSearch = () => {
-    const cep = watch('endereco.cep');
-    if (cep && cep.length === 8) {
-      searchCep(cep, {
-        onSuccess: (data) => {
-          setValue('endereco.logradouro', data.logradouro, { shouldValidate: true });
-          setValue('endereco.bairro', data.bairro, { shouldValidate: true });
-          setValue('endereco.cidade', data.cidade, { shouldValidate: true });
-          setValue('endereco.estado', data.estado, { shouldValidate: true });
-          toast.success('Endereço encontrado!');
-        },
-        onError: () => {
-          toast.error('CEP não encontrado');
-        },
+  const { data: cepData, isLoading: isLoadingCep } = useGetCep(cep);
+
+  // Auto-fill address fields when CEP data arrives
+  React.useEffect(() => {
+    if (cepData) {
+      setValue('endereco.logradouro', cepData.logradouro || ' ', {
+        shouldValidate: true,
       });
-    } else {
-      toast.warning('Digite um CEP válido');
+      setValue('endereco.bairro', cepData.bairro || ' ', {
+        shouldValidate: true,
+      });
+      setValue('endereco.cidade', cepData.cidade || ' ', {
+        shouldValidate: true,
+      });
+      setValue('endereco.estado', cepData.estado || ' ', {
+        shouldValidate: true,
+      });
     }
+  }, [cepData, setValue]);
+
+  const handleBuscarCep = () => {
+    const cepValue = watch('endereco.cep').replace(/\D/g, '');
+
+    if (cepValue.length !== 8) {
+      toast.error('CEP inválido. Deve conter 8 dígitos.');
+      return;
+    }
+
+    setCep(cepValue);
   };
 
   const onSubmit = (data: StoreFormSchema) => {
     console.log('Form data before submit:', data);
-    
+
     // Build the update payload
     const updatePayload: UpdateStoreInput = {
       nomeFantasia: data.nomeFantasia,
       razaoSocial: data.razaoSocial,
-      montadora: data.montadora,
       documento: data.documento,
       inscricaoEstadual: data.inscricaoEstadual || undefined,
       inscricaoMunicipal: data.inscricaoMunicipal || undefined,
@@ -121,7 +147,10 @@ export default function StoreSettings() {
 
     console.log('Update payload:', updatePayload);
 
-    updateStore(updatePayload, {
+    updateStore({
+      store: updatePayload,
+      id: store?.id
+    }, {
       onSuccess: () => {
         toast.success('Loja atualizada com sucesso!');
       },
@@ -161,22 +190,10 @@ export default function StoreSettings() {
                 id="razaoSocial"
                 {...register('razaoSocial')}
                 className="rounded-md"
-                label='Razão Social'
+                label="Razão Social"
               />
               {errors.razaoSocial && (
                 <span className="text-sm text-red-500">{errors.razaoSocial.message}</span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <FloatingInput
-                id="montadora"
-                {...register('montadora')}
-                label="Montadora"
-                className="rounded-md"
-              />
-              {errors.montadora && (
-                <span className="text-sm text-red-500">{errors.montadora.message}</span>
               )}
             </div>
           </div>
@@ -191,11 +208,13 @@ export default function StoreSettings() {
                 className="rounded-md"
                 maxLength={14}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  setValue('documento', value, { shouldValidate: true });
+                  const masked = formatCpfCnpj(e.target.value);
+                  setValue('documento', masked, { shouldValidate: true });
                 }}
               />
-              {errors.documento && <span className="text-sm text-red-500">{errors.documento.message}</span>}
+              {errors.documento && (
+                <span className="text-sm text-red-500">{errors.documento.message}</span>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -231,27 +250,27 @@ export default function StoreSettings() {
                 {...register('endereco.cep')}
                 label="CEP"
                 className="rounded-md"
-                maxLength={8}
+                maxLength={9}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
+                  const value = formatCep(e.target.value);
                   setValue('endereco.cep', value, { shouldValidate: true });
                 }}
               />
-              {errors.endereco?.cep && (
-                <span className="text-sm text-red-500">{errors.endereco.cep.message}</span>
-              )}
             </div>
 
             <div className="flex flex-col gap-2 justify-end">
               <Button
                 type="button"
-                onClick={handleCepSearch}
-                disabled={isSearchingCep}
+                onClick={handleBuscarCep}
+                disabled={isLoadingCep}
                 className="rounded-md"
               >
-                {isSearchingCep ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar Cep'}
+                {isLoadingCep ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar Cep'}
               </Button>
             </div>
+            {errors.endereco?.cep && (
+              <span className="text-sm text-red-500">{errors.endereco.cep.message}</span>
+            )}
           </div>
 
           {/* Row 4: Logradouro, Numero, Compl */}
@@ -331,123 +350,145 @@ export default function StoreSettings() {
           </div>
 
           {/* Row 6: Contatos - Tipo, Numero, Delete button */}
-          <div className="space-y-2 mb-4">
-            {fields.map((field, index) => (
-              <div key={field.id} className="grid gap-4 md:grid-cols-[1fr_2fr_auto]">
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    {...register(`contatos.${index}.tipoTelefone`)}
-                    label="Tipo"
-                    className="rounded-md"
+          <div className="space-y-2">
+            <Label>Contato</Label>
+
+            {fields.map((field, idx) => (
+              <div key={field.id} className="flex items-start gap-2">
+                <div className="flex flex-col min-w-32">
+                  <Label className="sr-only">Tipo</Label>
+                  <Controller
+                    control={control}
+                    name={`contatos.${idx}.tipoTelefone`}
+                    render={({ field }) => (
+                      <>
+                        <Select
+                          value={field.value as any}
+                          onValueChange={(v: TipoTelefone) => field.onChange(v as TipoTelefone)}
+                        >
+                          <SelectTrigger className="w-32 rounded-md">
+                            <SelectValue placeholder="Tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={TipoTelefone.Celular}>Celular</SelectItem>
+                            <SelectItem value={TipoTelefone.Telefone}>Telefone</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.contatos?.[idx]?.tipoTelefone && (
+                          <span className="text-sm text-red-500">
+                            {errors.contatos[idx]?.tipoTelefone?.message as string}
+                          </span>
+                        )}
+                      </>
+                    )}
                   />
-                  {errors.contatos?.[index]?.tipoTelefone && (
-                    <span className="text-sm text-red-500">
-                      {errors.contatos[index]?.tipoTelefone?.message}
-                    </span>
-                  )}
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    {...register(`contatos.${index}.numero`)}
-                    label="Numero"
-                    className="rounded-md"
-                    maxLength={11}
+                <div className="flex flex-col flex-1">
+                  <Label className="sr-only">Número</Label>
+                  <Input
+                    inputMode="numeric"
+                    placeholder="(99) 99999-9999"
+                    className="w-full"
+                    {...register(`contatos.${idx}.numero` as const)}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      setValue(`contatos.${index}.numero`, value, { shouldValidate: true });
+                      const masked = formatPhone(e.target.value);
+                      setValue(`contatos.${idx}.numero` as const, masked, {
+                        shouldValidate: true,
+                      });
                     }}
                   />
-                  {errors.contatos?.[index]?.numero && (
+                  {errors.contatos?.[idx]?.numero && (
                     <span className="text-sm text-red-500">
-                      {errors.contatos[index]?.numero?.message}
+                      {errors.contatos[idx]?.numero?.message}
                     </span>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  {index === 0 && <Label className="invisible">Delete</Label>}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => remove(index)}
-                    disabled={fields.length === 1}
-                    className="rounded-md"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button variant="ghost" size="icon" type="button" onClick={() => remove(idx)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             ))}
+            <Separator />
+            <div className="flex items-center justify-between">
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto font-normal"
+                onClick={() => append({ numero: '', tipoTelefone: TipoTelefone.Celular })}
+              >
+                + Add Telefone
+              </Button>
+            </div>
+            <Separator />
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => append({ tipoTelefone: '', numero: '' })}
-              className="rounded-md"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Telefone
-            </Button>
+            {errors.contatos && typeof errors.contatos?.message === 'string' && (
+              <span className="text-sm text-red-500">{errors.contatos.message}</span>
+            )}
           </div>
 
           {/* Row 7: Site/Logo (left), Logo Preview (middle), Buttons (right) */}
-          <div className="grid gap-4 md:grid-cols-[200px_200px_1fr] items-end">
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <FloatingInput
-                  id="site"
-                  {...register('site')}
-                  label="Website"
-                  className="rounded-md"
-                />
-                {errors.site && <span className="text-sm text-red-500">{errors.site.message}</span>}
+          <div className="flex flex-wrap gap-4 justify-between items-end">
+            <div className="flex gap-4">
+              <div className="space-y-4">
+                <div className="flex flex-col gap-2">
+                  <FloatingInput
+                    id="site"
+                    {...register('site')}
+                    label="Website"
+                    className="rounded-md"
+                  />
+                  {errors.site && (
+                    <span className="text-sm text-red-500">{errors.site.message}</span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="logo" className="cursor-pointer">
+                    <div className="flex items-center justify-center h-10 px-4 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Logo
+                    </div>
+                    <input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {errors.logoTipo && (
+                    <span className="text-sm text-red-500">{errors.logoTipo.message}</span>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label htmlFor="logo" className="cursor-pointer">
-                  <div className="flex items-center justify-center h-10 px-4 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Logo
-                  </div>
-                  <input
-                    id="logo"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="hidden"
-                  />
-                </label>
-                {errors.logoTipo && <span className="text-sm text-red-500">{errors.logoTipo.message}</span>}
+                <div className="w-[120px] h-[120px] border-2 border-dashed rounded-lg flex items-center justify-center bg-muted">
+                  {logoPreview ? (
+                    <img
+                      src={logoPreview}
+                      alt="Logo preview"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="text-center text-sm text-muted-foreground">
+                      <Upload className="mx-auto h-8 w-8 mb-2" />
+                      Logo
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <div className="w-[120px] h-[120px] border-2 border-dashed rounded-lg flex items-center justify-center bg-muted">
-                {logoPreview ? (
-                  <img
-                    src={logoPreview}
-                    alt="Logo preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="text-center text-sm text-muted-foreground">
-                    <Upload className="mx-auto h-8 w-8 mb-2" />
-                    Logo
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-center gap-2">
               <Button
                 variant="secondary"
                 type="button"
                 onClick={() => reset()}
                 disabled={isPending}
-                className="rounded-md px-20"
+                className="rounded-md"
               >
                 Voltar
               </Button>
@@ -455,7 +496,7 @@ export default function StoreSettings() {
                 type="button"
                 onClick={handleSubmit(onSubmit)}
                 disabled={isPending}
-                className="rounded-md px-20"
+                className="rounded-md"
               >
                 {isPending ? (
                   <>

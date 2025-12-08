@@ -13,7 +13,7 @@ class ProductGroupsApi extends BaseApi {
     return await this.get<Page<ProductGroup>>(
       `${ENDPOINT}/all`,
       {
-        pagina: queryString?.page,
+        pagina: queryString?.pagina,
         totalPagina: queryString?.limit,
       },
       options
