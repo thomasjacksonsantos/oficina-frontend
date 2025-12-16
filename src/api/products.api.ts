@@ -2,7 +2,7 @@ import { Page } from '@/typings/page.types'
 import { Product, CreateProductInput, UpdateProductInput } from './products.types'
 import { BaseApi } from './base.api';
 
-const ENDPOINT = "/products"
+const ENDPOINT = "v1/products"
 
 class ProductsApi extends BaseApi {
   async getProducts(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {

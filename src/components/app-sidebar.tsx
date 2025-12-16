@@ -1,351 +1,440 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
+import { useEffect } from 'react';
+import { useLocation, Link } from '@tanstack/react-router';
 import {
   AudioWaveform,
   BookOpen,
   Bot,
   Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
-  SquareTerminal,
   User,
-} from "lucide-react"
+  ChevronRight,
+} from 'lucide-react';
+import { IconDashboard } from '@tabler/icons-react';
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavUser } from '@/components/nav-user';
+import { TeamSwitcher } from '@/components/team-switcher';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { IconDashboard } from "@tabler/icons-react"
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+  SidebarMenuCollapsible,
+  useSidebar,
+} from '@/components/ui/sidebar';
 
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: 'shadcn',
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: 'Acme Inc',
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: 'Enterprise',
     },
     {
-      name: "Acme Corp.",
+      name: 'Acme Corp.',
       logo: AudioWaveform,
-      plan: "Startup",
+      plan: 'Startup',
     },
     {
-      name: "Evil Corp.",
+      name: 'Evil Corp.',
       logo: Command,
-      plan: "Free",
+      plan: 'Free',
     },
   ],
   navMain: [
     {
-      title: "Inicio",
-      url: "#",
+      id: 'inicio',
+      title: 'Inicio',
+      url: '#',
       icon: IconDashboard,
       isActive: true,
       items: [
         {
-          title: "Dashboard",
-          url: "/",
-        }
+          title: 'Dashboard',
+          url: '/',
+        },
       ],
     },
     {
-      title: "Dados",
-      url: "#",
+      id: 'dados',
+      title: 'Dados',
+      url: '#',
       icon: User,
       items: [
         {
-          title: "Clientes",
-          url: "/customer",
+          title: 'Clientes',
+          url: '/customer',
         },
         {
-          title: "Veículos",
-          url: "/veiculos",
+          title: 'Veículos',
+          url: '/veiculos',
         },
         {
-          title: "Loja",
-          url: "/loja",
+          title: 'Loja',
+          url: '/loja',
         },
       ],
     },
     {
-      title: "Operações",
-      url: "#",
+      id: 'operacoes',
+      title: 'Operações',
+      url: '#',
       icon: Bot,
       items: [
         {
-          title: "Orçamentos",
-          url: "/orcamento",
+          title: 'Orçamentos',
+          url: '/orcamento',
         },
         {
-          title: "Ordem de Serviço",
-          url: "/service-order",
+          title: 'Ordem de Serviço',
+          url: '/service-order',
         },
         {
-          title: "Nota de Produto (NF-e)",
-          url: "/nota-produto-nfe",
+          title: 'Nota de Produto (NF-e)',
+          url: '/nota-produto-nfe',
         },
         {
-          title: "Nota de Servico (Municipal)",
-          url: "/nota-servico-municipal",
+          title: 'Nota de Servico (Municipal)',
+          url: '/nota-servico-municipal',
         },
         {
-          title: "Cupom Fiscal (NCF-e)",
-          url: "/cupom-fiscal-ncfe",
+          title: 'Cupom Fiscal (NCF-e)',
+          url: '/cupom-fiscal-ncfe',
         },
         {
-          title: "Envio para Contabilidade",
-          url: "/envio-contabilidade",
+          title: 'Envio para Contabilidade',
+          url: '/envio-contabilidade',
         },
       ],
     },
     {
-      title: "Estoque",
-      url: "#",
+      id: 'estoque',
+      title: 'Estoque',
+      url: '#',
       icon: BookOpen,
       items: [
         {
-          title: "Fornecedores",
-          url: "/fornecedores",
+          title: 'Fornecedores',
+          url: '/fornecedores',
         },
         {
-          title: "Grupos de Produtos",
-          url: "/grupos-produtos",
+          title: 'Grupos de Produtos',
+          url: '/grupos-produtos',
         },
         {
-          title: "Áreas de Produtos",
-          url: "/areas-produtos",
+          title: 'Áreas de Produtos',
+          url: '/areas-produtos',
         },
         {
-          title: "Unidades do Produtos",
-          url: "/unidades-produtos",
+          title: 'Unidades do Produtos',
+          url: '/unidades-produtos',
         },
         {
-          title: "Marcas de Produtos",
-          url: "/marcas-produtos",
+          title: 'Marcas de Produtos',
+          url: '/marcas-produtos',
         },
         {
-          title: "Status do Pedido de Compra",
-          url: "/status-pedido-compra",
-        }
+          title: 'Status do Pedido de Compra',
+          url: '/status-pedido-compra',
+        },
       ],
     },
     {
-      title: "Gestão de Estoque",
-      url: "#",
+      id: 'gestao-de-estoque',
+      title: 'Gestão de Estoque',
+      url: '#',
       icon: BookOpen,
       items: [
         {
-          title: "Produtos e Serviços",
-          url: "/produtos-servicos",
+          title: 'Produtos e Serviços',
+          url: '/produtos-servicos',
         },
         {
-          title: "Entrada Manual",
-          url: "/entrada-manual",
+          title: 'Entrada Manual',
+          url: '/entrada-manual',
         },
         {
-          title: "Entrada por NFe",
-          url: "/entrada-por-nfe",
+          title: 'Entrada por Chave de Acesso',
+          url: '/entrada-por-nfe',
         },
         {
-          title: "Correção de Estoque",
-          url: "/correcao-estoque",
+          title: 'Correção de Estoque',
+          url: '/correcao-estoque',
         },
         {
-          title: "Auditoria de Estoque",
-          url: "/auditoria-estoque",
+          title: 'Auditoria de Estoque',
+          url: '/auditoria-estoque',
         },
         {
-          title: "Devolução e Garantia",
-          url: "/devolucao-garantia",
+          title: 'Devolução e Garantia',
+          url: '/devolucao-garantia',
         },
         {
-          title: "Transferência entre Lojas",
-          url: "/transferencia-entre-lojas",
-        },
-      ],
-    },
-    {
-      title: "Financeiro",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "Contas a Pagar",
-          url: "/contas-pagar",
-        },
-        {
-          title: "Pagamento em Lote",
-          url: "/pagamento-em-lote",
-        },
-        {
-          title: "Contas a Receber",
-          url: "/contas-receber",
+          title: 'Transferência entre Lojas',
+          url: '/transferencia-entre-lojas',
         },
       ],
     },
     {
-      title: "Pagamentos Cartão",
-      url: "#",
+      id: 'financeiro',
+      title: 'Financeiro',
+      url: '#',
       icon: Settings2,
       items: [
         {
-          title: "Receber ou Antecipar Pagamento",
-          url: "/receber-antecipar-pagamento",
+          title: 'Contas a Pagar',
+          url: '/contas-pagar',
         },
         {
-          title: "Consulta de Cartões",
-          url: "/consulta-cartoes",
+          title: 'Pagamento em Lote',
+          url: '/pagamento-em-lote',
         },
         {
-          title: "Forma de Pagamento",
-          url: "/forma-pagamento",
-        },
-        {
-          title: "Conta Corrente",
-          url: "/conta-corrente",
-        },
-        {
-          title: "Planos de Conta",
-          url: "/planos-conta",
-        },
-        {
-          title: "Bandeira Cartão",
-          url: "/bandeira-cartao",
+          title: 'Contas a Receber',
+          url: '/contas-receber',
         },
       ],
     },
     {
-      title: "Colaboradores",
-      url: "#",
+      id: 'pagamentos-cartao',
+      title: 'Pagamentos Cartão',
+      url: '#',
       icon: Settings2,
       items: [
         {
-          title: "Funcionários",
-          url: "/funcionarios",
+          title: 'Receber ou Antecipar Pagamento',
+          url: '/receber-antecipar-pagamento',
         },
         {
-          title: "Função",
-          url: "/funcao-de-comissao",
+          title: 'Consulta de Cartões',
+          url: '/consulta-cartoes',
         },
         {
-          title: "Evento",
-          url: "/evento",
+          title: 'Forma de Pagamento',
+          url: '/forma-pagamento',
         },
         {
-          title: "Exames",
-          url: "/exames",
+          title: 'Conta Corrente',
+          url: '/conta-corrente',
+        },
+        {
+          title: 'Planos de Conta',
+          url: '/planos-conta',
+        },
+        {
+          title: 'Bandeira Cartão',
+          url: '/bandeira-cartao',
         },
       ],
     },
     {
-      title: "Comissões",
-      url: "#",
+      id: 'colaboradores',
+      title: 'Colaboradores',
+      url: '#',
       icon: Settings2,
       items: [
         {
-          title: "Calculo por Consultor",
-          url: "/calculo-por-consultor",
+          title: 'Funcionários',
+          url: '/funcionarios',
         },
         {
-          title: "Calculo por Responsável",
-          url: "/calculo-por-responsavel",
+          title: 'Função',
+          url: '/funcao-de-comissao',
         },
         {
-          title: "Parametrizacao por Grupo x Consultar",
-          url: "/parametrizacao-por-grupo-x-consultar",
+          title: 'Evento',
+          url: '/evento',
         },
         {
-          title: "Parametrizacao por Grupo x Responsável",
-          url: "/parametrizacao-por-grupo-x-responsavel",
+          title: 'Exames',
+          url: '/exames',
         },
-        {
-          title: "Parametrizacao por Produto x Consultor",
-          url: "/parametrizacao-por-produto-x-consultor",
-        }
       ],
     },
     {
-      title: "Relatórios",
-      url: "#",
+      id: 'comissoes',
+      title: 'Comissões',
+      url: '#',
       icon: Settings2,
       items: [
         {
-          title: "Monitor SEFAZ (DF-e)",
-          url: "/monitor-sefaz-dfe",
+          title: 'Calculo por Consultor',
+          url: '/calculo-por-consultor',
         },
         {
-          title: "D.R.E. Mensal",
-          url: "/dre-mensal",
+          title: 'Calculo por Responsável',
+          url: '/calculo-por-responsavel',
         },
         {
-          title: "D.R.E. Anual",
-          url: "/dre-anual",
+          title: 'Parametrizacao por Grupo x Consultar',
+          url: '/parametrizacao-por-grupo-x-consultar',
         },
         {
-          title: "Ponto de Equilibrio",
-          url: "/ponto-de-equilibrio",
+          title: 'Parametrizacao por Grupo x Responsável',
+          url: '/parametrizacao-por-grupo-x-responsavel',
         },
         {
-          title: "D.R.F. Mensal",
-          url: "/drf-mensal",
+          title: 'Parametrizacao por Produto x Consultor',
+          url: '/parametrizacao-por-produto-x-consultor',
+        },
+      ],
+    },
+    {
+      id: 'relatorios',
+      title: 'Relatórios',
+      url: '#',
+      icon: Settings2,
+      items: [
+        {
+          title: 'Monitor SEFAZ (DF-e)',
+          url: '/monitor-sefaz-dfe',
         },
         {
-          title: "Relatórios de Rede",
-          url: "/relatorios-rede",
+          title: 'D.R.E. Mensal',
+          url: '/dre-mensal',
+        },
+        {
+          title: 'D.R.E. Anual',
+          url: '/dre-anual',
+        },
+        {
+          title: 'Ponto de Equilibrio',
+          url: '/ponto-de-equilibrio',
+        },
+        {
+          title: 'D.R.F. Mensal',
+          url: '/drf-mensal',
+        },
+        {
+          title: 'Relatórios de Rede',
+          url: '/relatorios-rede',
         },
       ],
     },
   ],
-  // relatorios: [
-  //   {
-  //     name: "Relatórios Financeiros",
-  //     url: "#",
-  //     icon: Frame,
-  //   },
-  //   {
-  //     name: "Sales & Marketing",
-  //     url: "#",
-  //     icon: PieChart,
-  //   },
-  //   {
-  //     name: "Travel",
-  //     url: "#",
-  //     icon: Map,
-  //   },
-  // ],
+};
+
+// Helper function to check if a menu item is active
+function isMenuActive(menuItem: (typeof data.navMain)[0], currentPath: string): boolean {
+  if (menuItem.items) {
+    return menuItem.items.some((item) => item.url === currentPath);
+  }
+  return false;
+}
+
+// Component that automatically expands parent menus based on current route
+function SidebarMenuManager() {
+  const location = useLocation();
+  const { setMenuOpen } = useSidebar();
+
+  useEffect(() => {
+    // Auto-expand parent menu when route matches a submenu item
+    data.navMain.forEach((item) => {
+      if (item.items && isMenuActive(item, location.pathname)) {
+        setMenuOpen(item.id, true);
+      }
+    });
+  }, [location.pathname, setMenuOpen]);
+
+  return null;
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const location = useLocation();
+  const { toggleMenu, openMenus } = useSidebar();
+
   return (
     <Sidebar collapsible="icon" {...props}>
+      <SidebarMenuManager />
+
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
+
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavProjects projects={data.projects} /> */}
+        <SidebarGroup>
+          <SidebarMenu>
+            {data.navMain.map((item) => {
+              const Icon = item.icon;
+              const hasSubItems = item.items && item.items.length > 0;
+              const isOpen = openMenus.has(item.id);
+
+              if (!hasSubItems) {
+                // Simple menu item without submenu (shouldn't happen in this case)
+                return (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                      <Link to={item.url}>
+                        <Icon />
+                        {item.title}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              }
+
+              // Menu item with collapsible submenu
+              return (
+                <SidebarMenuCollapsible key={item.id} menuId={item.id}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => toggleMenu(item.id)}
+                      isActive={isMenuActive(item, location.pathname)}
+                    >
+                      <Icon />
+                      {item.title}
+                      <ChevronRight
+                        className={`ml-auto h-4 w-4 transition-transform ${
+                          isOpen ? 'rotate-90' : ''
+                        }`}
+                      />
+                    </SidebarMenuButton>
+
+                    {isOpen && (
+                      <SidebarMenuSub>
+                        {item.items.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.url}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={location.pathname === subItem.url}
+                              className="block max-w-full truncate"
+                            >
+                              <Link to={subItem.url} className='py-1 px-2'>{subItem.title}</Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    )}
+                  </SidebarMenuItem>
+                </SidebarMenuCollapsible>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

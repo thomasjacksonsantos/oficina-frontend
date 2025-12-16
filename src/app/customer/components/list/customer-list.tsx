@@ -33,7 +33,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   sortColumns?: string[];
   defaultSortField?: string;
-  defaultSortDirection?: "asc" | "desc";
+  defaultSortDirection?: 'asc' | 'desc';
 }
 
 export function CustomerList<TData extends ServiceOrder, TValue>({
@@ -45,8 +45,8 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
   const [inputValue, setInputValue] = useState('')
   const [q, setQ] = useState('')
   const [sortField, setSortField] = useState(defaultSortField);
-  const [sortDirection, setSortDirection] = useState(defaultSortDirection || "desc");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState(defaultSortDirection || 'desc');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const { setViewingCustomer, setEditingCustomer, setDeletingCustomer } = useCustomerContext();
 
   const handlers = useMemo(() => ({
@@ -69,7 +69,7 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
   function handleUpdateSort(field: string) {
     setPagination({ ...pagination, pageIndex: 0 });
     setSortField(field);
-    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
   }
 
   function handleTextareaChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -118,10 +118,7 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
 
   return (
     <>
-      <Toaster
-        richColors
-        position='bottom-right'
-      />
+      <Toaster richColors position="bottom-right" />
 
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <CustomerHeaderList />
@@ -359,39 +356,72 @@ export function CustomerList<TData extends ServiceOrder, TValue>({
                   </PaginationItem>
                 ))}
 
-                <PaginationItem
-                  disabled={!meta.hasNextPage}
-                  title='Próxima'
+            <div className="flex items-center gap-1">
+              {pagesToRender.map((pageNum) => (
+                <Button
+                  key={pageNum}
+                  variant={pageNum === meta.currentPage ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setPage(pageNum)}
+                  className={cn('h-8 w-8 p-0', {
+                    'bg-primary text-primary-foreground hover:bg-primary/90':
+                      pageNum === meta.currentPage,
+                  })}
                 >
-                  <PaginationNext
-                    title='Próxima'
-                    href="#"
-                    onClick={() => setPage(Math.min(meta.totalPages, page + 1))}
-                  >
-                    Próxima
-                  </PaginationNext>
-                </PaginationItem>
-                <PaginationItem disabled={!meta.hasNextPage}>
-                  <PaginationNext
-                    href="#"
-                    title="Última"
-                    onClick={() => setPage(meta.totalPages)}
-                  >
-                  </PaginationNext>
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </footer>
-          <div className='mt-4 flex justify-center'>
-            <p className="flex text-sm font-bold">
-              Página {meta.currentPage} de {meta.totalPages} com{" "}
-              {meta.totalItems} resultados
-            </p>
+                  {pageNum}
+                </Button>
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(Math.min(meta.totalPages, page + 1))}
+              disabled={!meta.hasNextPage}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Próxima página</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(meta.totalPages)}
+              disabled={!meta.hasNextPage}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Última página</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="13 17 18 12 13 7"></polyline>
+                <polyline points="6 17 11 12 6 7"></polyline>
+              </svg>
+            </Button>
           </div>
         </>
       )
       } */}
     </>
-  )
+  );
 }
-
