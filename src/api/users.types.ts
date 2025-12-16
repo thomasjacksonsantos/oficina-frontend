@@ -3,6 +3,7 @@ import { TipoTelefone } from "./contato.types";
 export type User = {
     id: string;
     nome: string;
+    email: string;
     documento: string;
     sexo: Sexo;
     dataNascimento: string;

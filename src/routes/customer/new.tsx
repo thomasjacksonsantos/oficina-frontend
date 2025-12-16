@@ -16,5 +16,5 @@ export const Route = createFileRoute("/customer/new")({
 });
 
 function NewCustomerComponent() {
-  return <CustomerForm />;
+  return <CustomerForm setIsOpen={() => {}} />;
 }

@@ -87,6 +87,7 @@ export function DataTable<TData, TValue>({
       ),
   });
 
+  // @ts-ignore
   const { items, metadata } = React.useMemo<DataTableData<TData>>(() => {
     if (!data?.items) {
       return {
@@ -241,7 +242,7 @@ export function DataTable<TData, TValue>({
           <footer className="w-full mt-6 flex justify-center items-center">
             <Pagination>
               <PaginationContent>
-                <PaginationItem disabled={!metadata.hasPreviousPage}>
+                <PaginationItem>
                   <PaginationPrevious
                     href="#"
                     title="Primeira"
@@ -249,7 +250,7 @@ export function DataTable<TData, TValue>({
                     defaultValue={"thomas"}
                   ></PaginationPrevious>
                 </PaginationItem>
-                <PaginationItem disabled={!metadata.hasPreviousPage}>
+                <PaginationItem>
                   <PaginationPrevious
                     href="#"
                     title="Anterior"
@@ -272,7 +273,7 @@ export function DataTable<TData, TValue>({
                 ))}
 
                 <PaginationItem
-                  disabled={!metadata.hasNextPage}
+                  // disabled={!metadata.hasNextPage}
                   title="Próxima"
                 >
                   <PaginationNext
@@ -283,7 +284,8 @@ export function DataTable<TData, TValue>({
                     Próxima
                   </PaginationNext>
                 </PaginationItem>
-                <PaginationItem disabled={!metadata.hasNextPage}>
+                {/* <PaginationItem disabled={!metadata.hasNextPage}> */}
+                <PaginationItem >
                   <PaginationNext
                     href="#"
                     title="Última"

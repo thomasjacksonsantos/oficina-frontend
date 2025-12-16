@@ -34,7 +34,7 @@ export type Customer = {
 };
 
 // Input types for creating/updating
-export type CreateCustomerInput = Omit<Customer, 'id' | 'criado' | 'atualizado'> & {
+export type CreateCustomerInput = Omit<Customer, 'id' | 'criado' | 'atualizado' | 'clienteStatus'> & {
   id?: string; // Optional for creation
 };
 

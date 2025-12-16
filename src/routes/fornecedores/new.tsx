@@ -16,5 +16,5 @@ export const Route = createFileRoute('/fornecedores/new')({
 });
 
 function NewSupplierComponent() {
-  return <SupplierForm />;
+  return <SupplierForm isOpen={true} setIsOpen={() => {}} />;
 }
