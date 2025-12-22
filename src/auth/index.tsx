@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth'
 import { flushSync } from 'react-dom'
 import { auth } from '@/firebase/config'
+import usersApi from '@/api/users.api'
 
 export type AuthContextType = {
   isAuthenticated: boolean
@@ -50,13 +51,14 @@ export function AuthContextProvider({
       await signOut(auth)
       setUser(null)
       setIsInitialLoading(false)
+      localStorage.removeItem('userContext')
       window.location.href = '/login'
     } catch (error) {
       console.error('Error during logout:', error)
     }
   }, [])
 
-  const login = React.useCallback(async (provider: AuthProvider) => {    
+  const login = React.useCallback(async (provider: AuthProvider) => {
     const result = await signInWithPopup(auth, provider)
     flushSync(() => {
       setUser(result.user)
@@ -69,8 +71,12 @@ export function AuthContextProvider({
     flushSync(() => {
       setUser(result.user)
       setIsInitialLoading(false)
-      window.location.href = '/login'
     })
+
+    var userContext = await usersApi.getUsuarioContext()
+    localStorage.setItem('userContext', JSON.stringify(userContext))
+
+    window.location.href = '/login'
   }, [])
 
   return (

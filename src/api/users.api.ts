@@ -25,6 +25,10 @@ class UsersApi extends BaseApi {
   async validarEmailExistente(email: string) {
     return this.get<ValidarEmailExistente>(`${ENDPOINT}/email-existente?valor=${email}`);
   }
+
+  async getUsuarioContext() {
+    return this.get<User>(`${ENDPOINT}/contexto`);
+  }  
 }
 
 export default new UsersApi() as UsersApi
