@@ -62,8 +62,15 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
 
   const { items, meta } = React.useMemo(() => {
     return {
-      items: data?.items || [],
-      meta: data?.meta || { page: 1, totalPages: 1, total: 0, currentPage: 1, hasNextPage: false, hasPreviousPage: false, limit: 10, totalItems: 0 }
+      items: data?.dados || [],
+      meta: {
+        page: data?.paginaAtual || 1,
+        totalPages: data?.totalPaginas || 1,
+        total: data?.totalRegistros || 0,
+        currentPage: data?.paginaAtual || 1,
+        limit: 10,
+        totalItems: data?.totalRegistros || 0,
+      }
     };
   }, [data]);
 
@@ -109,7 +116,7 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
   }
 
   const table = useReactTable({
-    data: (items || []) as TData[],
+    data: (items || []) as any[],
     columns: cols,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -240,7 +247,9 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
           >
             <Pagination>
               <PaginationContent>
-                <PaginationItem disabled={!meta.hasPreviousPage}>
+                <PaginationItem
+                // disabled={!meta.hasPreviousPage}
+                >
                   <PaginationPrevious
                     href="#"
                     title="Primeira"
@@ -248,7 +257,9 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
                   >
                   </PaginationPrevious>
                 </PaginationItem>
-                <PaginationItem disabled={!meta.hasPreviousPage}>
+                <PaginationItem
+                // disabled={!meta.hasPreviousPage}
+                >
                   <PaginationPrevious
                     href="#"
                     title="Anterior"
@@ -272,7 +283,7 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
                 ))}
 
                 <PaginationItem
-                  disabled={!meta.hasNextPage}
+                  // disabled={!meta.hasNextPage}
                   title='Próxima'
                 >
                   <PaginationNext
@@ -283,7 +294,8 @@ export function ServiceOrderList<TData extends ServiceOrder, TValue>({
                     Próxima
                   </PaginationNext>
                 </PaginationItem>
-                <PaginationItem disabled={!meta.hasNextPage}>
+                {/* <PaginationItem disabled={!meta.hasNextPage}> */}
+                <PaginationItem>
                   <PaginationNext
                     href="#"
                     title="Última"

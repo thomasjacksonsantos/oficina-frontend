@@ -3,6 +3,7 @@ import { TipoTelefone } from "./contato.types";
 export type User = {
     id: string;
     nome: string;
+    email: string;
     documento: string;
     sexo: Sexo;
     dataNascimento: string;
@@ -34,5 +35,10 @@ export enum Sexo {
 
 export type ValidarDocumento = {
     documentoValido: boolean;
+    mensagem: string;
+}
+
+export type ValidarEmailExistente = {
+    emailExistente: boolean;
     mensagem: string;
 }

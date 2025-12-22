@@ -13,6 +13,20 @@ axios.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+        // Recupera o id da conta do localStorage
+    try {
+      const userContext = localStorage.getItem('userContext');
+      if (userContext) {
+        const parsed = JSON.parse(userContext);
+        const contaId = parsed?.conta?.id;
+        if (contaId) {
+          config.headers['x-conta-id'] = contaId; // Header customizado
+        }
+      }
+    } catch (e) {
+      // Se der erro no parse, ignora e não envia o header
+    }
+    
     return config;
   },
   (error) => {

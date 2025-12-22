@@ -53,6 +53,10 @@ export default function CustomerForm({
     resolver: zodResolver(customerSchema),
     defaultValues: {
       dataNascimento: '',
+      emailCliente: '',
+      nome: '',
+      razaoSocial: '',
+      documento: '',
       contatos: [{ numero: '', tipoTelefone: TipoTelefone.Celular }],
       endereco: {
         cep: '',

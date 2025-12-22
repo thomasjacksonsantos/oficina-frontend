@@ -3,6 +3,7 @@
 export interface OrderStatus {
   id: string;
   descricao: string;
+  status: string;
   statusPedidoCompraStatus?: string;
 }
 
