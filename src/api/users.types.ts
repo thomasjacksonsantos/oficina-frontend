@@ -37,3 +37,8 @@ export type ValidarDocumento = {
     documentoValido: boolean;
     mensagem: string;
 }
+
+export type ValidarEmailExistente = {
+    emailExistente: boolean;
+    mensagem: string;
+}
