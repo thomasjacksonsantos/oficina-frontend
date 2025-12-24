@@ -1,21 +1,14 @@
+import { TipoTelefone } from "@/api/contato.types";
 import { z } from "zod";
 
 export const onlyDigits = (s: string) => s.replace(/\D/g, "");
 
 export const phoneSchema = z.object({
-  ddd: z
-    .string()
-    .min(2, "DDD inválido")
-    .max(3, "DDD inválido")
-    .regex(/^\d+$/, "Apenas números"),
   number: z
     .string()
-    .min(8, "Telefone inválido")
-    .max(11, "Telefone inválido")
-    .regex(/^\d+$/, "Apenas números"),
-  phoneType: z.enum(["Celular", "Residencial"], {
-    required_error: "Tipo é obrigatório",
-  }),
+    .min(14, "Telefone inválido")
+    .max(15, "Telefone inválido"),
+  phoneType: z.nativeEnum(TipoTelefone),
 });
 
 export const onboardingSchema = z

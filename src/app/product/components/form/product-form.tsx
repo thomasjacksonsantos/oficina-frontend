@@ -132,7 +132,7 @@ export default function ProductForm() {
 
   return (
     <Dialog open={!!registeringProduct} onOpenChange={() => setRegisteringProduct(null)}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
         <DialogHeader>
           <DialogTitle>Novo Produto</DialogTitle>
         </DialogHeader>

@@ -1,3 +1,5 @@
+import { TipoTelefone } from "@/api/contato.types";
+
 export interface SignUpParams {
   nome: string;
   tipoDocumento: "Cpf" | "Cnpj";
@@ -35,9 +37,8 @@ export interface Store {
 }
 
 export interface Contact {
-  ddd: string;
   numero: string;
-  tipoTelefone: "Celular" | "Residencial";
+  tipoTelefone: TipoTelefone;
 }
 
 export interface Address {

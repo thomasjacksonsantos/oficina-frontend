@@ -2,11 +2,11 @@ import { Page } from '@/typings/page.types';
 import { BaseApi } from './base.api';
 import { CreateProductInput, Product, UpdateProductInput } from './product.types';
 
-const ENDPOINT = 'v1/products';
+const ENDPOINT = 'v1/produtoss';
 
 class ProductsApi extends BaseApi {
   async getProducts(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {
-    return await this.get<Page<Product>>(`${ENDPOINT}/all`, queryString, options);
+    return await this.get<Page<Product>>(`${ENDPOINT}`, queryString, options);
   }
 
   async getProductById(id: string) {

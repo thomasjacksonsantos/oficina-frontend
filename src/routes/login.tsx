@@ -7,7 +7,6 @@ import * as React from 'react'
 import { redirect, useRouter, useRouterState } from '@tanstack/react-router'
 
 import { useAuth } from '@/auth'
-import { siApple, siGithub, siGoogle } from 'simple-icons'
 
 import {
   GoogleAuthProvider,

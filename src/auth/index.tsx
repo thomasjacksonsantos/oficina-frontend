@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from 'react';
 
 import {
   onAuthStateChanged,
@@ -7,71 +7,74 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   signOut,
-} from 'firebase/auth'
-import { flushSync } from 'react-dom'
-import { auth } from '@/firebase/config'
+} from 'firebase/auth';
+import { flushSync } from 'react-dom';
+import { auth } from '@/firebase/config';
+import usersApi from '@/api/users.api';
 
 export type AuthContextType = {
-  isAuthenticated: boolean
-  isInitialLoading: boolean
-  login: (provider: AuthProvider) => Promise<void>
-  loginWithEmailAndPassword: (email: string, password: string) => Promise<void>
-  logout: () => Promise<void>
-  user: User | null
-}
+  isAuthenticated: boolean;
+  isInitialLoading: boolean;
+  login: (provider: AuthProvider) => Promise<void>;
+  loginWithEmailAndPassword: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  user: User | null;
+};
 
-const AuthContext = React.createContext<AuthContextType | null>(null)
+const AuthContext = React.createContext<AuthContextType | null>(null);
 
-export function AuthContextProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const [user, setUser] = React.useState<User | null>(auth.currentUser)
-  const [isInitialLoading, setIsInitialLoading] = React.useState(true)
-  const isAuthenticated = !!user
+export function AuthContextProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = React.useState<User | null>(auth.currentUser);
+  const [isInitialLoading, setIsInitialLoading] = React.useState(true);
+  const isAuthenticated = !!user;
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       flushSync(() => {
-        setUser(user)
-        setIsInitialLoading(false)
-      })
-    })
-    return () => unsubscribe()
-  }, [])
+        setUser(user);
+        setIsInitialLoading(false);
+      });
+    });
+    return () => unsubscribe();
+  }, []);
 
   const logout = React.useCallback(async () => {
-    console.log('Logging out...')
+    console.log('Logging out...');
 
     try {
-      console.log('Calling signOut...')
-      console.log('Auth object:', auth)
-      await signOut(auth)
-      setUser(null)
-      setIsInitialLoading(false)
-      window.location.href = '/login'
+      console.log('Calling signOut...');
+      console.log('Auth object:', auth);
+      await signOut(auth);
+      setUser(null);
+      setIsInitialLoading(false);
+      localStorage.removeItem('userContext');
+      window.location.href = '/login';
     } catch (error) {
-      console.error('Error during logout:', error)
+      console.error('Error during logout:', error);
     }
-  }, [])
+  }, []);
 
-  const login = React.useCallback(async (provider: AuthProvider) => {    
-    const result = await signInWithPopup(auth, provider)
+  const login = React.useCallback(async (provider: AuthProvider) => {
+    const result = await signInWithPopup(auth, provider);
     flushSync(() => {
-      setUser(result.user)
-      setIsInitialLoading(false)
-    })
-  }, [])
+      setUser(result.user);
+      setIsInitialLoading(false);
+    });
+  }, []);
 
   const loginWithEmailAndPassword = React.useCallback(async (email: string, password: string) => {
-    const result = await signInWithEmailAndPassword(auth, email, password)
+    const result = await signInWithEmailAndPassword(auth, email, password);
     flushSync(() => {
-      setUser(result.user)
-      setIsInitialLoading(false)
-      window.location.href = '/login'
-    })
-  }, [])
+      setUser(result.user);
+      setIsInitialLoading(false);
+    });
+
+    var userContext = await usersApi.getUsuarioContext();
+    console.log(userContext);
+    localStorage.setItem('userContext', JSON.stringify(userContext));
+
+    window.location.href = '/login';
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -79,13 +82,13 @@ export function AuthContextProvider({
     >
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {
-  const context = React.useContext(AuthContext)
+  const context = React.useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
+  return context;
 }

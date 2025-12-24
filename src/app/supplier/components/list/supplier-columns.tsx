@@ -63,7 +63,7 @@ export const createSupplierColumns = ({
     header: 'Contato',
     cell: ({ row }) => {
       const supplier = row.original;
-      const firstContact = supplier.contatos[0];
+      const firstContact = supplier?.contatos?.[0];
       if (!firstContact) return <div>-</div>;
       return <div>{firstContact.numero}</div>;
     },
