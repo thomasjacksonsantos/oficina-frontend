@@ -41,7 +41,7 @@ export default function SupplierHeaderList() {
         )}
       </ResponsiveDialog>
       <EditSupplierForm />
-      <ViewSupplierForm />
+      {/* <ViewSupplierForm /> */}
       <SupplierForm
         isOpen={registeringSupplier || false}
         setIsOpen={setRegisteringSupplier}

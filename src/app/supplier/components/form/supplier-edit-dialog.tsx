@@ -108,12 +108,12 @@ export default function SupplierEditDialog() {
           : '',
         emailFornecedor: editingSupplier.emailFornecedor || '',
         site: editingSupplier.site || '',
-        contatos: editingSupplier.contatos.map((contatos) => ({
+        contatos: editingSupplier?.contatos?.map((contatos) => ({
           ...contatos,
           numero: formatPhone(contatos.numero),
         })) || [{ numero: '', tipoTelefone: 'Comercial' }],
         endereco: {
-          cep: formatCep(editingSupplier.endereco?.cep) || '',
+          cep: formatCep(editingSupplier.endereco?.cep || ''),
           logradouro: editingSupplier.endereco?.logradouro || '',
           numero: editingSupplier.endereco?.numero || '',
           complemento: editingSupplier.endereco?.complemento || '',

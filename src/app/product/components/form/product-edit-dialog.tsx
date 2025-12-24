@@ -38,46 +38,53 @@ export default function ProductEditDialog() {
     resolver: zodResolver(productSchema),
   });
 
-React.useEffect(() => {
-  if (editingProduct) {
-    reset({
-      descricao: editingProduct.descricao || '',
-      aplicacao: editingProduct.aplicacao || '',
-      referencia: editingProduct.referencia || '',
-      codigoBarra: editingProduct.codigoBarra || '',
-      marca: editingProduct.marca || '',
-      grupo: editingProduct.grupo || '',
-      observacao: editingProduct.observacao || '',
-      dadosComplementares: {
-        fornecedor: editingProduct.dadosComplementares.fornecedor || '',
-        endereco: editingProduct.dadosComplementares.endereco || '',
-        statusProduto: editingProduct.dadosComplementares.statusProduto || 'Ativo',
-        estoque: editingProduct.dadosComplementares.estoque || 0,
-        tipoUnidade: editingProduct.dadosComplementares.tipoUnidade || '',
-      },
-      dadosFiscalProduto: {
-        origemMercadoria: editingProduct.dadosFiscalProduto.origemMercadoria || '',
-        NCM: editingProduct.dadosFiscalProduto.NCM || '',
-        ANP: editingProduct.dadosFiscalProduto.ANP || '',
-        regraEspecificaParaEsteItem: editingProduct.dadosFiscalProduto.regraEspecificaParaEsteItem || '',
-      },
-      preco: {
-        compra: editingProduct.preco.compra || 0,
-        venda: editingProduct.preco.venda || 0,
-        custo: editingProduct.preco.custo || 0,
-        compraFixo: editingProduct.preco.compraFixo || 0,
-        dataCompra: editingProduct.preco.dataCompra?.split('T')[0] || new Date().toISOString().split('T')[0],
-        dataVenda: editingProduct.preco.dataVenda?.split('T')[0] || new Date().toISOString().split('T')[0],
-        dataCusto: editingProduct.preco.dataCusto?.split('T')[0] || new Date().toISOString().split('T')[0],
-        dataCompraFixo: editingProduct.preco.dataCompraFixo?.split('T')[0] || new Date().toISOString().split('T')[0],
-      },
-      markup: {
-        produto: editingProduct.markup.produto || 0,
-        grupo: editingProduct.markup.grupo || 0,
-      },
-    });
-  }
-}, [editingProduct, reset]);
+  React.useEffect(() => {
+    if (editingProduct) {
+      reset({
+        descricao: editingProduct.descricao || '',
+        aplicacao: editingProduct.aplicacao || '',
+        referencia: editingProduct.referencia || '',
+        codigoBarra: editingProduct.codigoBarra || '',
+        marca: editingProduct.marca || '',
+        grupo: editingProduct.grupo || '',
+        observacao: editingProduct.observacao || '',
+        dadosComplementares: {
+          fornecedor: editingProduct.dadosComplementares.fornecedor || '',
+          endereco: editingProduct.dadosComplementares.endereco || '',
+          statusProduto: editingProduct.dadosComplementares.statusProduto || 'Ativo',
+          estoque: editingProduct.dadosComplementares.estoque || 0,
+          tipoUnidade: editingProduct.dadosComplementares.tipoUnidade || '',
+        },
+        dadosFiscalProduto: {
+          origemMercadoria: editingProduct.dadosFiscalProduto.origemMercadoria || '',
+          NCM: editingProduct.dadosFiscalProduto.NCM || '',
+          ANP: editingProduct.dadosFiscalProduto.ANP || '',
+          regraEspecificaParaEsteItem:
+            editingProduct.dadosFiscalProduto.regraEspecificaParaEsteItem || '',
+        },
+        preco: {
+          compra: editingProduct.preco.compra || 0,
+          venda: editingProduct.preco.venda || 0,
+          custo: editingProduct.preco.custo || 0,
+          compraFixo: editingProduct.preco.compraFixo || 0,
+          dataCompra:
+            editingProduct.preco.dataCompra?.split('T')[0] ||
+            new Date().toISOString().split('T')[0],
+          dataVenda:
+            editingProduct.preco.dataVenda?.split('T')[0] || new Date().toISOString().split('T')[0],
+          dataCusto:
+            editingProduct.preco.dataCusto?.split('T')[0] || new Date().toISOString().split('T')[0],
+          dataCompraFixo:
+            editingProduct.preco.dataCompraFixo?.split('T')[0] ||
+            new Date().toISOString().split('T')[0],
+        },
+        markup: {
+          produto: editingProduct.markup.produto || 0,
+          grupo: editingProduct.markup.grupo || 0,
+        },
+      });
+    }
+  }, [editingProduct, reset]);
 
   const onSubmit = (data: CreateProductSchema) => {
     if (!editingProduct?.id) {
@@ -130,7 +137,7 @@ React.useEffect(() => {
 
   return (
     <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
         <DialogHeader>
           <DialogTitle>Editar Produto</DialogTitle>
         </DialogHeader>
@@ -140,11 +147,7 @@ React.useEffect(() => {
 
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <FloatingInput
-                id="edit-descricao"
-                {...register('descricao')}
-                label="Descrição"
-              />
+              <FloatingInput id="edit-descricao" {...register('descricao')} label="Descrição" />
               {errors.descricao && (
                 <span className="text-sm text-red-500">{errors.descricao.message}</span>
               )}
@@ -168,7 +171,7 @@ React.useEffect(() => {
                   id="edit-valor-venda"
                   {...register('preco.venda', { valueAsNumber: true })}
                   label="Valor Venda"
-                  type='number'
+                  type="number"
                 />
                 {errors.preco?.venda && (
                   <span className="text-sm text-red-500">{errors.preco.venda.message}</span>

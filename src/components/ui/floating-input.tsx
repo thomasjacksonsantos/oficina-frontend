@@ -24,10 +24,10 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
     // Convert YYYY-MM-DD to DD/MM/YYYY for display
     const formatDateForDisplay = (value: string) => {
       if (!value) return '';
-      
+
       // Extract date part only (remove timestamp if present)
       const datePart = value.split('T')[0];
-      
+
       const [year, month, day] = datePart.split('-');
       return `${day}/${month}/${year}`;
     };
@@ -39,24 +39,24 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
       return strValue.split('T')[0];
     };
 
-    // Check if input has value
+    // Check if input has value, prefer using controlled `value` prop when available
     const checkValue = React.useCallback(() => {
       const input = internalRef.current;
-      if (!input) return;
-      const hasVal = input.value.trim() !== '';
+      const currentVal = value ?? input?.value ?? '';
+      const hasVal = String(currentVal).trim() !== '';
       setHasValue(hasVal);
-      
+
       // Update display value for date inputs
       if (type === 'date') {
         if (hasVal) {
-          setDisplayValue(formatDateForDisplay(input.value));
+          setDisplayValue(formatDateForDisplay(String(currentVal)));
         } else {
           setDisplayValue('');
         }
       }
-    }, [type]);
+    }, [type, value]);
 
-    // Detect changes using polling for React Hook Form setValue
+    // Listen to DOM input/change events for immediate user typing feedback
     React.useEffect(() => {
       const input = internalRef.current;
       if (!input) return;
@@ -66,19 +66,20 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
 
       // Listen to input changes (user typing)
       const handleInput = () => checkValue();
-      
+
       input.addEventListener('input', handleInput);
       input.addEventListener('change', handleInput);
-
-      // Poll to detect programmatic changes (React Hook Form setValue)
-      const intervalId = setInterval(checkValue, 100);
 
       return () => {
         input.removeEventListener('input', handleInput);
         input.removeEventListener('change', handleInput);
-        clearInterval(intervalId);
       };
     }, [checkValue]);
+
+    // Also respond immediately when the controlled `value` prop changes (e.g., react-hook-form setValue)
+    React.useEffect(() => {
+      checkValue();
+    }, [value, checkValue]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       checkValue();
@@ -94,7 +95,8 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
           className={cn(
             'file:text-foreground placeholder:text-transparent selection:bg-primary selection:text-primary-foreground bg-transparent border-input peer h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base shadow-xs transition-[color,box-shadow,border-color] outline-none disabled:opacity-50 md:text-sm',
             'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-            type === 'date' && '[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:cursor-pointer',
+            type === 'date' &&
+              '[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:cursor-pointer',
             className
           )}
           onChange={handleChange}
