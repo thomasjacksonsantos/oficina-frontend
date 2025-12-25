@@ -15,11 +15,12 @@ export const createEntradaColumns = ({
 }: EntradaColumnsProps): ColumnDef<NotaFiscalListItem>[] => [
   {
     id: 'nf',
-    accessorKey: 'id',
+    accessorKey: 'nf',
     header: 'NF',
     cell: ({ row }) => {
       const notaFiscal = row.original;
-      return <div className="font-medium">{notaFiscal.id.substring(0, 8)}</div>;
+      const nfValue = notaFiscal.nf ?? (notaFiscal.id ? notaFiscal.id.substring(0, 8) : '');
+      return <div className="font-medium">{nfValue}</div>;
     },
   },
   {
@@ -72,12 +73,10 @@ export const createEntradaColumns = ({
       const notaFiscal = row.original;
       return (
         <div className="text-sm">
-          {new Date(notaFiscal.criado).toLocaleString('pt-BR', {
+          {new Date(notaFiscal.criado).toLocaleDateString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
           })}
         </div>
       );
@@ -91,12 +90,10 @@ export const createEntradaColumns = ({
       const notaFiscal = row.original;
       return (
         <div className="text-sm">
-          {new Date(notaFiscal.atualizado).toLocaleString('pt-BR', {
+          {new Date(notaFiscal.atualizado).toLocaleDateString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
           })}
         </div>
       );

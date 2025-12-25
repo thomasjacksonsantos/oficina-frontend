@@ -12,6 +12,8 @@ interface FloatingInputProps extends React.ComponentProps<'input'> {
 const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
   ({ className, label, type, onChange, value, ...props }, ref) => {
     const internalRef = React.useRef<HTMLInputElement | null>(null);
+    const hiddenDateRef = React.useRef<HTMLInputElement | null>(null);
+
     const mergedRef = (node: HTMLInputElement) => {
       internalRef.current = node;
       if (typeof ref === 'function') ref(node);
@@ -30,6 +32,18 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
 
       const [year, month, day] = datePart.split('-');
       return `${day}/${month}/${year}`;
+    };
+
+    // Convert DD/MM/YYYY to YYYY-MM-DD
+    const formatDateForValue = (display: string) => {
+      const cleaned = display.replace(/\D/g, '');
+      if (cleaned.length === 8) {
+        const day = cleaned.slice(0, 2);
+        const month = cleaned.slice(2, 4);
+        const year = cleaned.slice(4, 8);
+        return `${year}-${month}-${day}`;
+      }
+      return '';
     };
 
     // Strip timestamp from value
@@ -81,48 +95,153 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
       checkValue();
     }, [value, checkValue]);
 
+    // Handle manual text input for date (DD/MM/YYYY format)
+    const handleDisplayInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+      let input = e.target.value.replace(/\D/g, '');
+      input = input.slice(0, 8);
+
+      let formatted = '';
+      if (input.length > 0) {
+        formatted = input.slice(0, 2);
+        if (input.length > 2) {
+          formatted += '/' + input.slice(2, 4);
+        }
+        if (input.length > 4) {
+          formatted += '/' + input.slice(4, 8);
+        }
+      }
+
+      setDisplayValue(formatted);
+      setHasValue(formatted.length > 0);
+
+      // Convert to YYYY-MM-DD and trigger onChange
+      const standardDate = formatDateForValue(formatted);
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: standardDate,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange?.(syntheticEvent);
+    };
+
+    // Handle hidden date picker change
+    const handleDatePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const pickerValue = e.target.value;
+      setDisplayValue(formatDateForDisplay(pickerValue));
+      setHasValue(!!pickerValue);
+
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: pickerValue,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange?.(syntheticEvent);
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       checkValue();
       onChange?.(e);
     };
+
+    // Open date picker when calendar icon is clicked
+    const openDatePicker = () => {
+      hiddenDateRef.current?.showPicker?.();
+    };
+
+    // Special handling for date type
+    if (type === 'date') {
+      return (
+        <div className="relative">
+          {/* Visible text input for manual DD/MM/YYYY entry */}
+          <input
+            ref={mergedRef}
+            type="text"
+            value={displayValue}
+            onChange={handleDisplayInput}
+            className={cn(
+              'file:text-foreground placeholder:text-transparent selection:bg-primary selection:text-primary-foreground bg-transparent border-input peer h-9 w-full min-w-0 rounded-md border px-3 py-1 pr-10 text-base shadow-xs transition-[color,box-shadow,border-color] outline-none disabled:opacity-50 md:text-sm',
+              'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+              className
+            )}
+            placeholder=" "
+            {...props}
+          />
+
+          {/* Hidden native date input for picker */}
+          <input
+            ref={hiddenDateRef}
+            type="date"
+            value={getDateOnly(value)}
+            onChange={handleDatePickerChange}
+            className="absolute opacity-0 pointer-events-none"
+            tabIndex={-1}
+          />
+
+          {/* Calendar icon button */}
+          <button
+            type="button"
+            onClick={openDatePicker}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            tabIndex={-1}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+              <line x1="16" x2="16" y1="2" y2="6" />
+              <line x1="8" x2="8" y1="2" y2="6" />
+              <line x1="3" x2="21" y1="10" y2="10" />
+            </svg>
+          </button>
+
+          {/* Placeholder when empty */}
+          {!displayValue && (
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-sm text-muted-foreground">
+              dd/mm/yyyy
+            </div>
+          )}
+
+          <label
+            className={cn(
+              'absolute left-3 text-muted-foreground transition-all duration-200 pointer-events-none select-none',
+              hasValue
+                ? '-top-2 text-xs font-medium bg-card px-1'
+                : 'top-1/2 -translate-y-1/2 text-sm px-1'
+            )}
+          >
+            {label}
+          </label>
+        </div>
+      );
+    }
 
     return (
       <div className="relative">
         <input
           ref={mergedRef}
           type={type}
-          value={type === 'date' ? getDateOnly(value) : value}
+          value={value}
           className={cn(
             'file:text-foreground placeholder:text-transparent selection:bg-primary selection:text-primary-foreground bg-transparent border-input peer h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base shadow-xs transition-[color,box-shadow,border-color] outline-none disabled:opacity-50 md:text-sm',
             'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-            type === 'date' &&
-              '[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:cursor-pointer',
             className
           )}
           onChange={handleChange}
           placeholder=" "
-          style={
-            type === 'date'
-              ? {
-                  color: 'transparent',
-                  WebkitAppearance: 'none',
-                  MozAppearance: 'textfield',
-                }
-              : undefined
-          }
           {...props}
         />
-
-        {/* Display formatted date overlay or placeholder */}
-        {type === 'date' && (
-          <div className="absolute inset-0 flex items-center px-3 pr-10 pointer-events-none">
-            {displayValue ? (
-              <span className="text-sm text-foreground">{displayValue}</span>
-            ) : (
-              <span className="text-sm text-muted-foreground">dd/mm/yyyy</span>
-            )}
-          </div>
-        )}
 
         <label
           className={cn(

@@ -46,6 +46,7 @@ export default function ImportarNotaDialog() {
   const { data: gruposProdutos } = useGetGruposProdutos();
   const { data: unidadesProdutos } = useGetUnidadesProdutos();
   const { mutate: getNotaFiscal } = useGetNotaFiscal();
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
   // When importingNotaFiscal changes, fetch full details
   useEffect(() => {
@@ -89,18 +90,35 @@ export default function ImportarNotaDialog() {
       [field]: value,
     };
 
-    // Auto-calculate markup when valorVenda or valorUnitario changes
-    if (field === 'valorVenda' || field === 'valorUnitario') {
-      const produto = newProdutos[index];
-      const valorVenda = field === 'valorVenda' ? Number(value) : Number(produto.valorVenda || 0);
-      const valorUnitario =
-        field === 'valorUnitario' ? Number(value) : Number(produto.valorUnitario);
+    const produto = newProdutos[index];
 
-      if (valorVenda > 0 && valorUnitario > 0) {
-        // Formula: ((ValorVenda - ValorUnitario) / ValorVenda) × 100
-        const markup = ((valorVenda - valorUnitario) / valorVenda) * 100;
-        newProdutos[index].markup = Number(markup.toFixed(2));
+    // Parse numbers safely
+    const valorVendaNum = Number(produto.valorVenda ?? 0);
+    const valorUnitarioNum = Number(produto.valorUnitario ?? 0);
+    const quantidadeNum = Number(produto.quantidade ?? 0);
+
+    // Recalculate valorTotal when unit price or quantity changes
+    if (field === 'valorUnitario' || field === 'quantidade') {
+      newProdutos[index].valorTotal = Number((valorUnitarioNum * quantidadeNum).toFixed(2));
+    }
+
+    // Auto-calculate markup when valorVenda or valorUnitario (or quantity) changes
+    if (field === 'valorVenda' || field === 'valorUnitario' || field === 'quantidade') {
+      const valorVenda = Number(produto.valorVenda ?? 0);
+      const valorUnitario = Number(produto.valorUnitario ?? 0);
+
+      let markup = 0;
+
+      // If valorUnitario is zero or not finite, avoid division by zero
+      if (!isFinite(valorVenda) || !isFinite(valorUnitario) || valorUnitario === 0) {
+        markup = 0;
+      } else {
+        // Use valorUnitario (cost) as base for markup: ((Venda - Custo) / Custo) * 100
+        markup = ((valorVenda - valorUnitario) / valorVenda) * 100;
+        console.log(valorVenda, valorUnitario);
       }
+
+      newProdutos[index].markup = Number(markup.toFixed(2));
     }
 
     setProdutos(newProdutos);
@@ -151,7 +169,28 @@ export default function ImportarNotaDialog() {
           handleClose();
         },
         onError: (error: any) => {
-          const errorMessage = error.response?.data?.message || 'Erro ao salvar produtos';
+          const errorData = error.response?.data;
+
+          // If the API returned structured validation errors, show them in an alert and toast
+          if (errorData?.errors) {
+            // Flatten messages into a list
+            const messages: string[] = [];
+            Object.entries(errorData.errors).forEach(([field, msgs]) => {
+              if (Array.isArray(msgs) && msgs.length) {
+                msgs.forEach((m) => messages.push(`${field}: ${m}`));
+              } else if (typeof msgs === 'string') {
+                messages.push(`${field}: ${msgs}`);
+              }
+            });
+
+            if (messages.length) {
+              setValidationErrors(messages);
+              toast.error('Erro de validação nos dados');
+              return;
+            }
+          }
+
+          const errorMessage = errorData?.message || 'Erro ao salvar produtos';
           toast.error(errorMessage);
         },
       }
@@ -162,6 +201,7 @@ export default function ImportarNotaDialog() {
     setViewingNotaFiscal(null);
     setImportingNotaFiscal(null);
     setProdutos([]);
+    setValidationErrors(null);
   };
 
   if (!viewingNotaFiscal) return null;
@@ -170,50 +210,69 @@ export default function ImportarNotaDialog() {
 
   return (
     <Dialog open={!!viewingNotaFiscal} onOpenChange={handleClose}>
-      <DialogContent className="sm:max max-h-[95vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Importar Nota Fiscal</DialogTitle>
+      <DialogContent className="w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-[98vw] sm:max-w-[95vw] lg:max-w-7xl h-[calc(100vh-1rem)] sm:h-[calc(100vh-2rem)] max-h-[98vh] sm:max-h-[95vh] p-3 sm:p-4 md:p-6 overflow-hidden flex flex-col bg-card">
+        <DialogHeader className="space-y-1 sm:space-y-2 flex-shrink-0">
+          <DialogTitle className="text-base sm:text-lg md:text-xl">
+            Importar Nota Fiscal
+          </DialogTitle>
         </DialogHeader>
 
-        <Separator className="my-4" />
+        <Separator className="my-2 sm:my-3 md:my-4 flex-shrink-0" />
 
-        <div className="space-y-6">
+        {validationErrors && validationErrors.length > 0 && (
+          <div className="mb-2 rounded-md border border-red-200 bg-red-50 p-3">
+            <div className="text-sm font-semibold text-red-700">Erros de validação</div>
+            <ul className="mt-1 text-sm text-red-600 list-disc list-inside">
+              {validationErrors.map((m, i) => (
+                <li key={i}>{m}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 md:space-y-6 px-1">
           {/* Top Section - N. Nota, Natureza da Operação, Chave de acesso */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">N. Nota</Label>
-              <div className="border rounded-md px-3 py-2 bg-muted/30">
-                <span className="text-sm">{dadosNotaFiscal.numeroNota}</span>
+              <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                <span className="text-xs sm:text-sm break-all">{dadosNotaFiscal.numeroNota}</span>
               </div>
             </div>
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">Natureza da Operação</Label>
-              <div className="border rounded-md px-3 py-2 bg-muted/30">
-                <span className="text-sm">{dadosNotaFiscal.naturezaOperacao}</span>
+              <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                <span className="text-xs sm:text-sm break-words">
+                  {dadosNotaFiscal.naturezaOperacao}
+                </span>
               </div>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 sm:col-span-2 lg:col-span-1">
               <Label className="text-xs text-muted-foreground">Chave de acesso</Label>
-              <div className="border rounded-md px-3 py-2 bg-muted/30">
-                <span className="text-sm font-mono text-xs">{dadosNotaFiscal.chaveAcesso}</span>
+              <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                <span className="text-[10px] sm:text-xs md:text-sm font-mono break-all">
+                  {dadosNotaFiscal.chaveAcesso}
+                </span>
               </div>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="hidden sm:block" />
 
           {/* Destinatário e CPF/CNPJ */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">Destinatário</Label>
-              <div className="border rounded-md px-3 py-2 bg-muted/30">
-                <span className="text-sm">{dadosNotaFiscal.destinatario.razaoSocial || '-'}</span>
+              <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                <span className="text-xs sm:text-sm break-words">
+                  {dadosNotaFiscal.destinatario.razaoSocial || '-'}
+                </span>
               </div>
             </div>
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">CPF/CNPJ</Label>
-              <div className="border rounded-md px-3 py-2 bg-muted/30">
-                <span className="text-sm">
+              <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                <span className="text-xs sm:text-sm">
                   {dadosNotaFiscal.destinatario.documento
                     ? formatCpfCnpj(dadosNotaFiscal.destinatario.documento)
                     : '-'}
@@ -222,53 +281,55 @@ export default function ImportarNotaDialog() {
             </div>
           </div>
 
-          <Separator />
+          <Separator className="hidden sm:block" />
 
           {/* Emitente Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Emitente</h3>
+          <div className="space-y-2 sm:space-y-3">
+            <h3 className="text-xs sm:text-sm font-semibold">Emitente</h3>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Razão Social</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">{dadosNotaFiscal.emitente.razaoSocial}</span>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm break-words">
+                    {dadosNotaFiscal.emitente.razaoSocial}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">CPF/CNPJ</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {formatCpfCnpj(dadosNotaFiscal.emitente.documento)}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Data de Emissão</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {new Date(dadosNotaFiscal.dataEmissao).toLocaleDateString('pt-BR')}
                   </span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Data de Saída/Entrada</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {new Date(dadosNotaFiscal.dataSaida).toLocaleDateString('pt-BR')}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Endereço</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm break-words">
                     {dadosNotaFiscal.emitente.logradouro ||
                       dadosNotaFiscal.emitente.endereco ||
                       '-'}
@@ -277,41 +338,49 @@ export default function ImportarNotaDialog() {
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Número</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">{dadosNotaFiscal.emitente.numero || '-'}</span>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
+                    {dadosNotaFiscal.emitente.numero || '-'}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Bairro</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">{dadosNotaFiscal.emitente.bairro}</span>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm break-words">
+                    {dadosNotaFiscal.emitente.bairro}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Cep</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">{formatCep(dadosNotaFiscal.emitente.cep)}</span>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
+                    {formatCep(dadosNotaFiscal.emitente.cep)}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Município</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">{dadosNotaFiscal.emitente.municipio}</span>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm break-words">
+                    {dadosNotaFiscal.emitente.municipio}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">UF</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">{dadosNotaFiscal.emitente.uf}</span>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">{dadosNotaFiscal.emitente.uf}</span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Telefone</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {dadosNotaFiscal.emitente.telefone
                       ? formatPhone(dadosNotaFiscal.emitente.telefone)
                       : '-'}
@@ -320,8 +389,8 @@ export default function ImportarNotaDialog() {
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Ins. Estadual</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm break-all">
                     {dadosNotaFiscal.emitente.inscricaoEstadual || '-'}
                   </span>
                 </div>
@@ -330,8 +399,8 @@ export default function ImportarNotaDialog() {
 
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">Hora de Saída/Entrada</Label>
-              <div className="border rounded-md px-3 py-2 bg-muted/30">
-                <span className="text-sm">
+              <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                <span className="text-xs sm:text-sm">
                   {new Date(dadosNotaFiscal.horaSaida).toLocaleTimeString('pt-BR')}
                 </span>
               </div>
@@ -340,22 +409,24 @@ export default function ImportarNotaDialog() {
             {dadosNotaFiscal.informacoesComplementares && (
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Informações complementares</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30 min-h-[60px]">
-                  <span className="text-sm">{dadosNotaFiscal.informacoesComplementares}</span>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30 min-h-[60px]">
+                  <span className="text-xs sm:text-sm break-words">
+                    {dadosNotaFiscal.informacoesComplementares}
+                  </span>
                 </div>
               </div>
             )}
           </div>
 
-          <Separator />
+          <Separator className="hidden sm:block" />
 
           {/* Tax Calculations Section */}
-          <div className="space-y-3">
-            <div className="grid gap-4 md:grid-cols-4">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Base de Cálculo ICMS</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <Label className="text-xs text-muted-foreground">Base Cálculo ICMS</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.baseCalculoICMS.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -365,8 +436,8 @@ export default function ImportarNotaDialog() {
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Valor ICMS</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.valorICMS.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -375,9 +446,9 @@ export default function ImportarNotaDialog() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Base de Cálculo ICMS ST</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <Label className="text-xs text-muted-foreground">Base Cálculo ICMS ST</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.baseCalculoICMSST.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -386,9 +457,9 @@ export default function ImportarNotaDialog() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Valor do ICMS Subs</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <Label className="text-xs text-muted-foreground">Valor ICMS Subs</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.valorICMSSub.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -398,11 +469,11 @@ export default function ImportarNotaDialog() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Valor do Frete</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <Label className="text-xs text-muted-foreground">Valor Frete</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.valorFrete.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -411,9 +482,9 @@ export default function ImportarNotaDialog() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Valor do Seguro</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <Label className="text-xs text-muted-foreground">Valor Seguro</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.valorSeguro.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -423,8 +494,8 @@ export default function ImportarNotaDialog() {
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Desconto</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.desconto.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -434,8 +505,8 @@ export default function ImportarNotaDialog() {
               </div>
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Outras Despesas</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.outrasDespesas.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -445,11 +516,11 @@ export default function ImportarNotaDialog() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs text-muted-foreground">Valor IPI</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.valorIPI.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -458,9 +529,9 @@ export default function ImportarNotaDialog() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Valor Total dos Impostos</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <Label className="text-xs text-muted-foreground">Total Impostos</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.valorTotalImpostos.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -469,9 +540,9 @@ export default function ImportarNotaDialog() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Valor Total dos Produtos</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm">
+                <Label className="text-xs text-muted-foreground">Total Produtos</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm">
                     {calculoImpostos.valorTotalProdutos.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -480,9 +551,9 @@ export default function ImportarNotaDialog() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-xs text-muted-foreground">Valor Total da Nota</Label>
-                <div className="border rounded-md px-3 py-2 bg-muted/30">
-                  <span className="text-sm font-semibold">
+                <Label className="text-xs text-muted-foreground font-semibold">Total Nota</Label>
+                <div className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 bg-muted/30">
+                  <span className="text-xs sm:text-sm font-semibold">
                     {calculoImpostos.valorTotalNotaFiscal.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -493,245 +564,253 @@ export default function ImportarNotaDialog() {
             </div>
           </div>
 
-          <Separator />
+          <Separator className="hidden sm:block" />
 
-          {/* Products Table with NEW COLUMNS */}
-          <div className="space-y-3">
+          {/* Products Table - FULLY RESPONSIVE WITH HORIZONTAL SCROLL */}
+          <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground italic">
-                Preencha o preço de venda para calcular o markup automaticamente
+              <span className="text-[10px] sm:text-xs text-muted-foreground italic">
+                Preencha o preço de venda para calcular o markup
               </span>
             </div>
 
-            <div className="border rounded-lg overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left p-2 font-semibold text-xs">Referência</th>
-                    <th className="text-left p-2 font-semibold text-xs">Descrição</th>
-                    <th className="text-left p-2 font-semibold text-xs">Grupo de Produto</th>
-                    <th className="text-left p-2 font-semibold text-xs">Tipo Unidade</th>
-                    <th className="text-left p-2 font-semibold text-xs">Qtd</th>
-                    <th className="text-left p-2 font-semibold text-xs">Qtd Entrada</th>
-                    <th className="text-left p-2 font-semibold text-xs">Unitário</th>
-                    <th className="text-left p-2 font-semibold text-xs">Total</th>
-                    <th className="text-left p-2 font-semibold text-xs">Frete</th>
-                    <th className="text-left p-2 font-semibold text-xs">Desconto</th>
-                    <th className="text-left p-2 font-semibold text-xs">Imposto</th>
-                    <th className="text-left p-2 font-semibold text-xs">Venda</th>
-                    <th className="text-left p-2 font-semibold text-xs">Markup</th>
-                    <th className="text-left p-2 font-semibold text-xs">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {produtos.map((produto, index) => {
-                    const valorUnitarioNum = Number(produto.valorUnitario || 0);
-                    const valorTotalNum = Number(produto.valorTotal || 0);
-                    const freteDespesasNum = Number(produto.freteDespesas || 0);
-                    const descontoNum = Number(produto.desconto || 0);
-                    const impostoNum = Number(produto.imposto || 0);
-                    const quantidadeNum = Number(produto.quantidade || 0);
-                    const valorVendaNum = Number(produto.valorVenda || 0);
-                    const markupNum = Number(produto.markup || 0);
+            {/* Scrollable Table Container */}
+            <div
+              className="border rounded-lg overflow-x-auto -mx-1 sm:mx-0"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full text-xs sm:text-sm">
+                  <thead className="bg-muted sticky top-0 z-10">
+                    <tr>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[80px]">
+                        Ref
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[150px]">
+                        Descrição
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[100px]">
+                        Grupo
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[80px]">
+                        Unidade
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[70px]">
+                        Qtd Ent
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[70px]">
+                        Unit.
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[70px]">
+                        Total
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[60px]">
+                        Frete
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[60px]">
+                        Desc
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[60px]">
+                        Imp
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[80px] bg-green-50 dark:bg-green-950/20">
+                        Venda
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[60px] bg-green-50 dark:bg-green-950/20">
+                        Markup
+                      </th>
+                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[40px] sticky right-0 bg-muted">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {produtos.map((produto, index) => {
+                      const valorUnitarioNum = Number(produto.valorUnitario || 0);
+                      const valorTotalNum = Number(produto.valorTotal || 0);
+                      const freteDespesasNum = Number(produto.freteDespesas || 0);
+                      const descontoNum = Number(produto.desconto || 0);
+                      const impostoNum = Number(produto.imposto || 0);
+                      const quantidadeNum = Number(produto.quantidade || 0);
+                      const valorVendaNum = Number(produto.valorVenda || 0);
+                      const markupNum = Number(produto.markup || 0);
 
-                    return (
-                      <tr key={index} className="border-t hover:bg-muted/50">
-                        {/* Referência - Editable */}
-                        <td className="p-2">
-                          <Input
-                            value={produto.codigo}
-                            onChange={(e) => handleProdutoChange(index, 'codigo', e.target.value)}
-                            className="h-8 text-xs min-w-[100px]"
-                          />
-                        </td>
-
-                        {/* Descrição - Editable */}
-                        <td className="p-2">
-                          <Input
-                            value={produto.descricao}
-                            onChange={(e) =>
-                              handleProdutoChange(index, 'descricao', e.target.value)
-                            }
-                            className="h-8 text-xs min-w-[200px]"
-                          />
-                        </td>
-
-                        {/* Grupo de Produto - Dropdown */}
-                        <td className="p-2">
-                          <Select
-                            value={produto.grupoProdutoId}
-                            onValueChange={(value) =>
-                              handleProdutoChange(index, 'grupoProdutoId', value)
-                            }
-                          >
-                            <SelectTrigger className="h-8 text-xs min-w-[120px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {gruposProdutos?.dados.map((grupo) => (
-                                <SelectItem key={grupo.id} value={grupo.id}>
-                                  {grupo.id}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </td>
-
-                        {/* Tipo Unidade - Dropdown */}
-                        <td className="p-2">
-                          <Select
-                            value={produto.unidadeProdutoId}
-                            onValueChange={(value) =>
-                              handleProdutoChange(index, 'unidadeProdutoId', value)
-                            }
-                          >
-                            <SelectTrigger className="h-8 text-xs min-w-[100px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {unidadesProdutos?.dados?.map((unidade) => (
-                                <SelectItem key={unidade.id} value={unidade.id}>
-                                  {unidade.id}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </td>
-
-                        {/* Qtd - Editable */}
-                        <td className="p-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={quantidadeNum}
-                            onChange={(e) =>
-                              handleProdutoChange(index, 'quantidade', parseFloat(e.target.value))
-                            }
-                            className="h-8 text-xs w-20"
-                          />
-                        </td>
-
-                        {/* Qtd Entrada - Editable (NEW) */}
-                        <td className="p-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={quantidadeNum}
-                            onChange={(e) =>
-                              handleProdutoChange(index, 'quantidade', parseFloat(e.target.value))
-                            }
-                            className="h-8 text-xs w-20"
-                            title="Quantidade da entrada - pode ser alterada"
-                          />
-                        </td>
-
-                        {/* Unitário - Read-only (CHANGED) */}
-                        <td className="p-2">
-                          <span className="text-xs">
-                            {valorUnitarioNum.toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            })}
-                          </span>
-                        </td>
-
-                        {/* Total - Read-only */}
-                        <td className="p-2">
-                          <span className="text-xs font-medium">
-                            {valorTotalNum.toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            })}
-                          </span>
-                        </td>
-
-                        {/* Frete - Read-only */}
-                        <td className="p-2">
-                          <span className="text-xs">
-                            {freteDespesasNum.toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            })}
-                          </span>
-                        </td>
-
-                        {/* Desconto - Read-only */}
-                        <td className="p-2">
-                          <span className="text-xs">
-                            {descontoNum.toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            })}
-                          </span>
-                        </td>
-
-                        {/* Imposto - Read-only */}
-                        <td className="p-2">
-                          <span className="text-xs">
-                            {impostoNum.toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            })}
-                          </span>
-                        </td>
-
-                        {/* Venda - Editable (NEW) */}
-                        <td className="p-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={valorVendaNum || ''}
-                            onChange={(e) =>
-                              handleProdutoChange(
-                                index,
-                                'valorVenda',
-                                parseFloat(e.target.value) || 0
-                              )
-                            }
-                            className="h-8 text-xs w-24"
-                            placeholder="Preço venda"
-                            title="Preço de venda - preencha este valor"
-                          />
-                        </td>
-
-                        {/* Markup - Auto-calculated (CHANGED) */}
-                        <td className="p-2">
-                          <span className="text-xs font-medium text-green-600">
-                            {markupNum ? `${markupNum.toFixed(2)}%` : '0.00%'}
-                          </span>
-                        </td>
-
-                        {/* Ações - Delete button */}
-                        <td className="p-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => {
-                              const newProdutos = produtos.filter((_, i) => i !== index);
-                              setProdutos(newProdutos);
-                            }}
-                          >
-                            ×
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                      return (
+                        <tr key={index} className="border-t hover:bg-muted/50">
+                          <td className="p-1 sm:p-2">
+                            <Input
+                              value={produto.codigo}
+                              onChange={(e) => handleProdutoChange(index, 'codigo', e.target.value)}
+                              className="h-7 sm:h-8 text-[10px] sm:text-xs w-full min-w-[80px]"
+                            />
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <Input
+                              value={produto.descricao}
+                              onChange={(e) =>
+                                handleProdutoChange(index, 'descricao', e.target.value)
+                              }
+                              className="h-7 sm:h-8 text-[10px] sm:text-xs w-full min-w-[150px]"
+                            />
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <Select
+                              value={produto.grupoProdutoId}
+                              onValueChange={(value) =>
+                                handleProdutoChange(index, 'grupoProdutoId', value)
+                              }
+                            >
+                              <SelectTrigger className="h-7 sm:h-8 text-[10px] sm:text-xs w-full min-w-[100px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {gruposProdutos?.dados.map((grupo) => (
+                                  <SelectItem key={grupo.id} value={grupo.id}>
+                                    {grupo.descricao}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <Select
+                              value={produto.unidadeProdutoId}
+                              onValueChange={(value) =>
+                                handleProdutoChange(index, 'unidadeProdutoId', value)
+                              }
+                            >
+                              <SelectTrigger className="h-7 sm:h-8 text-[10px] sm:text-xs w-full min-w-[80px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {unidadesProdutos?.dados?.map((unidade) => (
+                                  <SelectItem key={unidade.id} value={unidade.id}>
+                                    {unidade.descricao}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={quantidadeNum}
+                              onChange={(e) =>
+                                handleProdutoChange(index, 'quantidade', parseFloat(e.target.value))
+                              }
+                              className="h-7 sm:h-8 text-[10px] sm:text-xs w-[70px]"
+                              title="Qtd entrada"
+                            />
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <span className="text-[10px] sm:text-xs whitespace-nowrap">
+                              {valorUnitarioNum.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </span>
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <span className="text-[10px] sm:text-xs font-medium whitespace-nowrap">
+                              {valorTotalNum.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </span>
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <span className="text-[10px] sm:text-xs whitespace-nowrap">
+                              {freteDespesasNum.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </span>
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <span className="text-[10px] sm:text-xs whitespace-nowrap">
+                              {descontoNum.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </span>
+                          </td>
+                          <td className="p-1 sm:p-2">
+                            <span className="text-[10px] sm:text-xs whitespace-nowrap">
+                              {impostoNum.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </span>
+                          </td>
+                          <td className="p-1 sm:p-2 bg-green-50/50 dark:bg-green-950/10">
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={valorVendaNum || ''}
+                              onChange={(e) =>
+                                handleProdutoChange(
+                                  index,
+                                  'valorVenda',
+                                  parseFloat(e.target.value) || 0
+                                )
+                              }
+                              className="h-7 sm:h-8 text-[10px] sm:text-xs w-[80px]"
+                              placeholder="0.00"
+                              title="Preço venda"
+                            />
+                          </td>
+                          <td className="p-1 sm:p-2 bg-green-50/50 dark:bg-green-950/10">
+                            <span className="text-[10px] sm:text-xs font-medium text-green-600 whitespace-nowrap">
+                              {markupNum ? `${markupNum.toFixed(2)}%` : '0%'}
+                            </span>
+                          </td>
+                          <td className="p-1 sm:p-2 sticky right-0 bg-background">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-red-500 hover:text-red-700"
+                              onClick={() => {
+                                const newProdutos = produtos.filter((_, i) => i !== index);
+                                setProdutos(newProdutos);
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
+
+            {/* Scroll hint for mobile */}
+            <p className="text-[10px] text-muted-foreground text-center sm:hidden">
+              ← Deslize horizontalmente para ver todas as colunas →
+            </p>
           </div>
         </div>
 
-        <DialogFooter className="mt-6">
-          <Button variant="outline" type="button" onClick={handleClose} disabled={isPending}>
+        <DialogFooter className="mt-3 sm:mt-4 md:mt-6 flex-col sm:flex-row gap-2 flex-shrink-0">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={handleClose}
+            disabled={isPending}
+            className="w-full sm:w-auto text-xs sm:text-sm h-8 sm:h-9"
+          >
             Voltar
           </Button>
-          <Button onClick={handleSalvar} disabled={isPending}>
+          <Button
+            onClick={handleSalvar}
+            disabled={isPending}
+            className="w-full sm:w-auto text-xs sm:text-sm h-8 sm:h-9"
+          >
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                 Salvando...
               </>
             ) : (

@@ -2,6 +2,7 @@
 
 export type NotaFiscalListItem = {
   id: string;
+  nf?: string;
   chaveAcesso: string;
   cnpjFornecedor: string;
   notaFiscalStatus: string;

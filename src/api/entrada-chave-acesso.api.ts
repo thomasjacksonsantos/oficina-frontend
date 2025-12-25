@@ -17,13 +17,35 @@ const PRODUTOS_ENDPOINT = 'v1/produtos';
 
 class EntradaChaveAcessoApi extends BaseApi {
   async getNotasFiscais(queryString?: Record<string, any>, options?: { signal?: AbortSignal }) {
+    // Build params: keep pagina and totalPagina, merge other top-level keys and
+    // expand `q` object properties to top-level params so backend receives
+    // each filter as its own query param (e.g. `codigo=...&nDocumento=...`).
+    const params: Record<string, any> = {
+      pagina: queryString?.page,
+      totalPagina: queryString?.limit,
+    };
+
+    if (queryString) {
+      // Copy other top-level keys (sortField, sortDirection, etc.)
+      Object.entries(queryString).forEach(([key, value]) => {
+        if (key === 'page' || key === 'limit' || key === 'q') return;
+        if (value !== undefined) params[key] = value;
+      });
+
+      // If q is an object, expand its keys to top-level params
+      if (typeof queryString.q === 'object' && queryString.q !== null) {
+        Object.entries(queryString.q).forEach(([k, v]) => {
+          if (v !== undefined) params[k] = v;
+        });
+      } else if (queryString.q !== undefined) {
+        // Keep primitive q as-is
+        params.q = queryString.q;
+      }
+    }
+
     return await this.get<Page<NotaFiscalListItem>>(
       `${ENDPOINT}/chaves-acesso-consultado`,
-      {
-        pagina: queryString?.page,
-        totalPagina: queryString?.limit,
-        q: queryString?.q,
-      },
+      params,
       options
     );
   }
