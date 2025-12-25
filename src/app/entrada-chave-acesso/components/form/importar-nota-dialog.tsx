@@ -24,6 +24,8 @@ import {
 } from '@/app/entrada-chave-acesso/api';
 import { Loader2 } from 'lucide-react';
 import { Input, FloatingInput } from '@/components/ui';
+import { Badge } from '@/components/ui/badge';
+import { IconCircleCheckFilled } from '@tabler/icons-react';
 import {
   Select,
   SelectContent,
@@ -92,30 +94,43 @@ export default function ImportarNotaDialog() {
 
     const produto = newProdutos[index];
 
-    // Parse numbers safely
-    const valorVendaNum = Number(produto.valorVenda ?? 0);
+    // Current unit price and quantity
     const valorUnitarioNum = Number(produto.valorUnitario ?? 0);
     const quantidadeNum = Number(produto.quantidade ?? 0);
 
+    // If the user changed valorVenda, enforce minimum equal to unit price and keep 2 decimals
+    if (field === 'valorVenda') {
+      const raw = Number(value);
+      let enforced = isFinite(raw) ? raw : valorUnitarioNum;
+      if (enforced < valorUnitarioNum) enforced = valorUnitarioNum;
+      newProdutos[index].valorVenda = Number(enforced.toFixed(2));
+    }
+
     // Recalculate valorTotal when unit price or quantity changes
     if (field === 'valorUnitario' || field === 'quantidade') {
-      newProdutos[index].valorTotal = Number((valorUnitarioNum * quantidadeNum).toFixed(2));
+      const valorUnitario = Number(newProdutos[index].valorUnitario ?? 0);
+      const quantidade = Number(newProdutos[index].quantidade ?? 0);
+      newProdutos[index].valorTotal = Number((valorUnitario * quantidade).toFixed(2));
+
+      // Ensure valorVenda is not below updated unit price
+      if (Number(newProdutos[index].valorVenda ?? 0) < valorUnitario) {
+        newProdutos[index].valorVenda = Number(valorUnitario.toFixed(2));
+      }
     }
 
     // Auto-calculate markup when valorVenda or valorUnitario (or quantity) changes
     if (field === 'valorVenda' || field === 'valorUnitario' || field === 'quantidade') {
-      const valorVenda = Number(produto.valorVenda ?? 0);
-      const valorUnitario = Number(produto.valorUnitario ?? 0);
+      const valorVenda = Number(newProdutos[index].valorVenda ?? 0);
+      const valorUnitario = Number(newProdutos[index].valorUnitario ?? 0);
 
       let markup = 0;
 
-      // If valorUnitario is zero or not finite, avoid division by zero
+      // Avoid division by zero and non-finite values
       if (!isFinite(valorVenda) || !isFinite(valorUnitario) || valorUnitario === 0) {
         markup = 0;
       } else {
-        // Use valorUnitario (cost) as base for markup: ((Venda - Custo) / Custo) * 100
-        markup = ((valorVenda - valorUnitario) / valorVenda) * 100;
-        console.log(valorVenda, valorUnitario);
+        // Use unit price as base: ((Venda - Custo) / Custo) * 100
+        markup = ((valorVenda - valorUnitario) / valorUnitario) * 100;
       }
 
       newProdutos[index].markup = Number(markup.toFixed(2));
@@ -212,9 +227,25 @@ export default function ImportarNotaDialog() {
     <Dialog open={!!viewingNotaFiscal} onOpenChange={handleClose}>
       <DialogContent className="w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-[98vw] sm:max-w-[95vw] lg:max-w-7xl h-[calc(100vh-1rem)] sm:h-[calc(100vh-2rem)] max-h-[98vh] sm:max-h-[95vh] p-3 sm:p-4 md:p-6 overflow-hidden flex flex-col bg-card">
         <DialogHeader className="space-y-1 sm:space-y-2 flex-shrink-0">
-          <DialogTitle className="text-base sm:text-lg md:text-xl">
-            Importar Nota Fiscal
-          </DialogTitle>
+          <div className="flex items-center gap-3">
+            <DialogTitle className="text-base sm:text-lg md:text-xl">
+              Importar Nota Fiscal
+            </DialogTitle>
+
+            {importingNotaFiscal?.notaFiscalStatus && (
+              <Badge
+                variant="outline"
+                className="text-muted-foreground px-2 flex items-center gap-2"
+              >
+                {importingNotaFiscal.notaFiscalStatus === 'Importado' ? (
+                  <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
+                ) : (
+                  <IconCircleCheckFilled className="fill-yellow-500 dark:fill-yellow-400" />
+                )}
+                {importingNotaFiscal.notaFiscalStatus}
+              </Badge>
+            )}
+          </div>
         </DialogHeader>
 
         <Separator className="my-2 sm:my-3 md:my-4 flex-shrink-0" />
@@ -619,9 +650,6 @@ export default function ImportarNotaDialog() {
                       <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[60px] bg-green-50 dark:bg-green-950/20">
                         Markup
                       </th>
-                      <th className="text-left p-1.5 sm:p-2 font-semibold text-[10px] sm:text-xs whitespace-nowrap min-w-[40px] sticky right-0 bg-muted">
-                        Ações
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -693,7 +721,7 @@ export default function ImportarNotaDialog() {
                           </td>
                           <td className="p-1 sm:p-2">
                             <Input
-                              type="number"
+                              type="text"
                               step="0.01"
                               value={quantidadeNum}
                               onChange={(e) =>
@@ -745,15 +773,15 @@ export default function ImportarNotaDialog() {
                           </td>
                           <td className="p-1 sm:p-2 bg-green-50/50 dark:bg-green-950/10">
                             <Input
-                              type="number"
+                              type="text"
                               step="0.01"
-                              value={valorVendaNum || ''}
+                              value={
+                                produto.valorVenda !== undefined && produto.valorVenda !== null
+                                  ? produto.valorVenda
+                                  : ''
+                              }
                               onChange={(e) =>
-                                handleProdutoChange(
-                                  index,
-                                  'valorVenda',
-                                  parseFloat(e.target.value) || 0
-                                )
+                                handleProdutoChange(index, 'valorVenda', e.target.value)
                               }
                               className="h-7 sm:h-8 text-[10px] sm:text-xs w-[80px]"
                               placeholder="0.00"
@@ -764,19 +792,6 @@ export default function ImportarNotaDialog() {
                             <span className="text-[10px] sm:text-xs font-medium text-green-600 whitespace-nowrap">
                               {markupNum ? `${markupNum.toFixed(2)}%` : '0%'}
                             </span>
-                          </td>
-                          <td className="p-1 sm:p-2 sticky right-0 bg-background">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-red-500 hover:text-red-700"
-                              onClick={() => {
-                                const newProdutos = produtos.filter((_, i) => i !== index);
-                                setProdutos(newProdutos);
-                              }}
-                            >
-                              ×
-                            </Button>
                           </td>
                         </tr>
                       );
@@ -805,7 +820,7 @@ export default function ImportarNotaDialog() {
           </Button>
           <Button
             onClick={handleSalvar}
-            disabled={isPending}
+            disabled={isPending || importingNotaFiscal?.notaFiscalStatus == 'Importado'}
             className="w-full sm:w-auto text-xs sm:text-sm h-8 sm:h-9"
           >
             {isPending ? (
