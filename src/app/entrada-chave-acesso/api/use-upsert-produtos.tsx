@@ -11,10 +11,13 @@ export function useUpsertProdutos() {
     mutationFn: async ({ lojaId, input }: { lojaId: string; input: UpsertProdutosInput }) => {
       return EntradaChaveAcessoApi.upsertProdutosPorNotaFiscal(lojaId, input);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      // Ensure the listing is refreshed immediately after upsert
+      await queryClient.invalidateQueries({
         queryKey: ['getNotasFiscais'],
       });
+      // Force refetch of matching queries to update UI without a manual refresh
+      await queryClient.refetchQueries({ queryKey: ['getNotasFiscais'], exact: false });
     },
     onError: (error) => {
       console.error('Erro ao salvar produtos:', error);

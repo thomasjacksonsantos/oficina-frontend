@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { formatCpfCnpj } from '@/helpers/formatCpfCnpj';
 import { createEntradaColumns } from './entrada-columns';
 import { useEntradaContext } from './entrada-context';
 import { NotaFiscalListItem } from '@/api/entrada-chave-acesso.types';
@@ -73,7 +74,7 @@ export function EntradaList<TData extends NotaFiscalListItem, TValue>({
     tipoData: 'entrada',
   });
   const [inputValue, setInputValue] = useState('');
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState<Record<string, any> | undefined>(undefined);
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || 'desc');
   const { setImportingNotaFiscal } = useEntradaContext();
@@ -108,18 +109,19 @@ export function EntradaList<TData extends NotaFiscalListItem, TValue>({
   }
 
   function handleSearch() {
-    // Build search query from all filters
-    const searchParams = new URLSearchParams();
-    if (filters.codigo) searchParams.append('codigo', filters.codigo);
-    if (filters.nDocumento) searchParams.append('nDocumento', filters.nDocumento);
-    if (filters.nPedido) searchParams.append('nPedido', filters.nPedido);
-    if (filters.chaveAcesso) searchParams.append('chaveAcesso', filters.chaveAcesso);
-    if (filters.fornecedor) searchParams.append('fornecedor', filters.fornecedor);
-    if (filters.dataInicio) searchParams.append('dataInicio', filters.dataInicio);
-    if (filters.dataFim) searchParams.append('dataFim', filters.dataFim);
-    searchParams.append('tipoData', filters.tipoData);
+    // Build search object from all filters and send as `q` object
+    const searchObj: Record<string, any> = {};
+    if (filters.codigo) searchObj.codigo = filters.codigo;
+    if (filters.nDocumento) searchObj.nDocumento = filters.nDocumento;
+    if (filters.nPedido) searchObj.nPedido = filters.nPedido;
+    if (filters.chaveAcesso) searchObj.chaveAcesso = filters.chaveAcesso;
+    if (filters.fornecedor) searchObj.fornecedor = filters.fornecedor;
+    if (filters.dataInicio) searchObj.dataInicio = filters.dataInicio;
+    if (filters.dataFim) searchObj.dataFim = filters.dataFim;
+    // always include tipoData
+    searchObj.tipoData = filters.tipoData;
 
-    setQ(searchParams.toString());
+    setQ(Object.keys(searchObj).length ? searchObj : undefined);
     setPagination({ ...pagination, pageIndex: 0 });
   }
 
@@ -180,7 +182,7 @@ export function EntradaList<TData extends NotaFiscalListItem, TValue>({
             />
             <FloatingInput
               label="N. Documento"
-              value={filters.nDocumento}
+              value={formatCpfCnpj(filters.nDocumento)}
               onChange={(e) => setFilters({ ...filters, nDocumento: e.target.value })}
               className="w-full"
             />
@@ -199,7 +201,9 @@ export function EntradaList<TData extends NotaFiscalListItem, TValue>({
             <FloatingInput
               label="Fornecedor"
               value={filters.fornecedor}
-              onChange={(e) => setFilters({ ...filters, fornecedor: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, fornecedor: formatCpfCnpj(e.target.value) })
+              }
               className="w-full"
             />
           </div>

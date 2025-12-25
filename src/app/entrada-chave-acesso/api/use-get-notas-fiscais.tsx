@@ -5,7 +5,7 @@ import EntradaChaveAcessoApi from '@/api/entrada-chave-acesso.api';
 
 type Params = {
   page?: number;
-  q?: string;
+  q?: Record<string, any> | string;
   limit?: number;
   sortField?: string;
   sortDirection?: string;
