@@ -51,7 +51,7 @@ export const createEntradaColumns = ({
     header: 'Status',
     cell: ({ row }) => {
       const notaFiscal = row.original;
-      const isImported = notaFiscal.notaFiscalStatus === 'Importado';
+      const isImported = notaFiscal.notaFiscalStatus.key === 'Importado';
 
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -60,7 +60,7 @@ export const createEntradaColumns = ({
           ) : (
             <IconCircleCheckFilled className="fill-yellow-500 dark:fill-yellow-400" />
           )}
-          {notaFiscal.notaFiscalStatus}
+          {notaFiscal.notaFiscalStatus.nome}
         </Badge>
       );
     },

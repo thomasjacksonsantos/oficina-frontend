@@ -237,12 +237,12 @@ export default function ImportarNotaDialog() {
                 variant="outline"
                 className="text-muted-foreground px-2 flex items-center gap-2"
               >
-                {importingNotaFiscal.notaFiscalStatus === 'Importado' ? (
+                {importingNotaFiscal.notaFiscalStatus.key === 'Importado' ? (
                   <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
                 ) : (
                   <IconCircleCheckFilled className="fill-yellow-500 dark:fill-yellow-400" />
                 )}
-                {importingNotaFiscal.notaFiscalStatus}
+                {importingNotaFiscal.notaFiscalStatus.nome}
               </Badge>
             )}
           </div>
@@ -820,7 +820,7 @@ export default function ImportarNotaDialog() {
           </Button>
           <Button
             onClick={handleSalvar}
-            disabled={isPending || importingNotaFiscal?.notaFiscalStatus == 'Importado'}
+            disabled={isPending || importingNotaFiscal?.notaFiscalStatus.key == 'Importado'}
             className="w-full sm:w-auto text-xs sm:text-sm h-8 sm:h-9"
           >
             {isPending ? (

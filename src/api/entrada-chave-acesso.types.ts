@@ -5,10 +5,17 @@ export type NotaFiscalListItem = {
   nf?: string;
   chaveAcesso: string;
   cnpjFornecedor: string;
-  notaFiscalStatus: string;
+  notaFiscalStatus: NotaFiscalStatus;
   criado: string;
   atualizado: string;
 };
+
+export type NotaFiscalStatus = {
+  id: string,
+  key: string,
+  nome: string,
+  dominio: string
+}
 
 export type Emitente = {
   nome: string;
