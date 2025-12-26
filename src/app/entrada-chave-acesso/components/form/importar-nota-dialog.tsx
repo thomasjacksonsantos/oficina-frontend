@@ -100,7 +100,8 @@ export default function ImportarNotaDialog() {
 
     // If the user changed valorVenda, accept the raw input string so the user can type freely
     if (field === 'valorVenda') {
-      newProdutos[index].valorVenda = value as any; // keep raw string until blur
+      // keep raw string until blur so the user can type using comma as decimal separator
+      newProdutos[index].valorVenda = value as any;
     }
 
     // Recalculate valorTotal when unit price or quantity changes
@@ -110,7 +111,12 @@ export default function ImportarNotaDialog() {
       newProdutos[index].valorTotal = Number((valorUnitario * quantidade).toFixed(2));
 
       // If there is already a valorVenda, ensure it's not below updated unit price
-      const currentVenda = Number(newProdutos[index].valorVenda ?? 0);
+      const rawVendaExisting = newProdutos[index].valorVenda;
+      const currentVenda =
+        typeof rawVendaExisting === 'string'
+          ? Number(String(rawVendaExisting).replace(',', '.'))
+          : Number(rawVendaExisting ?? 0);
+
       if (!isNaN(currentVenda) && currentVenda < valorUnitario) {
         newProdutos[index].valorVenda = Number(valorUnitario.toFixed(2));
       }
@@ -118,9 +124,12 @@ export default function ImportarNotaDialog() {
 
     // Auto-calculate markup when valorVenda or valorUnitario (or quantity) changes
     if (field === 'valorVenda' || field === 'valorUnitario' || field === 'quantidade') {
-      // Parse valorVenda whether it's string or number
+      // Parse valorVenda whether it's string or number, accept comma as decimal separator
       const rawVenda = newProdutos[index].valorVenda;
-      const valorVenda = typeof rawVenda === 'string' ? Number(rawVenda) : Number(rawVenda ?? 0);
+      const valorVenda =
+        typeof rawVenda === 'string'
+          ? Number(String(rawVenda).replace(',', '.'))
+          : Number(rawVenda ?? 0);
       const valorUnitario = Number(newProdutos[index].valorUnitario ?? 0);
 
       let markup = 0;
@@ -172,7 +181,8 @@ export default function ImportarNotaDialog() {
         valorICMSST: Number(produto.valorICMSST ?? 0),
         valorIPI: Number(produto.valorIPI ?? 0),
         markup: Number(produto.markup ?? 0),
-        valorVenda: Number(produto.valorVenda ?? 0),
+        // Accept string with comma as decimal separator when sending to API
+        valorVenda: Number(String(produto.valorVenda ?? 0).replace(',', '.')),
       })),
     };
 
@@ -722,7 +732,7 @@ export default function ImportarNotaDialog() {
                           <td className="p-1 sm:p-2">
                             <Input
                               type="text"
-                              step="0.01"
+                              step="0,01"
                               value={quantidadeNum}
                               onChange={(e) =>
                                 handleProdutoChange(index, 'quantidade', parseFloat(e.target.value))
@@ -774,21 +784,21 @@ export default function ImportarNotaDialog() {
                           <td className="p-1 sm:p-2 bg-green-50/50 dark:bg-green-950/10">
                             <Input
                               type="text"
-                              step="0.01"
+                              step="0,01"
                               value={
                                 produto.valorVenda !== undefined && produto.valorVenda !== null
                                   ? typeof produto.valorVenda === 'number'
-                                    ? produto.valorVenda.toFixed(2)
-                                    : produto.valorVenda
+                                    ? produto.valorVenda.toFixed(2).replace('.', ',')
+                                    : String(produto.valorVenda).replace('.', ',')
                                   : ''
                               }
                               onChange={(e) =>
                                 handleProdutoChange(index, 'valorVenda', e.target.value)
                               }
                               onBlur={() => {
-                                // Validate and format on blur
+                                // Validate and format on blur. Accept comma as decimal separator.
                                 const current = produtos[index]?.valorVenda;
-                                const parsed = Number(current);
+                                const parsed = Number(String(current ?? '').replace(',', '.'));
                                 const unit = Number(produtos[index]?.valorUnitario ?? 0);
                                 let final = isFinite(parsed) ? parsed : unit;
                                 if (final < unit) final = unit;
@@ -812,7 +822,7 @@ export default function ImportarNotaDialog() {
                                 setProdutos(newProdutos);
                               }}
                               className="h-7 sm:h-8 text-[10px] sm:text-xs w-[80px]"
-                              placeholder="0.00"
+                              placeholder="0,00"
                               title="Preço venda"
                             />
                           </td>
