@@ -23,6 +23,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as GruposProdutosRouteImport } from './routes/grupos-produtos'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as FormaPagamentoRouteImport } from './routes/forma-pagamento'
+import { Route as EntradaPorNfeRouteImport } from './routes/entrada-por-nfe'
 import { Route as EntradaManualRouteImport } from './routes/entrada-manual'
 import { Route as CustomerRouteImport } from './routes/customer'
 import { Route as BandeiraCartaoRouteImport } from './routes/bandeira-cartao'
@@ -39,6 +40,7 @@ import { Route as LojaIndexRouteImport } from './routes/loja/index'
 import { Route as GruposProdutosIndexRouteImport } from './routes/grupos-produtos/index'
 import { Route as FornecedoresIndexRouteImport } from './routes/fornecedores/index'
 import { Route as FormaPagamentoIndexRouteImport } from './routes/forma-pagamento/index'
+import { Route as EntradaPorNfeIndexRouteImport } from './routes/entrada-por-nfe/index'
 import { Route as EntradaManualIndexRouteImport } from './routes/entrada-manual/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
@@ -121,6 +123,11 @@ const FormaPagamentoRoute = FormaPagamentoRouteImport.update({
   path: '/forma-pagamento',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EntradaPorNfeRoute = EntradaPorNfeRouteImport.update({
+  id: '/entrada-por-nfe',
+  path: '/entrada-por-nfe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EntradaManualRoute = EntradaManualRouteImport.update({
   id: '/entrada-manual',
   path: '/entrada-manual',
@@ -201,6 +208,11 @@ const FormaPagamentoIndexRoute = FormaPagamentoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FormaPagamentoRoute,
 } as any)
+const EntradaPorNfeIndexRoute = EntradaPorNfeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EntradaPorNfeRoute,
+} as any)
 const EntradaManualIndexRoute = EntradaManualIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -264,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/bandeira-cartao': typeof BandeiraCartaoRouteWithChildren
   '/customer': typeof CustomerRouteWithChildren
   '/entrada-manual': typeof EntradaManualRouteWithChildren
+  '/entrada-por-nfe': typeof EntradaPorNfeRouteWithChildren
   '/forma-pagamento': typeof FormaPagamentoRouteWithChildren
   '/fornecedores': typeof FornecedoresRouteWithChildren
   '/grupos-produtos': typeof GruposProdutosRouteWithChildren
@@ -289,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/customer/': typeof CustomerIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/entrada-manual/': typeof EntradaManualIndexRoute
+  '/entrada-por-nfe/': typeof EntradaPorNfeIndexRoute
   '/forma-pagamento/': typeof FormaPagamentoIndexRoute
   '/fornecedores/': typeof FornecedoresIndexRoute
   '/grupos-produtos/': typeof GruposProdutosIndexRoute
@@ -318,6 +332,7 @@ export interface FileRoutesByTo {
   '/customer': typeof CustomerIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/entrada-manual': typeof EntradaManualIndexRoute
+  '/entrada-por-nfe': typeof EntradaPorNfeIndexRoute
   '/forma-pagamento': typeof FormaPagamentoIndexRoute
   '/fornecedores': typeof FornecedoresIndexRoute
   '/grupos-produtos': typeof GruposProdutosIndexRoute
@@ -337,6 +352,7 @@ export interface FileRoutesById {
   '/bandeira-cartao': typeof BandeiraCartaoRouteWithChildren
   '/customer': typeof CustomerRouteWithChildren
   '/entrada-manual': typeof EntradaManualRouteWithChildren
+  '/entrada-por-nfe': typeof EntradaPorNfeRouteWithChildren
   '/forma-pagamento': typeof FormaPagamentoRouteWithChildren
   '/fornecedores': typeof FornecedoresRouteWithChildren
   '/grupos-produtos': typeof GruposProdutosRouteWithChildren
@@ -362,6 +378,7 @@ export interface FileRoutesById {
   '/customer/': typeof CustomerIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/entrada-manual/': typeof EntradaManualIndexRoute
+  '/entrada-por-nfe/': typeof EntradaPorNfeIndexRoute
   '/forma-pagamento/': typeof FormaPagamentoIndexRoute
   '/fornecedores/': typeof FornecedoresIndexRoute
   '/grupos-produtos/': typeof GruposProdutosIndexRoute
@@ -382,6 +399,7 @@ export interface FileRouteTypes {
     | '/bandeira-cartao'
     | '/customer'
     | '/entrada-manual'
+    | '/entrada-por-nfe'
     | '/forma-pagamento'
     | '/fornecedores'
     | '/grupos-produtos'
@@ -407,6 +425,7 @@ export interface FileRouteTypes {
     | '/customer/'
     | '/dashboard'
     | '/entrada-manual/'
+    | '/entrada-por-nfe/'
     | '/forma-pagamento/'
     | '/fornecedores/'
     | '/grupos-produtos/'
@@ -436,6 +455,7 @@ export interface FileRouteTypes {
     | '/customer'
     | '/dashboard'
     | '/entrada-manual'
+    | '/entrada-por-nfe'
     | '/forma-pagamento'
     | '/fornecedores'
     | '/grupos-produtos'
@@ -454,6 +474,7 @@ export interface FileRouteTypes {
     | '/bandeira-cartao'
     | '/customer'
     | '/entrada-manual'
+    | '/entrada-por-nfe'
     | '/forma-pagamento'
     | '/fornecedores'
     | '/grupos-produtos'
@@ -479,6 +500,7 @@ export interface FileRouteTypes {
     | '/customer/'
     | '/dashboard/'
     | '/entrada-manual/'
+    | '/entrada-por-nfe/'
     | '/forma-pagamento/'
     | '/fornecedores/'
     | '/grupos-produtos/'
@@ -498,6 +520,7 @@ export interface RootRouteChildren {
   BandeiraCartaoRoute: typeof BandeiraCartaoRouteWithChildren
   CustomerRoute: typeof CustomerRouteWithChildren
   EntradaManualRoute: typeof EntradaManualRouteWithChildren
+  EntradaPorNfeRoute: typeof EntradaPorNfeRouteWithChildren
   FormaPagamentoRoute: typeof FormaPagamentoRouteWithChildren
   FornecedoresRoute: typeof FornecedoresRouteWithChildren
   GruposProdutosRoute: typeof GruposProdutosRouteWithChildren
@@ -615,6 +638,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormaPagamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/entrada-por-nfe': {
+      id: '/entrada-por-nfe'
+      path: '/entrada-por-nfe'
+      fullPath: '/entrada-por-nfe'
+      preLoaderRoute: typeof EntradaPorNfeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/entrada-manual': {
       id: '/entrada-manual'
       path: '/entrada-manual'
@@ -726,6 +756,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/forma-pagamento/'
       preLoaderRoute: typeof FormaPagamentoIndexRouteImport
       parentRoute: typeof FormaPagamentoRoute
+    }
+    '/entrada-por-nfe/': {
+      id: '/entrada-por-nfe/'
+      path: '/'
+      fullPath: '/entrada-por-nfe/'
+      preLoaderRoute: typeof EntradaPorNfeIndexRouteImport
+      parentRoute: typeof EntradaPorNfeRoute
     }
     '/entrada-manual/': {
       id: '/entrada-manual/'
@@ -859,6 +896,18 @@ const EntradaManualRouteWithChildren = EntradaManualRoute._addFileChildren(
   EntradaManualRouteChildren,
 )
 
+interface EntradaPorNfeRouteChildren {
+  EntradaPorNfeIndexRoute: typeof EntradaPorNfeIndexRoute
+}
+
+const EntradaPorNfeRouteChildren: EntradaPorNfeRouteChildren = {
+  EntradaPorNfeIndexRoute: EntradaPorNfeIndexRoute,
+}
+
+const EntradaPorNfeRouteWithChildren = EntradaPorNfeRoute._addFileChildren(
+  EntradaPorNfeRouteChildren,
+)
+
 interface FormaPagamentoRouteChildren {
   FormaPagamentoIndexRoute: typeof FormaPagamentoIndexRoute
 }
@@ -989,6 +1038,7 @@ const rootRouteChildren: RootRouteChildren = {
   BandeiraCartaoRoute: BandeiraCartaoRouteWithChildren,
   CustomerRoute: CustomerRouteWithChildren,
   EntradaManualRoute: EntradaManualRouteWithChildren,
+  EntradaPorNfeRoute: EntradaPorNfeRouteWithChildren,
   FormaPagamentoRoute: FormaPagamentoRouteWithChildren,
   FornecedoresRoute: FornecedoresRouteWithChildren,
   GruposProdutosRoute: GruposProdutosRouteWithChildren,

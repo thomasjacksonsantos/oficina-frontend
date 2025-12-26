@@ -60,11 +60,18 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
       const hasVal = String(currentVal).trim() !== '';
       setHasValue(hasVal);
 
-      // Update display value for date inputs
+      // Update display value for date inputs.
+      // Keep the user's typed display while `value` is empty (partial input),
+      // and only format from the controlled `value` when it is present.
       if (type === 'date') {
-        if (hasVal) {
-          setDisplayValue(formatDateForDisplay(String(currentVal)));
+        if (value) {
+          // When a controlled value (YYYY-MM-DD) is provided, format it for display
+          setDisplayValue(formatDateForDisplay(String(value)));
+        } else if (input?.value) {
+          // Preserve what the user is typing (DD/MM/YYYY partial) so typing isn't interrupted
+          setDisplayValue(input.value);
         } else {
+          // No value and nothing typed
           setDisplayValue('');
         }
       }
@@ -142,6 +149,80 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
       onChange?.(syntheticEvent);
     };
 
+    // Validate date on blur. If invalid, clear the field and notify parent with empty value.
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      const current = displayValue || '';
+      const cleaned = current.replace(/\D/g, '');
+
+      // If empty, ensure parent value is empty and clear visible state
+      if (!cleaned) {
+        const syntheticEvent = {
+          ...e,
+          target: {
+            ...(e.target as HTMLInputElement),
+            value: '',
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        onChange?.(syntheticEvent);
+        setHasValue(false);
+        setDisplayValue('');
+        return;
+      }
+
+      // Must be DDMMYYYY
+      if (cleaned.length !== 8) {
+        const syntheticEvent = {
+          ...e,
+          target: {
+            ...(e.target as HTMLInputElement),
+            value: '',
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        onChange?.(syntheticEvent);
+        setHasValue(false);
+        setDisplayValue('');
+        return;
+      }
+
+      const day = Number(cleaned.slice(0, 2));
+      const month = Number(cleaned.slice(2, 4));
+      const year = Number(cleaned.slice(4, 8));
+
+      const date = new Date(year, month - 1, day);
+      const valid =
+        date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+
+      if (!valid) {
+        const syntheticEvent = {
+          ...e,
+          target: {
+            ...(e.target as HTMLInputElement),
+            value: '',
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        onChange?.(syntheticEvent);
+        setHasValue(false);
+        setDisplayValue('');
+        return;
+      }
+
+      // Valid date — format to YYYY-MM-DD and notify parent
+      const iso = `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(
+        day
+      ).padStart(2, '0')}`;
+      setDisplayValue(formatDateForDisplay(iso));
+      setHasValue(true);
+
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...(e.target as HTMLInputElement),
+          value: iso,
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      onChange?.(syntheticEvent);
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       checkValue();
       onChange?.(e);
@@ -162,6 +243,7 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
             type="text"
             value={displayValue}
             onChange={handleDisplayInput}
+            onBlur={handleBlur}
             className={cn(
               'file:text-foreground placeholder:text-transparent selection:bg-primary selection:text-primary-foreground bg-transparent border-input peer h-9 w-full min-w-0 rounded-md border px-3 py-1 pr-10 text-base shadow-xs transition-[color,box-shadow,border-color] outline-none disabled:opacity-50 md:text-sm',
               'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',

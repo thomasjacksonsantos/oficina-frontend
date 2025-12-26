@@ -84,18 +84,11 @@ export function EntradaList<TData extends NotaFiscalListItem, TValue>({
   const handlers = useMemo(
     () => ({
       onImport: (notaFiscal: NotaFiscalListItem) => {
-        getNotaFiscal(notaFiscal.id, {
-          onSuccess: (data) => {
-            setImportingNotaFiscal(notaFiscal);
-          },
-          onError: (error: any) => {
-            const errorMessage = error.response?.data?.message || 'Erro ao buscar nota fiscal';
-            toast.error(errorMessage);
-          },
-        });
+        // Just mark the nota for importing and let the import dialog fetch details once
+        setImportingNotaFiscal(notaFiscal);
       },
     }),
-    [setImportingNotaFiscal, getNotaFiscal]
+    [setImportingNotaFiscal]
   );
 
   const cols = useMemo(() => {
@@ -343,8 +336,7 @@ export function EntradaList<TData extends NotaFiscalListItem, TValue>({
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} de{' '}
-            {table.getFilteredRowModel().rows.length} linha(s) selecionada(s).
+            {data?.paginaAtual} de {data?.totalRegistros} linha(s) selecionada(s).
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
