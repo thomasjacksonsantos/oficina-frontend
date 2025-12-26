@@ -98,12 +98,9 @@ export default function ImportarNotaDialog() {
     const valorUnitarioNum = Number(produto.valorUnitario ?? 0);
     const quantidadeNum = Number(produto.quantidade ?? 0);
 
-    // If the user changed valorVenda, enforce minimum equal to unit price and keep 2 decimals
+    // If the user changed valorVenda, accept the raw input string so the user can type freely
     if (field === 'valorVenda') {
-      const raw = Number(value);
-      let enforced = isFinite(raw) ? raw : valorUnitarioNum;
-      if (enforced < valorUnitarioNum) enforced = valorUnitarioNum;
-      newProdutos[index].valorVenda = Number(enforced.toFixed(2));
+      newProdutos[index].valorVenda = value as any; // keep raw string until blur
     }
 
     // Recalculate valorTotal when unit price or quantity changes
@@ -112,15 +109,18 @@ export default function ImportarNotaDialog() {
       const quantidade = Number(newProdutos[index].quantidade ?? 0);
       newProdutos[index].valorTotal = Number((valorUnitario * quantidade).toFixed(2));
 
-      // Ensure valorVenda is not below updated unit price
-      if (Number(newProdutos[index].valorVenda ?? 0) < valorUnitario) {
+      // If there is already a valorVenda, ensure it's not below updated unit price
+      const currentVenda = Number(newProdutos[index].valorVenda ?? 0);
+      if (!isNaN(currentVenda) && currentVenda < valorUnitario) {
         newProdutos[index].valorVenda = Number(valorUnitario.toFixed(2));
       }
     }
 
     // Auto-calculate markup when valorVenda or valorUnitario (or quantity) changes
     if (field === 'valorVenda' || field === 'valorUnitario' || field === 'quantidade') {
-      const valorVenda = Number(newProdutos[index].valorVenda ?? 0);
+      // Parse valorVenda whether it's string or number
+      const rawVenda = newProdutos[index].valorVenda;
+      const valorVenda = typeof rawVenda === 'string' ? Number(rawVenda) : Number(rawVenda ?? 0);
       const valorUnitario = Number(newProdutos[index].valorUnitario ?? 0);
 
       let markup = 0;
@@ -777,12 +777,40 @@ export default function ImportarNotaDialog() {
                               step="0.01"
                               value={
                                 produto.valorVenda !== undefined && produto.valorVenda !== null
-                                  ? produto.valorVenda
+                                  ? typeof produto.valorVenda === 'number'
+                                    ? produto.valorVenda.toFixed(2)
+                                    : produto.valorVenda
                                   : ''
                               }
                               onChange={(e) =>
                                 handleProdutoChange(index, 'valorVenda', e.target.value)
                               }
+                              onBlur={() => {
+                                // Validate and format on blur
+                                const current = produtos[index]?.valorVenda;
+                                const parsed = Number(current);
+                                const unit = Number(produtos[index]?.valorUnitario ?? 0);
+                                let final = isFinite(parsed) ? parsed : unit;
+                                if (final < unit) final = unit;
+                                const newProdutos = [...produtos];
+                                newProdutos[index] = {
+                                  ...newProdutos[index],
+                                  valorVenda: Number(final.toFixed(2)),
+                                };
+
+                                // Recompute markup
+                                const valorUnitario = Number(newProdutos[index].valorUnitario ?? 0);
+                                let markup = 0;
+                                if (
+                                  isFinite(final) &&
+                                  isFinite(valorUnitario) &&
+                                  valorUnitario !== 0
+                                ) {
+                                  markup = ((final - valorUnitario) / valorUnitario) * 100;
+                                }
+                                newProdutos[index].markup = Number(markup.toFixed(2));
+                                setProdutos(newProdutos);
+                              }}
                               className="h-7 sm:h-8 text-[10px] sm:text-xs w-[80px]"
                               placeholder="0.00"
                               title="Preço venda"
