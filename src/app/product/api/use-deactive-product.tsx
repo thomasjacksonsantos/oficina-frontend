@@ -1,11 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ProductsApi from '@/api/product.api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useDeactiveProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => ProductsApi.deactiveProduct(id),
+    mutationFn: async (id: string) => {
+      return ProductsApi.deactiveProduct(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['getProducts'],

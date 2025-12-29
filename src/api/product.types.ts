@@ -1,45 +1,78 @@
 export type Product = {
   id: string;
-  descricao: string;
-  aplicacao: string;
   referencia: string;
-  codigoBarra: string;
-  marca: string;
-  grupo?: string | undefined;
-  observacao: string;
-  status?: string;
-  dadosComplementares: {
-    fornecedor: string;
-    endereco: string;
-    statusProduto: 'Ativo' | 'Desativo';
-    estoque: number;
-    tipoUnidade: string;
-  };
-  dadosFiscalProduto: {
-    origemMercadoria: string;
-    NCM: string;
-    ANP: string;
-    regraEspecificaParaEsteItem: string;
-  };
-  preco: {
-    compra: number;
-    venda: number;
-    custo: number;
-    compraFixo: number;
-    dataCompra: string;
-    dataVenda: string;
-    dataCusto: string;
-    dataCompraFixo: string;
-  };
-  markup: {
-    produto: number;
-    grupo: number;
-  };
+  descricao?: string;
+  grupoProduto: string;
+  unidadeProduto: string;
+  fornecedorId?: string;
+  ncm?: string;
+  origemMercadoria?: string;
+  observacao?: string;
+  produtoStatus: ProductStatus;
+  creado: string;
+  actualizado: string;
 };
 
-
-export type CreateProductInput = Omit<Product, 'id' | 'status'> & {
-  id?: string;
+export type ProductStatus = {
+  id: string;
+  key: string;
+  nome: string;
+  dominio: string;
 };
 
-export type UpdateProductInput = Partial<CreateProductInput>;
+export type GrupoProduto = {
+  id: string;
+  descricao: string;
+  area?: string;
+  ncm?: string;
+  anp?: string;
+  grupoProdutoStatus?: string;
+  criado?: string; // ISO datetime
+  atualizado?: string; // ISO datetime
+};
+
+export type UnidadeProduto = {
+  id: string;
+  descricao: string;
+  criado?: string; // ISO datetime
+  atualizado?: string; // ISO datetime
+};
+
+export type OrigemMercadoria = {
+  key: string;
+  nome: string;
+};
+
+export type Fornecedor = {
+  id: string;
+  nome: string;
+};
+
+export type StatusOption = {
+  key: string;
+  nome: string;
+};
+
+export type CreateProductInput = {
+  descricao: string;
+  grupoProdutoId: string;
+  fornecedorId: string;
+  referencia: string;
+  unidadeProdutoId: string;
+  origemMercadoria: string;
+  ncm: string;
+  observacao?: string;
+};
+
+export type UpdateProductInput = {
+  id: string;
+  descricao: string;
+  grupoProduto: string;
+  fornecedorId: string;
+  referencia: string;
+  unidadeProduto: string;
+  produtoStatus: string;
+  origemMercadoria: string;
+  ncm: string;
+  observacao?: string;
+};

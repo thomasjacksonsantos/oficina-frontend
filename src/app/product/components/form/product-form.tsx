@@ -2,12 +2,6 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Dialog,
   DialogContent,
@@ -15,99 +9,118 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { FloatingInput } from '@/components/ui/floating-input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from '@/components/ui/select';
-import { useForm } from 'react-hook-form';
+import { Autocomplete } from '@/components/ui/autocomplete';
+import { useForm, Controller } from 'react-hook-form';
 import { productSchema, type CreateProductSchema } from './product.schema';
-import { toast } from 'sonner';
-import { useCreateProduct } from '@/app/product/api';
-import { useProductContext } from '../list';
-import { FloatingInput } from '@/components/ui/floating-input';
+import { toast, Toaster } from 'sonner';
+import {
+  useCreateProduct,
+  useGetAllGruposProdutos,
+  useGetAllUnidadesProdutos,
+  useSearchFornecedores,
+  useGetAllFornecedores,
+  useGetOrigemMercadoria,
+  useSearchGruposProdutos,
+  useSearchUnidadesProdutos,
+} from '@/app/product/api';
+import { useState, useEffect } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
-export default function ProductForm() {
-  const { registeringProduct, setRegisteringProduct } = useProductContext();
+export default function ProductForm({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}) {
+  const [grupoSearch, setGrupoSearch] = useState('');
+  const [unidadeSearch, setUnidadeSearch] = useState('');
+  const [fornecedorSearch, setFornecedorSearch] = useState('');
 
   const {
     register,
     handleSubmit,
+    control,
     setValue,
-    reset,
     setError,
-    watch,
+    reset,
     formState: { errors },
   } = useForm<CreateProductSchema>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       descricao: '',
-      aplicacao: '',
+      grupoProduto: '',
+      fornecedorId: '',
       referencia: '',
-      codigoBarra: '',
-      marca: '',
-      grupo: '',
+      unidadeProduto: '',
+      origemMercadoria: '',
+      ncm: '',
       observacao: '',
-      dadosComplementares: {
-        fornecedor: '',
-        endereco: '',
-        statusProduto: 'Ativo',
-        estoque: 0,
-        tipoUnidade: '',
-      },
-      dadosFiscalProduto: {
-        origemMercadoria: '',
-        NCM: '',
-        ANP: '',
-        regraEspecificaParaEsteItem: '',
-      },
-      preco: {
-        compra: 0,
-        venda: 0,
-        custo: 0,
-        compraFixo: 0,
-        dataCompra: new Date().toISOString().split('T')[0],
-        dataVenda: new Date().toISOString().split('T')[0],
-        dataCusto: new Date().toISOString().split('T')[0],
-        dataCompraFixo: new Date().toISOString().split('T')[0],
-      },
-      markup: {
-        produto: 0,
-        grupo: 0,
-      },
     },
   });
 
-  React.useEffect(() => {
-    if (!registeringProduct) {
-      reset();
-    }
-  }, [registeringProduct, reset]);
+  // Fetch all grupos for initial load
+  const { data: allGrupos } = useGetAllGruposProdutos();
+
+  // Search grupos
+  const { data: searchedGrupos } = useSearchGruposProdutos(grupoSearch);
+  const gruposOptions = grupoSearch ? searchedGrupos || [] : allGrupos || [];
+
+  // Fetch all unidades for initial load
+  const { data: allUnidades } = useGetAllUnidadesProdutos();
+
+  // Search unidades
+  const { data: searchedUnidades } = useSearchUnidadesProdutos(unidadeSearch);
+  const unidadesOptions = unidadeSearch ? searchedUnidades || [] : allUnidades || [];
+
+  // Search fornecedores + initial load
+  const { data: allFornecedores = [], isLoading: isLoadingFornecedores } = useGetAllFornecedores();
+  const { data: searchedFornecedores = [], isLoading: isSearchingFornecedores } =
+    useSearchFornecedores(fornecedorSearch);
+  const fornecedoresOptions = fornecedorSearch ? searchedFornecedores || [] : allFornecedores || [];
+  const fornecedoresLoading = isLoadingFornecedores || isSearchingFornecedores;
+
+  // Fetch origem mercadoria
+  const { data: origemMercadoriaOptions = [] } = useGetOrigemMercadoria();
 
   const { mutate: createProduct, isPending } = useCreateProduct();
 
-  const onSubmit = (data: CreateProductSchema) => {
-    createProduct(data, {
+  const onSubmit = async (data: CreateProductSchema) => {
+    await createProduct(data as any, {
       onSuccess: (result) => {
         if (result) {
-          setRegisteringProduct(null);
           toast.success('Produto criado com sucesso!');
+          reset();
+          setIsOpen(false);
         } else {
-          toast.error(`Erro ao criar produto: ${result}`);
+          toast.error('Erro ao criar produto');
         }
       },
       onError: (error: any) => {
         const fieldMapping: Record<string, string> = {
-          descricao: 'descricao',
-          aplicacao: 'aplicacao',
-          referencia: 'referencia',
-          codigoBarra: 'codigoBarra',
-          marca: 'marca',
+          'produto.Descricao': 'descricao',
+          'produto.GrupoProdutoId': 'grupoProdutoId',
+          'produto.FornecedorId': 'fornecedorId',
+          'produto.Referencia': 'referencia',
+          'produto.UnidadeProdutoId': 'unidadeProdutoId',
+          'produto.OrigemMercadoria': 'origemMercadoria',
+          'produto.Ncm': 'ncm',
+          'produto.Observacao': 'observacao',
         };
 
         const errorData = error.response?.data;
+
         if (errorData?.errors) {
           Object.entries(errorData.errors).forEach(([apiField, messages]) => {
             const formField = fieldMapping[apiField];
@@ -119,461 +132,192 @@ export default function ProductForm() {
               });
             }
           });
-        }
 
-        toast.error('Erro de validação', {
-          description: 'Erro(s) encontrado nos dados enviados.',
-        });
+          toast.error('Erro de validação', {
+            description: 'Erro(s) encontrados nos dados enviados.',
+          });
+        } else {
+          toast.error(errorData?.message || 'Erro ao criar produto');
+        }
       },
     });
   };
-
-  const statusProduto = watch('dadosComplementares.statusProduto');
-
+  console.log(fornecedoresOptions);
   return (
-    <Dialog open={!!registeringProduct} onOpenChange={() => setRegisteringProduct(null)}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
-        <DialogHeader>
-          <DialogTitle>Novo Produto</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
+          <DialogHeader>
+            <DialogTitle>Novo Produto</DialogTitle>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Separator className="my-4" />
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Separator className="my-4" />
 
-          <div className="space-y-6">
-            {/* Basic Information */}
-            <div className="space-y-3">
-              <div className="flex flex-col gap-2">
-                <FloatingInput
-                  id="product-descricao"
-                  {...register('descricao')}
-                  label="Descrição"
-                />
-                {errors.descricao && (
-                  <span className="text-sm text-red-500">{errors.descricao.message}</span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Textarea
-                  id="product-aplicacao"
-                  {...register('aplicacao')}
-                  placeholder="Aplicação Restarea"
-                  rows={3}
-                  className="resize-none"
-                />
-                {errors.aplicacao && (
-                  <span className="text-sm text-red-500">{errors.aplicacao.message}</span>
-                )}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="flex flex-col gap-2">
-                  <Select
-                    value={watch('grupo') || ''}
-                    onValueChange={(value) => setValue('grupo', value, { shouldValidate: true })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Grupo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="grupo1">Grupo 1</SelectItem>
-                      <SelectItem value="grupo2">Grupo 2</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Select
-                    value={watch('marca') || ''}
-                    onValueChange={(value) => setValue('marca', value, { shouldValidate: true })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Marca" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="marca1">Marca 1</SelectItem>
-                      <SelectItem value="marca2">Marca 2</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.marca && (
-                    <span className="text-sm text-red-500">{errors.marca.message}</span>
-                  )}
-                </div>
+            <div className="space-y-6">
+              {/* Informações Básicas */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold">Informações Básicas</h3>
 
                 <div className="flex flex-col gap-2">
                   <FloatingInput
-                    id="product-referencia"
-                    {...register('referencia')}
-                    label="Referência"
+                    id="descricao"
+                    {...register('descricao')}
+                    label="Descrição"
+                    className="rounded-md"
                   />
-                  {errors.referencia && (
-                    <span className="text-sm text-red-500">{errors.referencia.message}</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <FloatingInput
-                  id="product-codigo-barra"
-                  {...register('codigoBarra')}
-                  label="Cód. barra"
-                />
-                {errors.codigoBarra && (
-                  <span className="text-sm text-red-500">{errors.codigoBarra.message}</span>
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Dados Complementares */}
-            <div className="space-y-3">
-              <h3 className="font-semibold">Dados Complementares</h3>
-
-              <div className="flex flex-col gap-2">
-                <Select
-                  value={watch('dadosComplementares.fornecedor') || ''}
-                  onValueChange={(value) =>
-                    setValue('dadosComplementares.fornecedor', value, { shouldValidate: true })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Fornecedor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fornecedor1">Fornecedor 1</SelectItem>
-                    <SelectItem value="fornecedor2">Fornecedor 2</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.dadosComplementares?.fornecedor && (
-                  <span className="text-sm text-red-500">
-                    {errors.dadosComplementares.fornecedor.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <FloatingInput
-                  id="product-endereco"
-                  {...register('dadosComplementares.endereco')}
-                  label="Endereço"
-                />
-                {errors.dadosComplementares?.endereco && (
-                  <span className="text-sm text-red-500">
-                    {errors.dadosComplementares.endereco.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <Select
-                    value={watch('dadosComplementares.tipoUnidade') || ''}
-                    onValueChange={(value) =>
-                      setValue('dadosComplementares.tipoUnidade', value, { shouldValidate: true })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Tipo Unidade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="UN">UN</SelectItem>
-                      <SelectItem value="KG">KG</SelectItem>
-                      <SelectItem value="LT">LT</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.dadosComplementares?.tipoUnidade && (
-                    <span className="text-sm text-red-500">
-                      {errors.dadosComplementares.tipoUnidade.message}
-                    </span>
+                  {errors.descricao && (
+                    <span className="text-sm text-red-500">{errors.descricao.message}</span>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-estoque"
-                    {...register('dadosComplementares.estoque')}
-                    label="Estoque"
-                    type="number"
-                  />
-                  {errors.dadosComplementares?.estoque && (
-                    <span className="text-sm text-red-500">
-                      {errors.dadosComplementares.estoque.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label>Status do Produto</Label>
-                <RadioGroup
-                  value={statusProduto}
-                  onValueChange={(value) =>
-                    setValue('dadosComplementares.statusProduto', value as 'Ativo' | 'Desativo', {
-                      shouldValidate: true,
-                    })
-                  }
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Ativo" id="ativo" />
-                    <Label htmlFor="ativo">Ativo</Label>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <FloatingInput
+                      id="referencia"
+                      {...register('referencia')}
+                      label="Referência"
+                      className="rounded-md"
+                    />
+                    {errors.referencia && (
+                      <span className="text-sm text-red-500">{errors.referencia.message}</span>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Desativo" id="desativo" />
-                    <Label htmlFor="desativo">Desativo</Label>
+
+                  <div className="flex flex-col gap-2">
+                    <FloatingInput
+                      id="ncm"
+                      {...register('ncm')}
+                      label="NCM"
+                      className="rounded-md"
+                    />
+                    {errors.ncm && (
+                      <span className="text-sm text-red-500">{errors.ncm.message}</span>
+                    )}
                   </div>
-                </RadioGroup>
-              </div>
-            </div>
+                </div>
 
-            <Separator />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label>Grupo</Label>
+                    <Controller
+                      control={control}
+                      name="grupoProduto"
+                      render={({ field }) => (
+                        <Autocomplete
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          options={gruposOptions}
+                          placeholder="Selecione o grupo"
+                          searchPlaceholder="Buscar grupo..."
+                          onSearch={setGrupoSearch}
+                        />
+                      )}
+                    />
+                    {errors.grupoProduto && (
+                      <span className="text-sm text-red-500">{errors.grupoProduto.message}</span>
+                    )}
+                  </div>
 
-            {/* Preços e Datas */}
-            <div className="space-y-3">
-              <h3 className="font-semibold">Valores e Datas</h3>
+                  <div className="flex flex-col gap-2">
+                    <Label>Unidade</Label>
+                    <Controller
+                      control={control}
+                      name="unidadeProduto"
+                      render={({ field }) => (
+                        <Autocomplete
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          options={unidadesOptions}
+                          placeholder="Selecione a unidade"
+                          searchPlaceholder="Buscar unidade..."
+                          onSearch={setUnidadeSearch}
+                        />
+                      )}
+                    />
+                    {errors.unidadeProduto && (
+                      <span className="text-sm text-red-500">{errors.unidadeProduto.message}</span>
+                    )}
+                  </div>
+                </div>
 
-              <div className="grid gap-4 md:grid-cols-4">
                 <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-valor-compra"
-                    {...register('preco.compra')}
-                    label="Valor Compra"
+                  <Label>Fornecedor</Label>
+                  <Controller
+                    control={control}
+                    name="fornecedorId"
+                    render={({ field }) => (
+                      <Autocomplete
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={fornecedoresOptions}
+                        placeholder="Selecione o fornecedor"
+                        searchPlaceholder="Buscar fornecedor..."
+                        onSearch={setFornecedorSearch}
+                        isLoading={fornecedoresLoading}
+                      />
+                    )}
                   />
-                  {errors.preco?.compra && (
-                    <span className="text-sm text-red-500">{errors.preco.compra.message}</span>
+                  {errors.fornecedorId && (
+                    <span className="text-sm text-red-500">{errors.fornecedorId.message}</span>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-valor-venda"
-                    {...register('preco.venda')}
-                    label="Valor Venda"
+                  <Label>Origem da Mercadoria</Label>
+                  <Controller
+                    control={control}
+                    name="origemMercadoria"
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a origem" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {origemMercadoriaOptions.map((origem) => (
+                            <SelectItem key={origem.key} value={origem.key || 'err'}>
+                              {origem.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
-                  {errors.preco?.venda && (
-                    <span className="text-sm text-red-500">{errors.preco.venda.message}</span>
+                  {errors.origemMercadoria && (
+                    <span className="text-sm text-red-500">{errors.origemMercadoria.message}</span>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-valor-custo"
-                    {...register('preco.custo')}
-                    label="Valor Custo"
+                  <Label>Observação</Label>
+                  <Textarea
+                    {...register('observacao')}
+                    placeholder="Observações adicionais..."
+                    className="min-h-[100px]"
                   />
-                  {errors.preco?.custo && (
-                    <span className="text-sm text-red-500">{errors.preco.custo.message}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-valor-compra-fixo"
-                    {...register('preco.compraFixo')}
-                    label="Valor Compra(Fixo)"
-                  />
-                  {errors.preco?.compraFixo && (
-                    <span className="text-sm text-red-500">{errors.preco.compraFixo.message}</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="data-compra">Data Compra</Label>
-                  <Input
-                    id="data-compra"
-                    type="date"
-                    {...register('preco.dataCompra')}
-                  />
-                  {errors.preco?.dataCompra && (
-                    <span className="text-sm text-red-500">{errors.preco.dataCompra.message}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="data-venda">Data Venda</Label>
-                  <Input
-                    id="data-venda"
-                    type="date"
-                    {...register('preco.dataVenda')}
-                  />
-                  {errors.preco?.dataVenda && (
-                    <span className="text-sm text-red-500">{errors.preco.dataVenda.message}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="data-custo">Data Custo</Label>
-                  <Input
-                    id="data-custo"
-                    type="date"
-                    {...register('preco.dataCusto')}
-                  />
-                  {errors.preco?.dataCusto && (
-                    <span className="text-sm text-red-500">{errors.preco.dataCusto.message}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="data-compra-fixo">Data Compra(Fixo)</Label>
-                  <Input
-                    id="data-compra-fixo"
-                    type="date"
-                    {...register('preco.dataCompraFixo')}
-                  />
-                  {errors.preco?.dataCompraFixo && (
-                    <span className="text-sm text-red-500">
-                      {errors.preco.dataCompraFixo.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Dados Fiscais */}
-            <div className="space-y-3">
-              <h3 className="font-semibold">Origem Mercadoria</h3>
-
-              <div className="flex flex-col gap-2">
-                <Select
-                  value={watch('dadosFiscalProduto.origemMercadoria') || ''}
-                  onValueChange={(value) =>
-                    setValue('dadosFiscalProduto.origemMercadoria', value, {
-                      shouldValidate: true,
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Origem Mercadoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="nacional">Nacional</SelectItem>
-                    <SelectItem value="importado">Importado</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.dadosFiscalProduto?.origemMercadoria && (
-                  <span className="text-sm text-red-500">
-                    {errors.dadosFiscalProduto.origemMercadoria.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-ncm"
-                    {...register('dadosFiscalProduto.NCM')}
-                    label="NCM"
-                  />
-                  {errors.dadosFiscalProduto?.NCM && (
-                    <span className="text-sm text-red-500">
-                      {errors.dadosFiscalProduto.NCM.message}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-anp"
-                    {...register('dadosFiscalProduto.ANP')}
-                    label="ANP"
-                  />
-                  {errors.dadosFiscalProduto?.ANP && (
-                    <span className="text-sm text-red-500">
-                      {errors.dadosFiscalProduto.ANP.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Select
-                  value={watch('dadosFiscalProduto.regraEspecificaParaEsteItem') || ''}
-                  onValueChange={(value) =>
-                    setValue('dadosFiscalProduto.regraEspecificaParaEsteItem', value, {
-                      shouldValidate: true,
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="regra1">Regra 1</SelectItem>
-                    <SelectItem value="regra2">Regra 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Markup */}
-            <div className="space-y-3">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-markup-produto"
-                    {...register('markup.produto')}
-                    label="Markup para Grupo"
-                  />
-                  {errors.markup?.produto && (
-                    <span className="text-sm text-red-500">{errors.markup.produto.message}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <FloatingInput
-                    id="product-markup-grupo"
-                    {...register('markup.grupo')}
-                    label="Markup para este produto"
-                  />
-                  {errors.markup?.grupo && (
-                    <span className="text-sm text-red-500">{errors.markup.grupo.message}</span>
+                  {errors.observacao && (
+                    <span className="text-sm text-red-500">{errors.observacao.message}</span>
                   )}
                 </div>
               </div>
             </div>
 
-            <Separator />
-
-            {/* Observações */}
-            <div className="space-y-3">
-              <div className="flex flex-col gap-2">
-                <Textarea
-                  id="product-observacao"
-                  {...register('observacao')}
-                  placeholder="Observações"
-                  rows={4}
-                  className="resize-none"
-                />
-                {errors.observacao && (
-                  <span className="text-sm text-red-500">{errors.observacao.message}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter className="mt-6">
-            <div className="flex items-center gap-2 ml-auto">
+            <DialogFooter className="mt-6">
               <Button
-                variant="secondary"
+                variant="outline"
                 type="button"
-                onClick={() => setRegisteringProduct(null)}
+                onClick={() => setIsOpen(false)}
+                disabled={isPending}
               >
-                Voltar
+                Cancelar
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Salvando...' : 'Salvar'}
+                {isPending ? 'Salvando...' : 'Salvar Produto'}
               </Button>
-            </div>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

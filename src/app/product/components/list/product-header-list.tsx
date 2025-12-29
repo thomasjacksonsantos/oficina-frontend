@@ -6,13 +6,14 @@ import { useState, useEffect } from 'react';
 import { FilePlus } from 'lucide-react';
 import { useProductContext } from './product-context';
 import DeleteProductForm from '../form/delete-product-form';
-import EditProductDialog from '../form/product-edit-dialog';
-import ViewProductDialog from '../form/product-view-dialog';
-import RegisterProductForm from '../form/product-form';
+import ProductEditDialog from '../form/product-edit-dialog';
+import ProductViewDialog from '../form/product-view-dialog';
+import ProductForm from '../form/product-form';
 
 export default function ProductHeaderList() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { deletingProduct, setDeletingProduct, setRegisteringProduct } = useProductContext();
+  const { deletingProduct, setDeletingProduct, setRegisteringProduct, registeringProduct } =
+    useProductContext();
 
   useEffect(() => {
     if (deletingProduct) {
@@ -32,14 +33,17 @@ export default function ProductHeaderList() {
       <ResponsiveDialog
         isOpen={isDeleteOpen}
         setIsOpen={setIsDeleteOpen}
-        title="Deletar Produto"
+        title="Deletar produto"
         description="Tem certeza que deseja deletar este produto?"
       >
-        {deletingProduct && <DeleteProductForm productId={deletingProduct.id} setIsOpen={handleCloseDelete} />}
+        {deletingProduct && (
+          <DeleteProductForm productId={deletingProduct.id} setIsOpen={handleCloseDelete} />
+        )}
       </ResponsiveDialog>
-      <EditProductDialog />
-      <ViewProductDialog />
-      <RegisterProductForm />
+      <ProductEditDialog />
+      <ProductViewDialog />
+      <ProductForm isOpen={registeringProduct || false} setIsOpen={setRegisteringProduct} />
+
       <div className="flex mb-2 flex-wrap items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Produtos</h2>

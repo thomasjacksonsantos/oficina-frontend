@@ -146,7 +146,7 @@ export default function ProductGroupForm() {
                   </SelectTrigger>
                   <SelectContent>
                     {commonAreas.map((area) => (
-                      <SelectItem key={area} value={area}>
+                      <SelectItem key={area} value={area || 'err'}>
                         {area}
                       </SelectItem>
                     ))}

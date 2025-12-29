@@ -1,7 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useGetProducts, useActiveProduct, useDeactiveProduct } from '@/app/product/api';
+import {
+  useGetProducts,
+  useActiveProduct,
+  useDeactiveProduct,
+  useGetProduct,
+  useGetProductStatus,
+  useSearchGruposProdutos,
+  useSearchUnidadesProdutos,
+  useGetAllGruposProdutos,
+  useGetAllUnidadesProdutos,
+} from '@/app/product/api';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
   TableHeader,
@@ -12,7 +22,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast, Toaster } from 'sonner';
@@ -34,6 +44,7 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
 } from '@tabler/icons-react';
+import { Autocomplete } from '@/components/ui/autocomplete';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -48,28 +59,52 @@ export function ProductList<TData extends Product, TValue>({
   defaultSortField,
   defaultSortDirection,
 }: DataTableProps<TData, TValue>) {
-  const [codigoValue, setCodigoValue] = useState('');
-  const [descricaoValue, setDescricaoValue] = useState('');
-  const [aplicacaoValue, setAplicacaoValue] = useState('');
-  const [grupoFilter, setGrupoFilter] = useState<string>('');
-  const [marcaFilter, setMarcaFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  
+  const [inputValue, setInputValue] = useState('');
   const [q, setQ] = useState('');
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || 'desc');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [grupoFilter, setGrupoFilter] = useState<string>('');
+  const [unidadeFilter, setUnidadeFilter] = useState<string>('');
+  const [grupoSearch, setGrupoSearch] = useState('');
+  const [unidadeSearch, setUnidadeSearch] = useState('');
+
   const { setViewingProduct, setEditingProduct, setDeletingProduct } = useProductContext();
 
   const { mutate: activeProduct, isPending: isActivating } = useActiveProduct();
   const { mutate: deactiveProduct, isPending: isDeactivating } = useDeactiveProduct();
+  const { mutate: getProduct } = useGetProduct();
+
+  // Fetch status options
+  const { data: statusOptions = [] } = useGetProductStatus();
+
+  // Fetch all grupos/unidades for initial load and search
+  const { data: allGrupos = [] } = useGetAllGruposProdutos();
+  const { data: allUnidades = [] } = useGetAllUnidadesProdutos();
+
+  // Search grupos and unidades for filters
+  const { data: searchedGrupos = [] } = useSearchGruposProdutos(grupoSearch);
+  const { data: searchedUnidades = [] } = useSearchUnidadesProdutos(unidadeSearch);
+
+  // Use searched results when searching, otherwise fall back to full lists
+  const gruposOptions = grupoSearch ? searchedGrupos : allGrupos;
+  const unidadesOptions = unidadeSearch ? searchedUnidades : allUnidades;
 
   const handlers = useMemo(
     () => ({
       onView: (product: Product) => {
         setViewingProduct(product);
       },
-      onEdit: (product: Product) => {
-        setEditingProduct(product);
+      onEdit: (id: string) => {
+        getProduct(id, {
+          onSuccess: (data) => {
+            setEditingProduct(data || null);
+          },
+          onError: (error: any) => {
+            const errorMessage = error.response?.data?.message || 'Erro ao buscar produto';
+            toast.error(errorMessage);
+          },
+        });
       },
       onDelete: (product: Product) => {
         setDeletingProduct(product);
@@ -110,6 +145,10 @@ export function ProductList<TData extends Product, TValue>({
     setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
   }
 
+  function handleTextareaChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputValue(e.target.value);
+  }
+
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -124,9 +163,9 @@ export function ProductList<TData extends Product, TValue>({
     limit,
     sortField,
     sortDirection,
-    status: statusFilter || undefined,
-    grupo: grupoFilter || undefined,
-    marca: marcaFilter || undefined,
+    produtoStatus: statusFilter && statusFilter !== 'todos' ? statusFilter : undefined,
+    grupoProdutoId: grupoFilter || undefined,
+    unidadeProdutoId: unidadeFilter || undefined,
   });
 
   const { items, totalRecords } = React.useMemo(() => {
@@ -136,8 +175,21 @@ export function ProductList<TData extends Product, TValue>({
     };
   }, [data]);
 
+  // Map grupo/unidade ids to human-readable labels using fetched lists
+  const displayItems = React.useMemo(() => {
+    return (items || []).map((item: any) => {
+      const grupo = allGrupos.find((g: any) => g.id === item.grupoProduto);
+      const unidade = allUnidades.find((u: any) => u.id === item.unidadeProduto);
+      return {
+        ...item,
+        grupoProduto: grupo?.descricao || item.grupoProduto || '-',
+        unidadeProduto: unidade?.descricao || item.unidadeProduto || '-',
+      };
+    });
+  }, [items, allGrupos, allUnidades]);
+
   const table = useReactTable({
-    data: items as unknown as TData[],
+    data: displayItems as unknown as TData[],
     columns: cols,
     manualPagination: true,
     pageCount: Math.ceil((totalRecords || 0) / pagination.pageSize),
@@ -150,89 +202,79 @@ export function ProductList<TData extends Product, TValue>({
   });
 
   const handleSearch = () => {
-    const searchTerms = [];
-    if (codigoValue) searchTerms.push(codigoValue);
-    if (descricaoValue) searchTerms.push(descricaoValue);
-    if (aplicacaoValue) searchTerms.push(aplicacaoValue);
-    
-    setQ(searchTerms.join(' '));
+    setQ(inputValue);
     setPagination({ ...pagination, pageIndex: 0 });
   };
-
   return (
     <>
-      <Toaster richColors position="bottom-right" />
-
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <ProductHeaderList />
-        
-        <div className="flex flex-col gap-4 mb-4">
-          {/* Search Inputs */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Input
-              className="w-[150px]"
-              value={codigoValue}
-              onChange={(e) => setCodigoValue(e.target.value)}
-              placeholder="Código"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSearch();
-              }}
-            />
-            <Input
-              className="w-[200px]"
-              value={descricaoValue}
-              onChange={(e) => setDescricaoValue(e.target.value)}
-              placeholder="Descrição"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSearch();
-              }}
-            />
-            <Input
-              className="w-[200px]"
-              value={aplicacaoValue}
-              onChange={(e) => setAplicacaoValue(e.target.value)}
-              placeholder="Aplicação"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSearch();
-              }}
-            />
-            <Button onClick={handleSearch}>Buscar</Button>
+
+        {/* Search Filters */}
+        <div className="flex flex-col gap-4">
+          {/* First Row - Text Search */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-1 gap-2">
+              <Input
+                className="flex-1"
+                value={inputValue}
+                onChange={handleTextareaChange}
+                placeholder="Buscar por código, referência ou NCM..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
+              />
+              <Button onClick={handleSearch}>
+                <Search className="h-4 w-4 mr-2" />
+                Buscar
+              </Button>
+            </div>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Select value={grupoFilter} onValueChange={setGrupoFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Grupo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="grupo1">Grupo 1</SelectItem>
-                <SelectItem value="grupo2">Grupo 2</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Second Row - Filters */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="flex flex-col gap-1">
+              <Label className="text-xs">Status</Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {statusOptions.map((status) => (
+                    <SelectItem key={status.key} value={status.key || 'err'}>
+                      {status.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={marcaFilter} onValueChange={setMarcaFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Marca" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="marca1">Marca 1</SelectItem>
-                <SelectItem value="marca2">Marca 2</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col gap-1">
+              <Label className="text-xs">Grupo</Label>
+              <Autocomplete
+                value={grupoFilter}
+                onValueChange={setGrupoFilter}
+                options={gruposOptions}
+                placeholder="Todos"
+                searchPlaceholder="Buscar grupo..."
+                onSearch={setGrupoSearch}
+              />
+            </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="Ativo">Ativo</SelectItem>
-                <SelectItem value="Inativo">Inativo</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col gap-1">
+              <Label className="text-xs">Unidade</Label>
+              <Autocomplete
+                value={unidadeFilter}
+                onValueChange={setUnidadeFilter}
+                options={unidadesOptions}
+                placeholder="Todos"
+                searchPlaceholder="Buscar unidade..."
+                onSearch={setUnidadeSearch}
+              />
+            </div>
           </div>
         </div>
 
