@@ -1,5 +1,5 @@
 "use client";
-import { toast } from "sonner"
+import { toast, Toaster } from "sonner"
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -18,7 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/atoms";
-import { Plus, Trash2 } from "lucide-react";
+import { Divide, Plus, Trash2 } from "lucide-react";
 import { useSignUp } from "@/services/auth";
 import {
   detectCpfOrCnpj,
@@ -34,14 +34,20 @@ import { TipoTelefone } from "@/api/contato.types";
 
 import { useValidateExistsEmail } from "../../api/use-validate-exists-email";
 import { useEffect, useState } from "react";
+import { useGetValidarDocumento } from "@/app/customer/api/use-get-validar-documento";
+import { useGetCep } from "@/app/customer/api/use-get-cep";
+import { formatCep } from "@/helpers/formatCep";
 
 
 export default function OnboardingForm() {
   const [cep, setCep] = useState<string>('');
+  const [documento, setDocumento] = useState<string>('');
+  const [documentoError, setDocumentoError] = useState<string>('');
   const [rEmail, setREmail] = useState<string>('');
   const [emailError, setEmailError] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
-  const { mutateAsync: signUp, isPending: isSignUpLoading } = useSignUp();
+  const { mutate: signUp, isPending: isSignUpLoading } = useSignUp();
 
   const registerForm = useForm<CreateOnboardingSchema>({
     resolver: zodResolver(onboardingSchema),
@@ -56,8 +62,6 @@ export default function OnboardingForm() {
       storeName: "",
       storeLegalName: "",
       storeCnpj: "",
-      site: "",
-      logoType: "",
       country: "",
       state: "",
       city: "",
@@ -81,12 +85,35 @@ export default function OnboardingForm() {
     formState: { errors },
   } = registerForm;
 
+  const { data: validarDocumentoData, isLoading: isLoadingValidarDocumento } =
+    useGetValidarDocumento(documento);
+
+  useEffect(() => {
+    if (validarDocumentoData) {
+      if (!validarDocumentoData.documentoValido) {
+        setDocumentoError(validarDocumentoData.mensagem);
+      } else {
+        setDocumentoError('');
+        setValue('rDocument', formatCpfCnpj(documento), { shouldValidate: true });
+      }
+    }
+  }, [validarDocumentoData, setValue]);
+
+  const handleValidarDocumento = () => {
+    const documentoValue = watch('rDocument').replace(/\D/g, '');
+
+    if (documentoValue.length === 11 || documentoValue.length === 14) {
+      setDocumento(documentoValue);
+    }
+  };
+
   const { data: validarEmailData, isLoading: isLoadingValidarEmail } =
     useValidateExistsEmail(rEmail);
 
   useEffect(() => {
     if (validarEmailData) {
-      if (validarEmailData?.emailExistente) {
+      if (!validarEmailData?.valido) {
+        console.log('validarEmailData', validarEmailData.mensagem);
         setEmailError(validarEmailData.mensagem);
       } else {
         setEmailError('');
@@ -99,6 +126,41 @@ export default function OnboardingForm() {
     const email = watch('rEmail');
     if (!email) return;
     setREmail(email);
+  };
+
+  const { data: cepData, isLoading: isLoadingCep } = useGetCep(cep);
+
+  // Preencher os campos automaticamente quando cepData chegar
+  useEffect(() => {
+    if (cepData) {
+      setValue('street', cepData.logradouro || '', {
+        shouldValidate: true,
+      });
+      setValue('neighborhood', cepData.bairro || '', {
+        shouldValidate: true,
+      });
+      setValue('city', cepData.cidade || '', {
+        shouldValidate: true,
+      });
+      setValue('state', cepData.estado || '', {
+        shouldValidate: true,
+      });
+      setValue('country', cepData.pais || 'Brasil', {
+        shouldValidate: true,
+      });
+    }
+  }, [cepData, setValue]);
+
+  const handleBuscarCep = () => {
+    const cepValue = watch('zipCode').replace(/\D/g, '');
+
+    if (cepValue.length !== 8) {
+      alert('CEP inválido. Deve conter 8 dígitos.');
+      return;
+    }
+
+    // Dispara a busca setando o cep
+    setCep(cepValue);
   };
 
   const { fields: storePhones, append: appendStorePhone, remove: removeStorePhone } = useFieldArray({
@@ -121,63 +183,111 @@ export default function OnboardingForm() {
   }
 
   const handleSignUp = async (values: CreateOnboardingSchema) => {
-    console.log(values);
-    const response = await signUp({
-      nome: values.rName,
-      email: values.rEmail,
-      dataNascimento: formatToIso(values.rBirthDate),
-      senha: values.rPassword,
-      confirmarSenha: values.rconfirmPassword,
-      sexo: values.biologicalSex,
-      tipoDocumento: detectCpfOrCnpj(values.rDocument),
-      documento: values.rDocument,
-      contatos: values.phones.map((phone) => ({
-        numero: phone.number,
-        tipoTelefone: phone.phoneType,
-      })),
-
-      loja: {
-        nomeFantasia: values.storeName,
-        razaoSocial: values.storeLegalName,
-        cnpj: values.storeCnpj,
-        inscricaoEstadual: values.stateRegistration || "",
-        inscricaoMunicipal: values.inscricaoMunicipal || "",
-        site: values.site || "",
-        logoTipo: values.logoType || "",
-        endereco: {
-          pais: values.country,
-          estado: values.state,
-          cidade: values.city,
-          bairro: values.neighborhood,
-          numero: values.number,
-          logradouro: values.street,
-          complemento: values.complement ?? "",
-          cep: values.zipCode,
-        },
-        contatos: values.storePhones.map((p) => ({
-          numero: p.number,
-          tipoTelefone: p.phoneType,
-        })),
-      },
-    });
-
-    if (response.sucesso) {
-      resetRegister();
-      toast.success("Cadastro realizado com sucesso!", {
-        description: "Verifique seu email para confirmar a conta."
-      });
-      window.location.href = "/signup-confirmation";
-    } else {
+    if (documentoError) {
       toast.error("Erro ao cadastrar", {
-        description: response.mensagem || "Por favor, tente novamente."
+        description: "Por favor, verifique o documento informado."
       });
+      return;
     }
+
+    if (emailError) {
+      toast.error("Erro ao cadastrar", {
+        description: "Por favor, verifique o email informado."
+      });
+      return;
+    }
+
+    const response = await signUp(
+      {
+        nome: values.rName,
+        email: values.rEmail,
+        dataNascimento: formatToIso(values.rBirthDate),
+        senha: values.rPassword,
+        confirmarSenha: values.rconfirmPassword,
+        sexo: values.biologicalSex,
+        tipoDocumento: detectCpfOrCnpj(values.rDocument),
+        documento: values.rDocument,
+        contatos: values.phones.map((phone) => ({
+          numero: phone.number,
+          tipoTelefone: phone.phoneType,
+        })),
+
+        loja: {
+          nomeFantasia: values.storeName,
+          razaoSocial: values.storeLegalName,
+          cnpj: values.storeCnpj,
+          endereco: {
+            pais: values.country,
+            estado: values.state,
+            cidade: values.city,
+            bairro: values.neighborhood,
+            numero: values.number,
+            logradouro: values.street,
+            complemento: values.complement ?? "",
+            cep: values.zipCode,
+          },
+          contatos: values.storePhones.map((p) => ({
+            numero: p.number,
+            tipoTelefone: p.phoneType,
+          })),
+        },
+      },
+      {
+        onSuccess: (data) => {
+          resetRegister();
+          toast.success("Cadastro realizado com sucesso!", {
+            description: "Verifique seu email para confirmar a conta."
+          });
+          window.location.href = "/signup-confirmation";
+          return data;
+        },
+        onError: (error: any) => {
+          const errorData = error.response?.data;
+
+          // If the API returned structured validation errors, show them in an alert and toast
+          if (errorData?.errors) {
+            // Flatten messages into a list
+            const messages: string[] = [];
+            Object.entries(errorData.errors).forEach(([field, msgs]) => {
+              if (Array.isArray(msgs) && msgs.length) {
+                msgs.forEach((m) => messages.push(`${field}: ${m}`));
+              } else if (typeof msgs === 'string') {
+                messages.push(`${field}: ${msgs}`);
+              }
+            });
+
+            if (messages.length) {
+              setValidationErrors(messages);
+              toast.error("Erro ao cadastrar", {
+                description: messages.join('<br />'),
+              });
+              return;
+            }
+          }
+
+          const errorMessage = errorData?.message || 'Erro ao salvar produtos';
+          toast.error(errorMessage);
+        }
+      }
+    );
   };
 
   const selectedSex = watch("biologicalSex");
 
   return (
     <Form {...registerForm}>
+      <Toaster />
+      {validationErrors && validationErrors.length > 0 && (
+        <div className="mb-2 rounded-md border border-red-200 bg-red-50 p-3">
+          <div className="text-sm font-semibold text-red-700">Erros de validação</div>
+          <ul className="mt-1 text-sm text-red-600 list-disc list-inside">
+            {validationErrors.map((m, i) => (
+              <li key={i}>{m}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <form onSubmit={handleRegisterSubmit(handleSignUp)} className="space-y-4">
         <FormField
           control={registerForm.control}
@@ -204,7 +314,7 @@ export default function OnboardingForm() {
           render={({ field }) => (
             <FormItem>
               <Label htmlFor="r-document">
-                Documento (cpf / cnpj)
+                Documento (Cpf / Cnpj)
               </Label>
               <FormControl>
                 <Input
@@ -215,9 +325,14 @@ export default function OnboardingForm() {
                   onChange={(e) =>
                     field.onChange(formatCpfCnpj(e.target.value))
                   }
+                  onBlur={handleValidarDocumento}
                 />
               </FormControl>
-              <FormMessage />
+              {(documentoError) && (
+                <span className="text-sm text-red-400">
+                  {documentoError}
+                </span>
+              ) || (<FormMessage />)}
             </FormItem>
           )}
         />
@@ -237,11 +352,11 @@ export default function OnboardingForm() {
                   onBlur={handleValidarEmailExistente}
                 />
               </FormControl>
-              {(errors.rEmail || emailError) && (
-                <span className="text-sm text-red-500">
-                  {errors.rEmail ? errors.rEmail.message : emailError}
+              {(emailError) && (
+                <span className="text-sm text-red-400">
+                  {emailError}
                 </span>
-              )}
+              ) || (<FormMessage />)}
             </FormItem>
           )}
         />
@@ -355,7 +470,7 @@ export default function OnboardingForm() {
                         </SelectContent>
                       </Select>
                       {errors.phones?.[idx]?.phoneType && (
-                        <span className="text-sm text-red-500">
+                        <span className="text-sm text-red-400">
                           {errors.phones[idx]?.phoneType?.message as string}
                         </span>
                       )}
@@ -379,7 +494,7 @@ export default function OnboardingForm() {
                   }}
                 />
                 {errors.phones?.[idx]?.number && (
-                  <span className="text-sm text-red-500">
+                  <span className="text-sm text-red-400">
                     {errors.phones[idx]?.number?.message}
                   </span>
                 )}
@@ -411,7 +526,7 @@ export default function OnboardingForm() {
           </div>
 
           {errors.phones && typeof errors.phones?.message === 'string' && (
-            <span className="text-sm text-red-500">{errors.phones.message}</span>
+            <span className="text-sm text-red-400">{errors.phones.message}</span>
           )}
         </div>
 
@@ -470,37 +585,8 @@ export default function OnboardingForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={control}
-            name="stateRegistration"
-            render={({ field }) => (
-              <FormItem>
-                <Label>Inscrição estadual</Label>
-                <FormControl>
-                  <Input placeholder="Opcional" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <FormField
-            control={control}
-            name="inscricaoMunicipal"
-            render={({ field }) => (
-              <FormItem>
-                <Label>Inscrição municipal</Label>
-                <FormControl>
-                  <Input placeholder="Opcional" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
+        {/* <div className="grid grid-cols-2 gap-2">
           <FormField
             control={control}
             name="site"
@@ -560,6 +646,43 @@ export default function OnboardingForm() {
               </FormItem>
             )}
           />
+        </div> */}
+        <div className="flex gap-2">
+          <div>
+            <FormField
+              control={control}
+              name="zipCode"
+              render={({ field }) => (
+                <FormItem>
+                  <Label>CEP</Label>
+                  <FormControl>
+                    <Input
+                      type="text" {...field}
+                      maxLength={9}
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(formatCep(e.target.value))
+                      }
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {errors.zipCode && (
+              <span className="text-sm text-red-400">{errors.zipCode.message}</span>
+            ) || (<FormMessage />)}
+          </div>
+          <div className="flex flex-col gap-2 justify-end">
+            <Button
+              id="cliente-buscar-cep"
+              type="button"
+              className="w-auto"
+              disabled={isLoadingCep || watch('zipCode').replace(/\D/g, '').length !== 8}
+              onClick={handleBuscarCep}
+            >
+              Buscar Cep
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -662,19 +785,6 @@ export default function OnboardingForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={control}
-            name="zipCode"
-            render={({ field }) => (
-              <FormItem>
-                <Label>CEP</Label>
-                <FormControl>
-                  <Input type="text" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         <div className="space-y-2">
@@ -703,7 +813,7 @@ export default function OnboardingForm() {
                         </SelectContent>
                       </Select>
                       {errors.storePhones?.[idx]?.phoneType && (
-                        <span className="text-sm text-red-500">
+                        <span className="text-sm text-red-400">
                           {errors.storePhones[idx]?.phoneType?.message as string}
                         </span>
                       )}
@@ -727,7 +837,7 @@ export default function OnboardingForm() {
                   }}
                 />
                 {errors.storePhones?.[idx]?.number && (
-                  <span className="text-sm text-red-500">
+                  <span className="text-sm text-red-400">
                     {errors.storePhones[idx]?.number?.message}
                   </span>
                 )}
@@ -759,7 +869,7 @@ export default function OnboardingForm() {
           </div>
 
           {errors.phones && typeof errors.phones?.message === 'string' && (
-            <span className="text-sm text-red-500">{errors.phones.message}</span>
+            <span className="text-sm text-red-400">{errors.phones.message}</span>
           )}
         </div>
 
