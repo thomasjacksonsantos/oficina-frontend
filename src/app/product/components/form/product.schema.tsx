@@ -31,6 +31,8 @@ export const productSchema = z.object({
 export const updateProductSchema = productSchema.extend({
   id: z.string().min(1, 'ID é obrigatório'),
   produtoStatus: z.string().min(1, 'Status é obrigatório'),
+  grupoProdutoId: z.string().min(1, 'Grupo é obrigatório'),
+  unidadeProdutoId: z.string().min(1, 'Unidade é obrigatória'),
 });
 
 export type CreateProductSchema = z.infer<typeof productSchema>;

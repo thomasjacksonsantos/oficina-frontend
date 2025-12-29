@@ -214,9 +214,9 @@ export function ProductList<TData extends Product, TValue>({
         <div className="flex flex-col gap-4">
           {/* First Row - Text Search */}
           <div className="flex flex-col sm:flex-row gap-2">
-            <div className="flex flex-1 gap-2">
+            <div className="flex w-full sm:w-2/3 gap-2">
               <Input
-                className="flex-1"
+                className="flex-1 min-w-0"
                 value={inputValue}
                 onChange={handleTextareaChange}
                 placeholder="Buscar por código, referência ou NCM..."
@@ -226,19 +226,19 @@ export function ProductList<TData extends Product, TValue>({
                   }
                 }}
               />
-              <Button onClick={handleSearch}>
-                <Search className="h-4 w-4 mr-2" />
-                Buscar
+              <Button onClick={handleSearch} className="shrink-0">
+                <Search className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Buscar</span>
               </Button>
             </div>
           </div>
 
           {/* Second Row - Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <div className="flex flex-col gap-1">
-              <Label className="text-xs">Status</Label>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div className="flex flex-col gap-1.5 w-full sm:w-auto">
+              <Label className="text-xs font-medium">Status</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="sm:w-[180px]">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -252,8 +252,8 @@ export function ProductList<TData extends Product, TValue>({
               </Select>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <Label className="text-xs">Grupo</Label>
+            <div className="flex flex-col gap-1.5 w-full sm:flex-1">
+              <Label className="text-xs font-medium">Grupo</Label>
               <Autocomplete
                 value={grupoFilter}
                 onValueChange={setGrupoFilter}
@@ -264,8 +264,8 @@ export function ProductList<TData extends Product, TValue>({
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <Label className="text-xs">Unidade</Label>
+            <div className="flex flex-col gap-1.5 w-full sm:flex-1">
+              <Label className="text-xs font-medium">Unidade</Label>
               <Autocomplete
                 value={unidadeFilter}
                 onValueChange={setUnidadeFilter}
