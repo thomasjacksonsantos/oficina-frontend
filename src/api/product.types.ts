@@ -11,6 +11,9 @@ export type Product = {
   produtoStatus: ProductStatus;
   creado: string;
   actualizado: string;
+  quantidade?: number;
+  valorUnitario?: number;
+  total?: number;
 };
 
 export type ProductStatus = {

@@ -11,6 +11,7 @@ export {
   useGetAllUnidadesProdutos,
 } from './use-search-unidades-produtos';
 export { useSearchFornecedores } from './use-search-fornecedores';
+export { useSearchProducts } from './use-search-products';
 export { useGetAllFornecedores } from './use-get-all-fornecedores';
 export { useGetOrigemMercadoria } from './use-get-origem-mercadoria';
 export { useGetProductStatus } from './use-get-product-status';

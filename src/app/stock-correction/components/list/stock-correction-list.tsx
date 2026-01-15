@@ -1,17 +1,9 @@
+// app/stock-correction/components/list/stock-correction-list.tsx
+
 import React, { useMemo, useState } from 'react';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  useGetProducts,
-  useActiveProduct,
-  useDeactiveProduct,
-  useGetProduct,
-  useGetProductStatus,
-  useSearchGruposProdutos,
-  useSearchUnidadesProdutos,
-  useGetAllGruposProdutos,
-  useGetAllUnidadesProdutos,
-} from '@/app/product/api';
+import { useGetStockCorrections } from '@/app/stock-correction/api';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
   TableHeader,
@@ -22,14 +14,14 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { ArrowUp, Search } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast, Toaster } from 'sonner';
-import { createProductColumns } from './product-columns';
-import { useProductContext } from './product-context';
-import { Product } from '@/api/product.types';
-import ProductHeaderList from './product-header-list';
+import { createStockCorrectionColumns } from './stock-correction-columns';
+import { useStockCorrectionContext } from './stock-correction-context';
+import { StockCorrection } from '@/api/stock-correction.types';
+import StockCorrectionHeaderList from './stock-correction-header-list';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -44,7 +36,6 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
 } from '@tabler/icons-react';
-import { Autocomplete } from '@/components/ui/autocomplete';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -53,7 +44,7 @@ interface DataTableProps<TData, TValue> {
   defaultSortDirection?: 'asc' | 'desc';
 }
 
-export function ProductList<TData extends Product, TValue>({
+export function StockCorrectionList<TData extends StockCorrection, TValue>({
   columns,
   sortColumns,
   defaultSortField,
@@ -63,80 +54,26 @@ export function ProductList<TData extends Product, TValue>({
   const [q, setQ] = useState('');
   const [sortField, setSortField] = useState(defaultSortField);
   const [sortDirection, setSortDirection] = useState(defaultSortDirection || 'desc');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [grupoFilter, setGrupoFilter] = useState<string>('');
-  const [unidadeFilter, setUnidadeFilter] = useState<string>('');
-  const [grupoSearch, setGrupoSearch] = useState('');
-  const [unidadeSearch, setUnidadeSearch] = useState('');
-
-  const { setViewingProduct, setEditingProduct, setDeletingProduct } = useProductContext();
-
-  const { mutate: activeProduct, isPending: isActivating } = useActiveProduct();
-  const { mutate: deactiveProduct, isPending: isDeactivating } = useDeactiveProduct();
-  const { mutate: getProduct } = useGetProduct();
-
-  // Fetch status options
-  const { data: statusOptions = [] } = useGetProductStatus();
-
-  // Fetch all grupos/unidades for initial load and search
-  const { data: allGrupos = [] } = useGetAllGruposProdutos();
-  const { data: allUnidades = [] } = useGetAllUnidadesProdutos();
-
-  // Search grupos and unidades for filters
-  const { data: searchedGrupos = [] } = useSearchGruposProdutos(grupoSearch);
-  const { data: searchedUnidades = [] } = useSearchUnidadesProdutos(unidadeSearch);
-
-  // Use searched results when searching, otherwise fall back to full lists
-  const gruposOptions = grupoSearch ? searchedGrupos : allGrupos;
-  const unidadesOptions = unidadeSearch ? searchedUnidades : allUnidades;
+  
+  const { 
+    setViewingStockCorrection, 
+    setCorrectingStockCorrection 
+  } = useStockCorrectionContext();
 
   const handlers = useMemo(
     () => ({
-      onView: (product: Product) => {
-        setViewingProduct(product);
+      onView: (stockCorrection: StockCorrection) => {
+        setViewingStockCorrection(stockCorrection);
       },
-      onEdit: (id: string) => {
-        getProduct(id, {
-          onSuccess: (data) => {
-            setEditingProduct(data || null);
-          },
-          onError: (error: any) => {
-            const errorMessage = error.response?.data?.message || 'Erro ao buscar produto';
-            toast.error(errorMessage);
-          },
-        });
-      },
-      onDelete: (product: Product) => {
-        setDeletingProduct(product);
-      },
-      onActive: (productId: string) => {
-        activeProduct(productId, {
-          onSuccess: () => {
-            toast.success('Produto ativado com sucesso!');
-          },
-          onError: (error: any) => {
-            const errorMessage = error.response?.data?.message || 'Erro ao ativar produto';
-            toast.error(errorMessage);
-          },
-        });
-      },
-      onDeactive: (productId: string) => {
-        deactiveProduct(productId, {
-          onSuccess: () => {
-            toast.success('Produto desativado com sucesso!');
-          },
-          onError: (error: any) => {
-            const errorMessage = error.response?.data?.message || 'Erro ao desativar produto';
-            toast.error(errorMessage);
-          },
-        });
+      onCorrect: (stockCorrection: StockCorrection) => {
+        setCorrectingStockCorrection(stockCorrection);
       },
     }),
-    [setViewingProduct, setEditingProduct, setDeletingProduct, activeProduct, deactiveProduct]
+    [setViewingStockCorrection, setCorrectingStockCorrection]
   );
 
   const cols = useMemo(() => {
-    return createProductColumns(handlers) as ColumnDef<TData, TValue>[];
+    return createStockCorrectionColumns(handlers) as ColumnDef<TData, TValue>[];
   }, [handlers]);
 
   function handleUpdateSort(field: string) {
@@ -154,18 +91,15 @@ export function ProductList<TData extends Product, TValue>({
     pageSize: 10,
   });
 
-  const page = pagination.pageIndex + 1;
-  const limit = pagination.pageSize;
+  const pagina = pagination.pageIndex + 1;
+  const totalPagina = pagination.pageSize;
 
-  const { data, isLoading } = useGetProducts({
-    page,
+  const { data, isLoading } = useGetStockCorrections({
+    pagina,
     q,
-    limit,
+    totalPagina,
     sortField,
     sortDirection,
-    produtoStatus: statusFilter && statusFilter !== 'todos' ? statusFilter : undefined,
-    grupoProdutoId: grupoFilter || undefined,
-    unidadeProdutoId: unidadeFilter || undefined,
   });
 
   const { items, totalRecords } = React.useMemo(() => {
@@ -175,21 +109,8 @@ export function ProductList<TData extends Product, TValue>({
     };
   }, [data]);
 
-  // Map grupo/unidade ids to human-readable labels using fetched lists
-  const displayItems = React.useMemo(() => {
-    return (items || []).map((item: any) => {
-      const grupo = allGrupos.find((g: any) => g.id === item.grupoProduto);
-      const unidade = allUnidades.find((u: any) => u.id === item.unidadeProduto);
-      return {
-        ...item,
-        grupoProduto: grupo?.descricao || item.grupoProduto || '-',
-        unidadeProduto: unidade?.descricao || item.unidadeProduto || '-',
-      };
-    });
-  }, [items, allGrupos, allUnidades]);
-
   const table = useReactTable({
-    data: displayItems as unknown as TData[],
+    data: items as unknown as TData[],
     columns: cols,
     manualPagination: true,
     pageCount: Math.ceil((totalRecords || 0) / pagination.pageSize),
@@ -201,79 +122,38 @@ export function ProductList<TData extends Product, TValue>({
     onPaginationChange: setPagination,
   });
 
-  const handleSearch = () => {
-    setQ(inputValue);
-    setPagination({ ...pagination, pageIndex: 0 });
-  };
   return (
     <>
+      <Toaster richColors position="bottom-right" />
+
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-        <ProductHeaderList />
+        <StockCorrectionHeaderList />
+        
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row flex-1 justify-start gap-2">
+            <Input
+              className="w-full sm:w-[272px]"
+              value={inputValue}
+              onChange={handleTextareaChange}
+              placeholder="Buscar por produto..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setQ(inputValue);
+                  setPagination({ ...pagination, pageIndex: 0 });
+                }
+              }}
+            />
 
-        {/* Search Filters */}
-        <div className="flex flex-col gap-4">
-          {/* First Row - Text Search */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <div className="flex w-full sm:w-2/3 gap-2">
-              <Input
-                className="flex-1 min-w-0"
-                value={inputValue}
-                onChange={handleTextareaChange}
-                placeholder="Buscar por código, referência ou NCM..."
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSearch();
-                  }
+            <div className="flex sm:block">
+              <Button
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  setQ(inputValue);
+                  setPagination({ ...pagination, pageIndex: 0 });
                 }}
-              />
-              <Button onClick={handleSearch} className="shrink-0">
-                <Search className="h-4 w-4 " />
-                <span className="hidden sm:inline">Buscar</span>
+              >
+                Buscar
               </Button>
-            </div>
-          </div>
-
-          {/* Second Row - Filters */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-            <div className="flex flex-col gap-1.5 w-full sm:w-auto">
-              <Label className="text-xs font-medium">Status</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="sm:w-[180px]">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {statusOptions.map((status) => (
-                    <SelectItem key={status.key} value={status.key || 'err'}>
-                      {status.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5 w-full sm:flex-1">
-              <Label className="text-xs font-medium">Grupo</Label>
-              <Autocomplete
-                value={grupoFilter}
-                onValueChange={setGrupoFilter}
-                options={gruposOptions}
-                placeholder="Todos"
-                searchPlaceholder="Buscar grupo..."
-                onSearch={setGrupoSearch}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5 w-full sm:flex-1">
-              <Label className="text-xs font-medium">Unidade</Label>
-              <Autocomplete
-                value={unidadeFilter}
-                onValueChange={setUnidadeFilter}
-                options={unidadesOptions}
-                placeholder="Todos"
-                searchPlaceholder="Buscar unidade..."
-                onSearch={setUnidadeSearch}
-              />
             </div>
           </div>
         </div>
@@ -313,7 +193,7 @@ export function ProductList<TData extends Product, TValue>({
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody className="**:data-[slot=table-cell]:first:w-8">
+              <TableBody>
                 {!isLoading &&
                   table.getRowModel().rows?.length > 0 &&
                   table.getRowModel().rows.map((row) => (
@@ -321,7 +201,6 @@ export function ProductList<TData extends Product, TValue>({
                       key={row.id}
                       data-state={row.getIsSelected() && 'selected'}
                       className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handlers.onView(row.original as unknown as Product)}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell

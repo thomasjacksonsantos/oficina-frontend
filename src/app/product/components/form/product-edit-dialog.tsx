@@ -380,7 +380,7 @@ export default function ProductEditDialog() {
                     )}
                   </div>
 
-                  <div className="grid gap-2.5 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2">
+                  <div className="grid gap-2.5 sm:gap-3 md:gap-4 grid-cols-1">
                     <div className="flex flex-col gap-1.5 sm:gap-2 min-w-0">
                       <Label className="text-xs sm:text-sm">Origem da Mercadoria</Label>
                       <Controller

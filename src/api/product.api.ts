@@ -23,6 +23,7 @@ class ProductsApi extends BaseApi {
         productoStatus: queryString?.productoStatus,
         grupoProdutoId: queryString?.grupoProdutoId,
         unidadeProdutoId: queryString?.unidadeProdutoId,
+        descricao: queryString?.descricao,
       },
       options
     );
@@ -106,6 +107,23 @@ class ProductsApi extends BaseApi {
     }>(`${ENDPOINT}/unidades-produtos/all`);
 
     return res?.dados || [];
+  }
+
+  /**
+   * Search products by descricao. Used for autocomplete/search.
+   * Calls the `/buscar` endpoint with a `descricao` query parameter.
+   */
+  async searchProducts(descricao?: string, options?: { signal?: AbortSignal }): Promise<Product[]> {
+    const res = await this.get<Product[]>(
+      `${ENDPOINT}/buscar`,
+      {
+        descricao: descricao || '',
+      },
+      options
+    );
+
+    // Support both plain array and paginated envelope { dados: [...] }
+    return (res as any)?.dados || (res as any) || [];
   }
 
   async searchFornecedores(nome?: string): Promise<Fornecedor[]> {
